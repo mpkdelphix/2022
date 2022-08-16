@@ -1,0 +1,55 @@
+mike.kennedy@dcol2:~$ history|grep dc
+   43      5  dc list
+   44      6  dc list -a
+   45      7  dc list -a|grep kg
+   46      8  dc list -a|awk '/kg/ {print $1}'
+   47      9  dc
+   48     10  dc groups list
+   49     11  dc groups list|grep 6.0.15.0
+   50     12  dc clone-latest dlpx-6.0.15.0 mk60150
+   51     13  dc list
+   52     16  dc list
+   53     17  dc console mk60150
+   54     18  dc list
+   55     19  dc groups list
+   56     20  dc groups list|grep -i ora
+   57     21  dc groups list|grep -i 19
+   58     22  dc clone-latest rh74-ora19000-src mkrh74ora19src
+   59     23  ssh oracle@mkrh74ora19src.dcol2
+   60     24  ssh oracle@mkrh74ora19src.dcol2
+   61     26  ssh oracle@mkrh74ora19src.dcol2
+   62     28  ssh oracle@mkrh74ora19src.dcol2
+   63     29  dc console mkrh74ora19src
+   64     30  ssh oracle@mkrh74ora19src.dcol2
+   65     31  mtr oracle@mkrh74ora19src.dcol2
+   66     32  mtr oracle@mkrh74ora19src.dcol2
+   67     33  ssh oracle@mkrh74ora19src.dcol2
+   68     34  dc list
+   69     35  dc help
+   70     36  dc list-snaps
+   71     37  dc esx
+   72     38  dc list
+   73     41  history|grep dc
+   74  ssh admin@mk60150.dcol2
+   75  help dc
+   76  man -k dc
+   77  journalctl -a
+   78  cat /proc/sys/hostname
+   79  cd /proc/sys
+   80  ls
+   81  cd kernel
+   82  ls
+   83  cat hostname
+   84  cd
+   85  df -h
+   86  dc list
+   87  zfs list
+   88  df -h
+   89  msd_client
+   90  history|grep ssh
+   91  ssh admin@mk60150.dcol2
+   92  exit
+   93  who am i
+   94  hiostry
+   95  history
+mike.kennedy@dcol2:~$

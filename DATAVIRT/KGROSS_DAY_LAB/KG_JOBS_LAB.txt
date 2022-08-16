@@ -1,0 +1,730 @@
+#find failed jobs, record information about what is job doing
+# you may have to use the connector logs
+
+Appliance kg6015.dcol2
+PROBLEM: VDB TWO is failing to perform a DB_REFRESH;
+
+0. find failed jobs
+hercules=> select * from dlpx_jobs where job_state !~ 'COMP';
+
+1. DB_REFRESH failed
+job_id                | 151
+target_reference      | ORACLE_DB_CONTAINER-7
+job_type              | DB_REFRESH
+start_time            | 2022-08-15 15:03:50.108
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-15 15:03:56.497
+title                 | Refresh database "TWO".
+job_state             | FAILED
+title_code            | event.action.db.refresh
+title_params          | ["TWO"]
+target_name           | Untitled/TWO
+action                | ACTION-304
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+2. review orcl_db_container details:
+
+hercules=> select * from orcl_db_container where container_id=7;
+-[ RECORD 1 ]--------------+-----------------------
+container_id               | 7
+diagnose_no_logging_faults | t
+pre_provisioning_enabled   | f
+logsync_interval           | 300
+logsync_enabled            | t
+logsync_mode               | ARCHIVE_ONLY_MODE
+logsync_timestamp          | 2022-08-05 05:38:22.02
+content_type               | NON_CDB
+physical_standby           | f
+performance_mode           | DISABLED
+source_key                 |
+live_source                | f
+force_full_snapsync        | f
+new_cdb_container          |
+converted_to_pdb           | f
+nonmt_container            |
+rac_max_instance_lag       | 3
+
+
+3. try to narrow down environment hostname:
+hercules=> select environment from orcl_install;
+-[ RECORD 1 ]------------------------
+environment | UNIX_HOST_ENVIRONMENT-4
+-[ RECORD 2 ]------------------------
+environment | UNIX_HOST_ENVIRONMENT-3
+
+4. found hostname
+hercules=> select * from dlpx_host_environment where host_environment_id=4;
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 4
+namespace                 |
+namespace_data_dependency | f
+name                      | kgrh79ora1911src
+description               |
+primary_user              | HOST_USER-4
+enabled                   | t
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-4
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | b7117d1c-e9f2-461e-a57c-0bfecb738490
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      |
+
+5. ssh into  host:
+kgrh79ora1911src
+logs are on Appliance
+6. kb6105.dcol2.delphix.com:/var/delphix/server/log_collection_enabled
+debug.log:48368:[2022-08-15T09:03:56,476][DEBUG][jcm.impl.JobInstance#execute:317][Worker-257|JOB-151|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job requested state null, requested reason null, throwable com.delphix.server.core.messages.OracleVdbExceptions$CleanFailed: exception.oracle.vdb.clean.failed {}
+debug.log:48386:[2022-08-15T09:03:56,477][INFO][jcm.impl.JobInstance#execute:338][Worker-257|JOB-151|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job failed with user error
+debug.log:48404:[2022-08-15T09:03:56,478][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-257|JOB-151|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Job JOB-151: execution complete
+debug.log:48406:[2022-08-15T09:03:56,484][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-82][] Job JOB-151: updating state to FAILED
+debug.log:48407:[2022-08-15T09:03:56,485][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-82][] Job JOB-151: adding event JobEventDO{id=-1, job=JOB-151, event=exception.oracle.vdb.clean.failed, state=FAILED}
+debug.log:48409:[2022-08-15T09:03:56,505][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-257|JOB-151|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] action doneAsync (1) ACTION-304
+
+
+6. umount failed 
+
+[2022-08-15T09:03:56,290][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-82][] Job JOB-152: adding event JobEventDO{id=-1, job=JOB-152, event=exception.oracle.targetscripts.unmount, state=FAILED}
+
+
+7. find container:
+
+hercules=> select * from dlpx_container where name ~ 'TWO';
+-[ RECORD 1 ]-------------+------------------------
+container_id              | 7
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | TWO
+group_ref                 | GROUP-1
+description               |
+provision_container       | ORACLE_DB_CONTAINER-3
+timeflow                  | ORACLE_TIMEFLOW-15
+previous_timeflow         | ORACLE_TIMEFLOW-15
+creation_time             | 2022-08-05 05:38:22.021
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |
+
+8. use mds to find filesystems associated with timeflow ORACLE_TIMEFLOW-15
+
+hercules=> select filesystem from dlpx_storage_container where owners ~ '-15';
+                              filesystem
+----------------------------------------------------------------------
+ domain0/group-2/oracle_db_container-569/oracle_timeflow-582
+ domain0/group-2/oracle_db_container-569/oracle_timeflow-582/datafile
+ domain0/group-2/oracle_db_container-569/oracle_timeflow-582/external
+ domain0/group-2/oracle_db_container-569/oracle_timeflow-582/archive
+ domain0/group-2/oracle_db_container-569/oracle_timeflow-582/temp
+
+9. find container associated with name "TWO":
+hercules=> select * from dlpx_container where name ~ 'TWO';
+-[ RECORD 1 ]-------------+------------------------
+container_id              | 7
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | TWO
+group_ref                 | GROUP-1
+description               |
+provision_container       | ORACLE_DB_CONTAINER-3
+timeflow                  | ORACLE_TIMEFLOW-15
+previous_timeflow         | ORACLE_TIMEFLOW-15
+creation_time             | 2022-08-05 05:38:22.021
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+
+10. find environment && mount for this 
+
+environment: kgrh79ora1911tgt
+
+11. Linux /etc/sudoers sample configuration from our docs:
+https://docs.delphix.com/docs/datasets/oracle-environments-and-data-sources/oracle-support-and-requirements/sudo-file-configuration-examples-for-oracle-environments#SudoFileConfigurationExamplesforOracleEnvironments-ConfiguringsudoAccessonLinuxforOracleSourceandTargetEnvironments
+
+
+Example: Linux /etc/sudoers file for a Delphix Target
+
+Defaults:delphix_os !requiretty
+delphix_os ALL=NOPASSWD: \ 
+/bin/mount, /bin/umount, /bin/mkdir, /bin/rmdir, /bin/ps
+
+our target /etc/sudoers:
+
+# BEGIN ANSIBLE CONFIG oracle sudoers
+Defaults:oracle requiretty
+oracle ALL=NOPASSWD: /usr/sbin/mount,//usr/sbin/umount,/bin/mkdir,/bin/rmdir,/bin/ps
+
+it seems we are requiring a tty, not sure if that means we have to login via putty to umount.
+We can test by restoring the !requiretty
+
+12. errors within debug.log:
+
+ERROR: No sudo privileges or incorrect password
+#####DELPHIX_START_DATA#####
+REQUIRED.CURRENT_USER=oracle
+#####DELPHIX_END_DATA#####
+#####DELPHIX_START_ERROR#####
+ERROR_CODE=104
+ERROR : User "oracle" could not unmount "/mnt/provision/TWO/datafile"
+#####DELPHIX_END_ERROR#####
+}
+
+13. change oracle requiretty to !requiretty in /etc/sudoers
+&& changed /usr/sbin to /usr/bin within /etc/sudoers
+
+
+ISSUE RESOLVED
+-------------------------------------------
+Second ISSUE
+
+
+PROBLEM:
+Error
+Could not connect to RMAN using OS user "oracle".
+Error Code
+exception.oracle.snl.rman.connection.failed
+Suggested Action
+Make sure that the OS User has SYSBACKUP (12c only) or SYSDBA permissions for this Oracle Home and is able to execute RMAN. Output: ""
+
+
+0. find job_id within mds_client:
+
+job_id                | 159
+target_reference      | ORACLE_DB_CONTAINER-3
+job_type              | DB_SYNC
+start_time            | 2022-08-15 16:49:37.3
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-15 16:49:42.28
+title                 | Run SnapSync for database "DBOMSRCD94D3".
+job_state             | FAILED
+title_code            | event.action.db.sync
+title_params          | ["DBOMSRCD94D3"]
+target_name           | Untitled/DBOMSRCD94D3
+action                | ACTION-317
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+
+1. search update_time in debug.log
+
+[2022-08-15T10:49:41,738][INFO][session.core.impl.server.ServerTransport#authenticate:518][pool-8-thread-5285][] xport-s:/10.43.53.20:8415-/10.43.46.27:42750: sasl authentication completed as "oracle@UNIX_HOST_ENVIRONMENT-4"
+...truncated
+
+[2022-08-15T10:49:42,065][DEBUG][session.util.AbstractDataSender#handleException:124][pool-30-thread-34][] data sender sender:/u01/app/oracle/product/19.11.0.0/dbhome_1/bin/rman[0]->nexus-s:e912e098-d891-4c49-9548-ab8b38a91316-SnapSync.1 failed
+
+
+2. locate host_environment:
+
+hercules=> select * from dlpx_host_environment where host_environment_id = 4;
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 4
+namespace                 |
+namespace_data_dependency | f
+name                      | kgrh79ora1911src
+description               |
+primary_user              | HOST_USER-4
+enabled                   | t
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-4
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | b7117d1c-e9f2-461e-a57c-0bfecb738490
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      |
+
+3. log into host
+hercules=> select * from dlpx_host where host_id=4;
+-[ RECORD 1 ]---------------------+-------------------------------------
+host_id                           | 4
+namespace                         |
+namespace_data_dependency         | f
+name                              | kgrh79ora1911src.dcol2.delphix.com
+host_address                      | kgrh79ora1911src.dcol2.delphix.com
+port_number                       | 22
+toolkit_directory                 | /var/tmp
+creation_time                     | 2022-08-03 16:55:40.955
+delphix_uuid                      | 4f0625b7-ff0e-42e9-98dd-7c1753061868
+description                       |
+connector_port                    |
+connector_authentication_key      |
+iscsi_initiator_iqn               |
+object_type                       | UNIX_HOST
+privilege_elevation_profile       | HOST_PRIVILEGE_ELEVATION_PROFILE-1
+iscsi_initiator_chap_secret       |
+toolkit_deployed                  | HOST
+oracle_jdbc_keystore_password     |
+ssh_verification_type             | ACCEPT_ALWAYS
+ssh_key_type                      |
+ssh_key_value                     |
+ssh_fingerprint_type              |
+ssh_fingerprint_key_type          |
+ssh_fingerprint_value             |
+certificate_chain                 |
+dsp_keystore_password             |
+dsp_truststore_password           |
+glibc_bits                        | GLIBC_64_BITS
+nfs_address_list                  | []
+dsp_keystore_alias                |
+dsp_keystore_path                 |
+dsp_truststore_path               |
+java_home                         |
+connector_version                 |
+connector_dotnetframework_version |
+oracle_tde_keystores_root_path   
+
+4. ORACLE_SID not set:
+
+[oracle@kgrh79ora1911src ~]$ env|grep ORA
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/19.11.0.0/dbhome_1
+[oracle@kgrh79ora1911src ~]$ ps -ef|grep pmon
+oracle    5378     1  0 May05 ?        00:08:41 ora_pmon_CDOMLOSRED50
+oracle    9009     1  0 May05 ?        00:08:56 ora_pmon_CDOMSHSR4983
+oracle    9575     1  0 May05 ?        00:09:33 ora_pmon_DBOMSRCD94D3
+oracle   13215 13156  0 13:07 pts/2    00:00:00 grep --color=auto pmon
+
+5. export ORACLE_SID
+
+
+[oracle@kgrh79ora1911src ~]$ export ORACLE_SID=DBOMSRCD94D3
+[oracle@kgrh79ora1911src ~]$ echo $ORACLE_SID
+DBOMSRCD94D3
+[oracle@kgrh79ora1911src ~]$ env|grep ORA
+ORACLE_SID=DBOMSRCD94D3
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/19.11.0.0/dbhome_1
+
+
+6. we cannot connect to sqlplus:
+
+[oracle@kgrh79ora1911src ~]$ sqlplus / AS SYSDBA
+sqlplus: error while loading shared libraries: libclntshcore.so.19.1: cannot open shared object file: No such file or directory
+
+7.
+[oracle@kgrh79ora1911src ~]$ rman target /
+rman: error while loading shared libraries: libclntshcore.so.19.1: cannot open shared object file: No such file or directory
+
+8. verify ORACLE_HOME/bin libraries are linked
+
+oracle@kgrh79ora1911src bin]$ ldd rman
+        linux-vdso.so.1 =>  (0x00007ffda0f8d000)
+        libclntsh.so.19.1 => /u01/app/oracle/product/19.11.0.0/dbhome_1/lib/libclntsh.so.19.1 (0x00007fd0bb3ff000)
+        libclntshcore.so.19.1 => not found
+        librt.so.1 => /lib64/librt.so.1 (0x00007fd0bb1f7000)
+        libnnz19.so => /u01/app/oracle/product/19.11.0.0/dbhome_1/lib/libnnz19.so (0x00007fd0baa4f000)
+        libdl.so.2 => /lib64/libdl.so.2 (0x00007fd0ba84b000)
+        libm.so.6 => /lib64/libm.so.6 (0x00007fd0ba549000)
+        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007fd0ba32d000)
+        libnsl.so.1 => /lib64/libnsl.so.1 (0x00007fd0ba113000)
+        libaio.so.1 => /lib64/libaio.so.1 (0x00007fd0b9f11000)
+        libresolv.so.2 => /lib64/libresolv.so.2 (0x00007fd0b9cf7000)
+        libc.so.6 => /lib64/libc.so.6 (0x00007fd0b9929000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007fd0bf54a000)
+        libclntshcore.so.19.1 => not found
+        libclntshcore.so.19.1 => not found
+
+9. permissions on shared object are changed:
+
+/u01/app/oracle/product/19.11.0.0/dbhome_1/lib
+
+[oracle@kgrh79ora1911src lib]$ ls -l libclntshcore.so.19.1
+-rwx------. 1 root root 8052984 May 10  2021 libclntshcore.so.19.1
+
+10. modify permissions:
+
+[root@kgrh79ora1911src lib]# ls -l *.so.*
+-rwxr-xr-x. 1 oracle oinstall  1676048 May 10  2021 libagtsh.so.1.0
+-rwx------. 1 oracle oinstall  8052984 May 10  2021 libclntshcore.so.19.1
+lrwxrwxrwx. 1 oracle oinstall       12 May 10  2021 libclntsh.so.10.1 -> libclntsh.so
+lrwxrwxrwx. 1 oracle oinstall       12 May 10  2021 libclntsh.so.11.1 -> libclntsh.so
+lrwxrwxrwx. 1 oracle oinstall       12 May 10  2021 libclntsh.so.12.1 -> libclntsh.so
+lrwxrwxrwx. 1 oracle oinstall       12 May 10  2021 libclntsh.so.18.1 -> libclntsh.so
+-rwxr-xr-x. 1 oracle oinstall 81393744 May 10  2021 libclntsh.so.19.1
+-rwxr-x---. 1 oracle oinstall   543232 Mar 18  2019 libexpat.so.1
+-rw-------. 1 oracle oinstall   543232 Mar 18  2019 libexpat.so.1.6.8
+-rw-r--r--. 1 oracle oinstall   461695 Mar 16  2017 libintlc.so.5
+lrwxrwxrwx. 1 oracle oinstall       10 May 10  2021 libocci.so.18.1 -> libocci.so
+-rwxr-xr-x. 1 oracle oinstall  2339944 May 10  2021 libocci.so.19.1
+-rw-r--r--. 1 oracle oinstall  1070008 Apr 17  2019 libsqora.so.19.1
+[root@kgrh79ora1911src lib]# chmod 644 libclntshcore.so.19.1
+[root@kgrh79ora1911src lib]# ls -l libclntshcore.so.19.1
+-rw-r--r--. 1 oracle oinstall 8052984 May 10  2021 libclntshcore.so.19.
+
+11. retest rman
+
+[oracle@kgrh79ora1911src lib]$ rman target /
+
+Recovery Manager: Release 19.0.0.0.0 - Production on Mon Aug 15 13:15:25 2022
+Version 19.11.0.0.0
+
+Copyright (c) 1982, 2019, Oracle and/or its affiliates.  All rights reserved.
+
+connected to target database: DBOMSRCD (DBID=4065803556)
+
+RMAN>
+
+---------------------------------
+
+#UEM - user environment monitor
+hostchecker - hostchecker is bundled within each /work/toolkit COMMON directory
+
+[oracle@kgrh79ora1911src tmp]$ find Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/ -name hostchecker\*
+Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/client/hostchecker
+Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/client/hostchecker/hostchecker.properties
+Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/client/hostchecker/hostchecker.jar
+[oracle@kgrh79ora1911src tmp]$ find Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/ -name java
+Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/java
+Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/java/jdk/jre/bin/java
+Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/java/jdk/bin/java
+
+
+1. run jar file
+
+[oracle@kgrh79ora1911src tmp]$ ./Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/java/jdk/bin/java -jar Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host/client/hostchecker/hostchecker.jar
+Please enter whether this machine is a source or a target:source
+1: Check ASE environment
+2: Check all ASE instances
+3: Check all the Oracle installations
+4: Check homedir permissions
+5: Check network port access
+6: Check the Oracle CRS home
+7: Check Oracle DB Instance
+8: Check sshd_config for timeout configuration
+9: Check user sudo privileges
+10: Check toolkit path
+all: Execute all checks
+quit: Exits
+Please select an option
+
+
+
+[oracle@kgrh79ora1911src Delphix_COMMON_b6cae0c73fa6_7c1753061868_4_host]$ ./java/jdk/bin/jar -tvf ./client/hostchecker/hostchecker.jar                      0 Fri Jul 08 22:12:52 EDT 2022 META-INF/
+  5521 Fri Jul 08 22:12:50 EDT 2022 META-INF/MANIFEST.MF
+-------------------------------------------
+
+PROBLEM:
+
+Error
+Could not log into "kgrh79ora1911tgt.dcol2.delphix.com" with the provided username and password.
+Error Code
+exception.ccc.authenticate.failed
+Suggested Action
+Make sure that the host user and password are correct, and that the Delphix Connector is properly registered with the Delphix Engine.
+Command Output
+ net.schmizz.sshj.userauth.UserAuthException: Exhausted available authentication methods
+
+0. local JOB-166:
+
+-[ RECORD 1 ]---------+-------------------------------------------------------------
+job_id                | 166
+target_reference      | UNIX_HOST_ENVIRONMENT-3
+job_type              | SOURCES_ENABLE
+start_time            | 2022-08-15 17:41:32.378
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-15 17:41:32.425
+title                 | Enable a list of datasets in environment "kgrh79ora1911tgt".
+job_state             | COMPLETED
+title_code            | event.action.sources.enable
+title_params          | ["kgrh79ora1911tgt"]
+target_name           | kgrh79ora1911tgt
+action                | ACTION-327
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+1. drill into ConfiguringsudoAccessonLinuxforOracleSourceandTargetEnvironments
+-[ RECORD 1 ]---------+-------------------------------------------------------------
+action_id             | 327
+action_type           | SOURCES_ENABLE
+state                 | COMPLETED
+desc_message_id       | event.action.sources.enable
+desc_message_params   | ["kgrh79ora1911tgt"]
+desc_message_desc     | Enable a list of datasets in environment "kgrh79ora1911tgt".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-323
+parent_job            | JOB-162
+start_time            | 2022-08-15 17:41:32.363
+end_time              | 2022-08-15 17:41:32.424
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+hercules=> select * from dlpx_action where action_id=323
+hercules-> select * from dlpx_action where action_id=323;
+ERROR:  syntax error at or near "select"
+LINE 2: select * from dlpx_action where action_id=323;
+        ^
+hercules=> select * from dlpx_action where action_id=323;
+-[ RECORD 1 ]---------+---------------------------------------------------------------------------------------------------------------------------------
+action_id             | 323
+action_type           | ENVIRONMENT_REFRESH
+state                 | FAILED
+desc_message_id       | event.action.environment.refresh
+desc_message_params   | ["kgrh79ora1911tgt"]
+desc_message_desc     | Refresh environment "kgrh79ora1911tgt".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       | exception.ccc.authenticate.failed
+fail_message_params   | ["kgrh79ora1911tgt.dcol2.delphix.com","net.schmizz.sshj.userauth.UserAuthException: Exhausted available authentication methods"]
+fail_message_desc     | Could not log into "kgrh79ora1911tgt.dcol2.delphix.com" with the provided username and password.
+parent_action         | ACTION-322
+parent_job            | JOB-161
+start_time            | 2022-08-15 17:41:30.816
+end_time              | 2022-08-15 17:41:32.457
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+
+
+2. ensure ssh service is running:
+
+[root@kgrh79ora1911tgt ~]# systemctl sshd
+Unknown operation 'sshd'.
+[root@kgrh79ora1911tgt ~]# systemctl list-units |grep ssh
+sshd.service                                                                                     loaded active running   OpenSSH server daemon
+[root@kgrh79ora1911tgt ~]# systemctl status sshd
+● sshd.service - OpenSSH server daemon
+   Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled; vendor preset: enabled)
+   Active: active (running) since Thu 2022-07-07 13:56:49 EDT; 1 months 8 days ago
+     Docs: man:sshd(8)
+           man:sshd_config(5)
+ Main PID: 1303 (sshd)
+   CGroup: /system.slice/sshd.service
+           └─1303 /usr/sbin/sshd -D
+
+Aug 15 13:42:42 kgrh79ora1911tgt.dcol2 sshd[27952]: Disconnected from 10.43.53.20 port 46488 [preauth]
+Aug 15 13:43:01 kgrh79ora1911tgt.dcol2 sshd[27970]: Accepted password for oracle from 10.43.43.236 port 35098 ssh2
+
+
+3. list associated job events:
+
+hercules=> select * from dlpx_job_events where job='JOB-161' order by event_id;
+-[ RECORD 1 ]----------+--------------------------------------------------------------------------------------------------------------------------------------
+event_id               | 1150
+job                    | JOB-161
+event_time             | 2022-08-15 17:41:30.787
+job_state              | RUNNING
+percent_complete       | 0
+message_code           | event.job.started
+message_params         | ["ENVIRONMENT_REFRESH_AND_DISCOVER","kgrh79ora1911tgt"]
+message_details        | ENVIRONMENT_REFRESH_AND_DISCOVER job started for "kgrh79ora1911tgt".
+message_action         |
+message_command_output |
+event_type             | INFO
+start_time             | 2022-08-15 17:41:30.787
+-[ RECORD 2 ]----------+--------------------------------------------------------------------------------------------------------------------------------------
+event_id               | 1164
+job                    | JOB-161
+event_time             | 2022-08-15 17:41:32.5
+job_state              | FAILED
+percent_complete       | 0
+message_code           | exception.ccc.authenticate.failed
+message_params         | ["kgrh79ora1911tgt.dcol2.delphix.com","net.schmizz.sshj.userauth.UserAuthException: Exhausted available authentication methods"]
+message_details        | Could not log into "kgrh79ora1911tgt.dcol2.delphix.com" with the provided username and password.
+message_action         | Make sure that the host user and password are correct, and that the Delphix Connector is properly registered with the Delphix Engine.
+message_command_output | net.schmizz.sshj.userauth.UserAuthException: Exhausted available authentication methods
+event_type             | ERROR
+start_time             | 2022-08-15 17:41:32.5
+
+
+4. dump out enviornment:
+
+hercules=> select * from dlpx_host_environment where name ~ 'tgt';
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 3
+namespace                 |
+namespace_data_dependency | f
+name                      | kgrh79ora1911tgt
+description               |
+primary_user              | HOST_USER-3
+enabled                   | t
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-3
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | 70e92306-37cc-425b-98f0-9ef7b29a9bdb
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      |
+
+
+5. user/password isn't used , we are using KEY_PAIR
+host                      |
+environment               | UNIX_HOST_ENVIRONMENT-3
+user_name                 | oracle
+password                  |
+credential_type           | KEY_PAIR
+
+
+6.typo in pub key && permissions were wrong
+
+[root@kgrh79ora1911tgt log]# grep -in refused secure
+18347:Aug 15 13:39:28 kgrh79ora1911tgt sshd[27550]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18375:Aug 15 13:41:28 kgrh79ora1911tgt sshd[27823]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18378:Aug 15 13:41:28 kgrh79ora1911tgt sshd[27823]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18391:Aug 15 13:42:42 kgrh79ora1911tgt sshd[27950]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18394:Aug 15 13:42:42 kgrh79ora1911tgt sshd[27952]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18540:Aug 15 14:10:35 kgrh79ora1911tgt sshd[31738]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18543:Aug 15 14:10:42 kgrh79ora1911tgt sshd[31745]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+18581:Aug 15 14:12:11 kgrh79ora1911tgt sshd[32025]: Authentication refused: bad ownership or modes for directory /home/oracle/.ssh
+
+https://docs.delphix.com/docs/datasets/oracle-environments-and-data-sources/provisioning-and-managing-virtual-databases-with-oracle/configuration-settings-for-oracle-virtual-databases/manually-starting-a-vdb
+
+
+---------------------------------------------------
+
+PROBLEM:
+Error
+Unable to push scripts to target host "kgrh79ora1911tgt.dcol2.delphix.com": Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write "/tmp/host3_oracle_TWO.tar" to the remote directory "/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp" on host "kgrh79ora1911tgt.dcol2.delphix.com".
+Error Code
+exception.oracle.target.push.failed
+Suggested Action
+Check connectivity to the host or permissions within the remote directory and try again.
+
+0. login to appliance
+
+
+delphix@kg6015:~$ PATH=$PATH:/opt/delphix/server/bin
+
+1. query to find job_type && job_status sort ConfiguringsudoAccessonLinuxforOracleSourceandTargetEnvironments
+hercules=> select * from dlpx_jobs where job_type='DB_REFRESH' and job_state='FAILED' order by job_id DESC;
+ job_id |   target_reference    |  job_type  |       start_time        | user_ref | email_addresses |       update_time       |          title          | job_state |       title_code        | title_params | target_name  |   action   | resume_after_restart | cancel_message_id | cancel_message_params | cancel_message_desc
+--------+-----------------------+------------+-------------------------+----------+-----------------+-------------------------+-------------------------+-----------+-------------------------+--------------+--------------+------------+----------------------+-------------------+-----------------------+---------------------
+    186 | ORACLE_DB_CONTAINER-7 | DB_REFRESH | 2022-08-15 19:49:08.996 | USER-2   |                 | 2022-08-15 19:49:21.119 | Refresh database "TWO". | FAILED    | event.action.db.refresh | ["TWO"]  
+
+hercules=> select * from dlpx_job_events where job='JOB-186' order by event_id DESC;
+
+event_id               | 1270
+job                    | JOB-186
+event_time             | 2022-08-15 19:49:21.088
+job_state              | FAILED
+percent_complete       | 30
+message_code           | exception.oracle.target.push.failed
+message_params         | ["Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write \"/tmp/host3_oracle_TWO.tar\" to the remote directory \"/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp\" on host \"kgrh79ora1911tgt.dcol2.delphix.com\".","Check connectivity to the host or permissions within the remote directory and try again.","kgrh79ora1911tgt.dcol2.delphix.com"]
+message_details        | Unable to push scripts to target host "kgrh79ora1911tgt.dcol2.delphix.com": Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write "/tmp/host3_oracle_TWO.tar" to the remote directory "/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp" on host "kgrh79ora1911tgt.dcol2.delphix.com".
+message_action         | Check connectivity to the host or permissions within the remote directory and try again.
+message_command_output |
+event_type             | ERROR
+start_time             | 2022-08-15 19:49:21.088
+
+
+2. seems to be permissions issue for /var/tmp/mytoolkitdir
+[2022-08-15T13:49:21,065][DEBUG][jcm.impl.JobInstance#execute:317][Worker-297|JOB-186|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job requested state null, requested reason null, throwable com.delphix.server.core.messages.OracleTargetExceptions$PushFailed: exception.oracle.target.push.failed {Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write "/tmp/host3_oracle_TWO.tar" to the remote directory "/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp" on host "kgrh79ora1911tgt.dcol2.delphix.com".|Check connectivity to the host or permissions within the remote directory and try again.|kgrh79ora1911tgt.dcol2.delphix.com}
+com.delphix.server.core.messages.OracleTargetExceptions$PushFailed: exception.oracle.target.push.failed {Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write "/tmp/host3_oracle_TWO.tar" to the remote directory "/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp" on host "kgrh79ora1911tgt.dcol2.delphix.com".|Check connectivity to the host or permissions within the remote directory and try again.|kgrh79ora1911tgt.dcol2.delphix.com}
+
+3. password seems to have expired:
+
+[2022-08-15T13:49:18,755][DEBUG][exception.DelphixUserException#logMe:70][Worker-297|JOB-186|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Encountered User Exception in sendFile(), DhmSshConnection.java:125: exception.ccc.writefile.failed {/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp|kgrh79ora1911tgt.dcol2.delphix.com|/tmp/host3_oracle_TWO.tar|net.schmizz.sshj.xfer.scp.SCPException: EOF while expecting response to protocol message. Additional info: `WARNING: Your password has expired.
+Password change required but no TTY available.
+`}
+com.delphix.server.core.messages.CccExceptions$WritefileFailed: exception.ccc.writefile.failed {/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp|kgrh79ora1911tgt.dcol2.delphix.com|/tmp/host3_oracle_TWO.tar|net.schmizz.sshj.xfer.scp.SCPException: EOF while expecting response to protocol message. Additional info: `WARNING: Your password has expired.
+Password change required but no TTY available.
+
+
+4. updated oracle password
+delphix@kg6015:/var/delphix/server/log$ ssh root@kgrh79ora1911tgt.dcol2.delphix.com
+root@kgrh79ora1911tgt.dcol2.delphix.com's password:
+Last login: Mon Aug 15 15:48:50 2022
+[root@kgrh79ora1911tgt ~]#
+[root@kgrh79ora1911tgt ~]#
+[root@kgrh79ora1911tgt ~]#
+[root@kgrh79ora1911tgt ~]# passwd oracle
+Changing password for user oracle.
+New password:
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password:
+passwd: all authentication tokens updated successfully.
+
+---------------------------------------------------------------
+
+Example of db_refresh workflows
+delphix@kg6015:/var/delphix/server/log$ grep -in job-190 debug.log|grep event|awk '{print $8}'
+event.job.started
+event=event.job.started,
+event=event.jobs.genericvdb.deprovision.starting,
+event=event.jobs.oraclevdb.storage.unexport,
+event=event.jobs.genericvdb.deprovision.success,
+event=event.jobs.oraclevdb.provision.starting,
+event=event.jobs.oraclevdb.create.timeflow,
+event=event.jobs.oraclevdb.generate.scripts,
+event=event.jobs.oraclevdb.storage.export,
+event=event.jobs.oraclevdb.mount,
+event=event.jobs.oraclevdb.mount_source_archive,
+event=event.jobs.oracledb.oracle.recovering,
+event=event.jobs.oracledb.oracle.creating.control.file,
+event=event.jobs.oracledb.oracle.recovery.with.created.cf,
+event=event.jobs.oraclevdb.opening.database,
+event=event.jobs.oracledb.oracle.incomplete.recovery,
+event=event.jobs.oracledb.oracle.creating.log.files,
+event=event.jobs.oracledb.oracle.process.init.file,
+event=event.jobs.oracledb.oracle.configuring.sp.init.file,
+event=event.jobs.oracledb.oracle.mounting.vdb.instance,
+event=event.jobs.oracledb.oracle.opening,
+event=event.jobs.oracledb.oracle.create.tempfiles,
+event=event.jobs.oracledb.oracle.rename.readonly.datafiles,
+event=event.jobs.oracledb.oracle.enable.instances,
+event=event.jobs.oracledb.oracle.register.listeners,
+event=event.jobs.oraclevdb.recovery.success,
+event=event.jobs.oraclevdb.unmount_source_archive,
+event=event.jobs.oraclevdb.provision.success,
+event=event.jobs.genericvdb.hooks.configure_clone,
+
+--------------------------------------
+learn the workflow scripts being called and their parameters for ORCL workflows:
+
+[oracle@kgrh79ora1911tgt connector]$ grep -A1 cmd debug.log
+
+
+
+------------------------------------------------------
+
+review the following:
+
+     /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -c set -x; /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -x /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/provision/oracle/common/mount_vdb /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host 10.43.53.20 2049 /domain0/group-2/oracle_db_container-569/oracle_timeflow-598/source-archive /mnt/provision/TWO/source-archive rw,bg,hard,rsize=1048576,wsize=1048576,nointr,timeo=600,tcp,nosuid,sec=sys,vers=3,local_lock=all
+     
+        /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -c set -x; /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -x /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/provision/oracle/common/unmount_vdb /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host /mnt/provision/TWO/source-archive no_rmdir

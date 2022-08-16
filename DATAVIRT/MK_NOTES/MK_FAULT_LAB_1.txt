@@ -1,0 +1,177 @@
+#change permissions on our toolkit directory and attempt to refresh_db; We will then follow the job, job_events, and actions.
+
+FAULT_INJECTION:
+[oracle@kgrh79ora1911tgt mytoolkitdir]$ ls -l
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwx---. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwxr-x. 7 oracle oinstall 130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+[oracle@kgrh79ora1911tgt mytoolkitdir]$ su -
+Password:
+Last login: Mon Aug 15 16:25:09 EDT 2022 from 10.43.53.20 on pts/0
+[root@kgrh79ora1911tgt ~]# cd /var/tmp/mytoolkitdir/
+[root@kgrh79ora1911tgt mytoolkitdir]# ls
+common  Delphix_b6cae0c73fa6_da55a9d3200d_3_host  Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host  uncommon
+[root@kgrh79ora1911tgt mytoolkitdir]# chown root:root common
+[root@kgrh79ora1911tgt mytoolkitdir]# ls -l
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwx---. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwxr-x. 7 root   root     130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+[root@kgrh79ora1911tgt mytoolkitdir]# chown root:root Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+[root@kgrh79ora1911tgt mytoolkitdir]# ls -l
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwx---. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwxr-x. 7 root   root     130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+------------------------------------------------------------------------------------------
+FAULT_INJECTION_2
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwx---. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwxr-x. 7 oracle oinstall 130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+[root@kgrh79ora1911tgt mytoolkitdir]# chmod 700 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+[root@kgrh79ora1911tgt mytoolkitdir]# chmod 700 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+[root@kgrh79ora1911tgt mytoolkitdir]# ls -l
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwx------. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwx------. 7 oracle oinstall 130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+[root@kgrh79ora1911tgt mytoolkitdir]# cd ..
+[root@kgrh79ora1911tgt tmp]# ls
+Delphix_003903688a27_238fe1deebaa_18_host         Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host  systemd-private-b719c401859f4c0db537a7422a1c9c8f-chronyd.service-TZgjy5
+Delphix_7f76776d5089_aff5a41046ee_3_host          Delphix_COMMON_f1cd5978c4cc_a397f24dad81_8_host  tooltest
+Delphix_b6cae0c73fa6_da55a9d3200d_3_host          Delphix_f1cd5978c4cc_a397f24dad81_8_host         umount.out
+Delphix_COMMON_003903688a27_238fe1deebaa_18_host  mytoolkitdir
+Delphix_COMMON_7f76776d5089_aff5a41046ee_3_host   scripts
+[root@kgrh79ora1911tgt tmp]# ls -l|grep my
+drwxrwx---. 4 oracle oinstall   139 Aug 16 10:35 mytoolkitdir
+[root@kgrh79ora1911tgt tmp]# chown root:root mytoolkitdir/
+[root@kgrh79ora1911tgt tmp]# ls -l mytoolkitdir/
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwx------. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwx------. 7 oracle oinstall 130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+-------------------------------------------------------
+0. Delphix UI reports Critical error immediately upon db_refresh:
+
+ Critical 
+ Unable to shut down and clean virtual database. 
+Details
+Stop dataset "TWO".
+ Warning 
+ Unable to access user toolkit under installation directory "/var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host" for user "oracle" on host
+
+ 1. locate failed job in UI->System->Jobs: JOB-199 DB_REFRESH
+ 2. locate failed job in mds_client:
+
+hercules=> select * from dlpx_jobs where job_id=199;
+-[ RECORD 1 ]---------+------------------------
+job_id                | 199
+target_reference      | ORACLE_DB_CONTAINER-7
+job_type              | DB_REFRESH
+start_time            | 2022-08-16 15:11:35.054
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-16 15:11:37.886
+title                 | Refresh database "TWO".
+job_state             | FAILED
+title_code            | event.action.db.refresh
+title_params          | ["TWO"]
+target_name           | Untitled/TWO
+action                | ACTION-385
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=385;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 385
+action_type           | DB_REFRESH
+state                 | FAILED
+desc_message_id       | event.action.db.refresh
+desc_message_params   | ["TWO"]
+desc_message_desc     | Refresh database "TWO".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       | exception.oracle.vdb.clean.failed
+fail_message_params   | []
+fail_message_desc     | Unable to shut down and clean virtual database.
+parent_action         |
+parent_job            |
+start_time            | 2022-08-16 15:11:34.73
+end_time              | 2022-08-16 15:11:37.847
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.128.62
+http_session_id       | 97C89C4D6FFF58D3500FA215DBD9ED1C
+work_source_principal | admin
+-----------------------------------------------------------------
+2. Trace JOB-199 in debug.log files:
+
+delphix@kg6015:/opt/delphix/server/bin$ cd /var/delphix/server/log
+delphix@kg6015:/var/delphix/server/log$ awk '/JOB-199/' debug.log
+[2022-08-16T09:11:35,068][DEBUG][jcm.impl.JobManagerImpl#createJob:462][http-nio-127.0.0.1-8586-exec-247:POST /delphix/database/ORACLE_DB_CONTAINER-7/refresh][ACTION-385] Job JOB-199: Created Job 199 for object ORACLE_DB_CONTAINER-7
+[2022-08-16T09:11:35,070][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][http-nio-127.0.0.1-8586-exec-247:POST /delphix/database/ORACLE_DB_CONTAINER-7/refresh][ACTION-385] Job JOB-199: dispatching for reason event.job.started
+[2022-08-16T09:11:35,076][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][http-nio-127.0.0.1-8586-exec-247:POST /delphix/database/ORACLE_DB_CONTAINER-7/refresh][ACTION-385] Getting lock object for JOB-199.
+[2022-08-16T09:11:35,080][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-101][] Job JOB-199: updating state to RUNNING
+[2022-08-16T09:11:35,082][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-101][] Job JOB-199: adding event JobEventDO{id=-1, job=JOB-199, event=event.job.started, state=RUNNING}
+[2022-08-16T09:11:35,111][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Job JOB-199 gets context ACTION-385
+[2022-08-16T09:11:35,112][DEBUG][executor.impl.ExecutorImpl#setupExecutorContext:361][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-385] action preExecute action ACTION-385
+[2022-08-16T09:11:35,114][DEBUG][lifecycle.impl.SnapshotInuseMarkerServiceImpl#lambda$markSnapshotInuse$1:125][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-385] Marking snapshot: 32 as in use.
+[2022-08-16T09:11:35,115][DEBUG][lifecycle.impl.SnapshotInuseMarkerServiceImpl#markSnapshotInuse:132][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-385] After marking snapshot: 32 as in use, snapshotIdKeeper: {32=MarkedValue [counter=1, type=INUSE]}
+[2022-08-16T09:11:35,243][DEBUG][db.container.BaseDBContainerManagerImpl#getProvisionableTimeflowRangeBySnapshot:598][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-385] Snapshot = @2022-08-15T17:20:10.225Z, endPoint = [null, null], traverseTimeflows = false
+[2022-08-16T09:11:35,277][DEBUG][db.container.BaseDBContainerManagerImpl#getProvisionableTimeflowRangeBySnapshot:680][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-385] Snapshot: @2022-08-15T17:20:10.225Z, return range: start scn: 13702198 - end scn: 13730833, start: Untitled/DBOMSRCD94D3 time: Mon Aug 15 11:21:16 MDT 2022 - end: Untitled/DBOMSRCD94D3 time: Mon Aug 15 14:45:21 MDT 2022
+[2022-08-16T09:11:35,492][DEBUG][environmentMonitor.impl.AttributeTaskManagerImpl#stopMonitoring:53][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-385] Halting monitoring on objects in preparation for object deletion: [ORACLE_VIRTUAL_SOURCE-5]
+[2022-08-16T09:11:35,515][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-101][] Job JOB-199: updating state to RUNNING
+[2022-08-16T09:11:35,516][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-101][] Job JOB-199: adding event JobEventDO{id=-1, job=JOB-199, event=event.jobs.genericvdb.deprovision.starting, state=RUNNING}
+[2022-08-16T09:11:35,582][DEBUG][jcm.impl.JobManagerImpl#createJob:462][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-386] Job JOB-200: Created Job 200 for object ORACLE_VIRTUAL_SOURCE-5
+[2022-08-16T09:11:35,583][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-386] Job JOB-200: dispatching for reason event.job.started
+[2022-08-16T09:11:35,583][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][ACTION-386] Getting lock object for JOB-200.
+[2022-08-16T09:11:37,824][DEBUG][exception.DelphixUserException#logMe:70][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Encountered User Exception in execute(), OracleBaseVirtualDBDeprovisionJob.java:65: exception.oracle.vdb.clean.failed {}
+[2022-08-16T09:11:37,839][DEBUG][lifecycle.impl.SnapshotInuseMarkerServiceImpl#releaseInuseSnapshot:141][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Releasing in use snapshot: 32
+[2022-08-16T09:11:37,840][DEBUG][lifecycle.impl.SnapshotInuseMarkerServiceImpl#releaseInuseSnapshot:143][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] After releasing in use snapshot: 32, snapshotIdKeeper: {}
+
+[2022-08-16T09:11:37,841][DEBUG][jcm.impl.JobInstance#execute:317][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job requested state null, requested reason null, throwable com.delphix.server.core.messages.OracleVdbExceptions$CleanFailed: exception.oracle.vdb.clean.failed {}
+
+[2022-08-16T09:11:37,842][INFO][jcm.impl.JobInstance#execute:338][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job failed with user error
+[2022-08-16T09:11:37,843][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Job JOB-199: execution complete
+
+[2022-08-16T09:11:37,852][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-101][] Job JOB-199: updating state to FAILED
+
+[2022-08-16T09:11:37,854][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-101][] Job JOB-199: adding event JobEventDO{id=-1, job=JOB-199, event=exception.oracle.vdb.clean.failed, state=FAILED}
+[2022-08-16T09:11:37,894][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] action doneAsync (1) ACTION-385
+-----------------------------------------------------------------
+#one way to awk failed messages for job-id in question:
+delphix@kg6015:/var/delphix/server/log$ awk '/JOB-199/' debug.log |grep -i failed
+[2022-08-16T09:11:37,824][DEBUG][exception.DelphixUserException#logMe:70][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] Encountered User Exception in execute(), OracleBaseVirtualDBDeprovisionJob.java:65: exception.oracle.vdb.clean.failed {}
+[2022-08-16T09:11:37,841][DEBUG][jcm.impl.JobInstance#execute:317][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job requested state null, requested reason null, throwable com.delphix.server.core.messages.OracleVdbExceptions$CleanFailed: exception.oracle.vdb.clean.failed {}
+[2022-08-16T09:11:37,842][INFO][jcm.impl.JobInstance#execute:338][Worker-316|JOB-199|DB_REFRESH(ORACLE_DB_CONTAINER-7)][] job failed with user error
+[2022-08-16T09:11:37,852][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-101][] Job JOB-199: updating state to FAILED
+[2022-08-16T09:11:37,854][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-101][] Job JOB-199: adding event JobEventDO{id=-1, job=JOB-199, event=exception.oracle.vdb.clean.failed, state=FAILED}
+--------------------------------------------------------------------
+#repaired /var/tmp/mytoolkitdir owner:group, but left permissions within mytoolkitdir at 700
+[root@kgrh79ora1911tgt tmp]# ls -l |grep my
+drwxrwx---. 4 oracle oinstall   139 Aug 16 10:35 mytoolkitdir
+[root@kgrh79ora1911tgt tmp]# ls -l mytoolkitdir/
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwx------. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwx------. 7 oracle oinstall 130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+--------------------------------------------------
+#retry DB_REFRESH
+SUCCESS, and restored /var/tmp/mytoolkitdir/Delphix_* subdirectories 
+[root@kgrh79ora1911tgt mytoolkitdir]# ls -l
+total 0
+lrwxrwxrwx. 1 oracle oinstall  47 Aug 16 10:34 common -> Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwx---. 6 oracle oinstall  61 Aug 12 15:37 Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+drwxrwxr-x. 7 oracle oinstall 130 Aug 12 15:38 Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host
+lrwxrwxrwx. 1 oracle oinstall  40 Aug 16 10:35 uncommon -> Delphix_b6cae0c73fa6_da55a9d3200d_3_host
+---------------------------------------------------

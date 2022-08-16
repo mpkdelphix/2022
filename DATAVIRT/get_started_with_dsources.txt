@@ -1,0 +1,8 @@
+https://docs.delphix.com/docs/overview-of-data-virtualization/getting-started-with-data-sources
+
+environment - single instance or cluster of hosts running database software; The host can be a source, staging(masking) or target.
+
+toolkit path - /work/toolkit; *_COMMMON contains configuraton logs, other directory actual operations logs.
+
+http://mk60150.dcol2.delphix.com/Server.html#/dashboard admin/delphix
+

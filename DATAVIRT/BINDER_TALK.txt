@@ -1,0 +1,23 @@
+ingest anonymize distribute manage
+-----------------------------------
+APM - application performance management
+snowflake - cloud native warehouse technology
+=================================
+most companies are monolithic, scale-up technologies, they will need to modernize.
+-------------------------------
+GTM - 
+modernization - create sandboxes for DEV, UAT via creating virtualization
+of data; FedEx POS transaction, then transport(plane, out for delivery?),information flows through various stacks; Modernization gives the ability to upgrade easily. We can replicate on-prem into virtual sandboxes in the cloud.
+
+compliance and governance - not about firewalls, but about PCI, GDPR , HIPPA, PII, etc....
+
+cloud "migration" -  seamlessly move from cloud to cloud to cloud. 
+----------------------------------------------
+
+shift-left - the earlier you catch bugs the better your customer experience.
+The only way to do it is to shift data with code. Otherwise, you are speculating on the data structures managed by your application.
+
+-------------------
+many companies obfuscate data instead of masking; but this breaks the data scientist's ability to use data.
+--------------------------------
+

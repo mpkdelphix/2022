@@ -1,0 +1,72 @@
+#focus areas environment, types of environments and cluster environments
+
+Environments - Hosts configured for use with Delphix; hostnames should be resolved through dig, mtr prior to use, we can also use IP addresses. E
+    source - sometimes PROD, this is the database we want to virtualize with Delphix; Hosts || clusters where source database(could be one or more) are running.
+     
+    staging - mandatory for SQL && Sybase, optional for ORCL; This hosts a database running same version as source, and is used for recovery of changes on dSources.
+
+    target - host or cluster used to provision vDBs. WIN - host or cluster used to provision VDB or act as a proxy; LINUX VDB environmnet to which you provision VDBs.
+
+
+---------------------------------------------------------------------
+#dSource overview
+dSource - a compressed, fully dedeuplicated full backup of a source db; It is the Delphix representation of a source db. First, add an environtment in order to create a dSource.
+
+timeflow - snapshot history of changes from a dSource. You can provision VDBs from any point in the timeflow. You can provision a VDB from any point down to the second level of granularity of a dSource.
+
+LAB #1 - find my environments, containers and dSources/VDBs and their respective timeflows.
+
+0. login as delphix on my appliance, source .bashrc and fire up mds_client:
+delphix@mk60150:~$ . ./.bashrc
+delphix@mk60150:~$ mds_client
+psql (10.20 (Ubuntu 10.20-1.pgdg20.04+1))
+Type "help" for help.
+
+hercules=>
+===================================================
+1. list environments:
+hercules=> select * from dlpx_host_environment;
+
+ host_environment_id | namespace | namespace_data_dependency |         name         | description | primary_user | enabled |      object_type      |    host     | proxy | ase_db_user_name | ase_password |          connector_password          | ase_principal_type | ase_credential_type | log_collection_enabled | ase_vault_ref | ase_vault_cred_id | ase_vault_engine | ase_vault_path | ase_vault_user_key | ase_vault_secret_key
+---------------------+-----------+---------------------------+----------------------+-------------+--------------+---------+-----------------------+-------------+-------+------------------+--------------+--------------------------------------+--------------------+---------------------+------------------------+---------------+-------------------+------------------+----------------+--------------------+----------------------
+                   1 |           | f                         | mkrh74ora19src       |             | HOST_USER-1  | t       | UNIX_HOST_ENVIRONMENT | UNIX_HOST-1 |       |                  |              | 172e7812-f978-4f82-a181-c2082c3bf9ce |                    |                     | f                      |               |                   |                  |                |                    |
+                   2 |           | f                         | mkrh74ora19tgt.dcol2 |             | HOST_USER-2  | t       | UNIX_HOST_ENVIRONMENT | UNIX_HOST-2 |       |                  |              | d8980ad3-d451-4a37-960e-8f39347d8ff7 |                    |                     | f                      |               |                   |                  |                |                    |
+(2 rows)
+
+2. drill into data...
+
+
+hercules=> select * from dlpx_host where host_id=1;
+hercules=> select * from dlpx_host where host_id=2;
+
+?stuck findding in which table HOST_USER-2 resides
+-not dlpx_user, that is for admin, sysadmin
+-not dlpx_user_group:
+hercules=> select * from dlpx_user_group;
+ user_group_id |  user_group_name  | user_type
+---------------+-------------------+-----------
+             1 | SYSTEM-USER-GROUP | SYSTEM
+             2 | DOMAIN-USER-GROUP | DOMAIN
+
+Here it is:
+hercules=> select * from dlpx_environment_user;
+hercules=> select user_name from dlpx_environment_user;
+ user_name
+-----------
+ oracle
+ oracle
+(2 rows)
+-------------------------------------------------------
+
+3. find Oracle dbs in container:
+hercules=> select * from dlpx_container;
+hercules=> select provision_container from dlpx_container;
+  provision_container
+-----------------------
+
+ ORACLE_DB_CONTAINER-1
+ ORACLE_DB_CONTAINER-1
+ ORACLE_DB_CONTAINER-1
+(4 rows)
+
+drill into data....

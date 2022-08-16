@@ -1,0 +1,54 @@
+#bunnyslope methodology tracing jobs with a job_state of FAILED, their events, and actions.
+
+0. find all failed job_id and their job_type:
+hercules=> select job_id,job_type from dlpx_jobs where job_state ~ 'FAILED';
+
+1. select JOB-186 because we worked on that yesterday w/KG:
+
+hercules=> select * from dlpx_jobs where job_id=186;
+-[ RECORD 1 ]---------+------------------------
+job_id                | 186
+target_reference      | ORACLE_DB_CONTAINER-7
+job_type              | DB_REFRESH
+start_time            | 2022-08-15 19:49:08.996
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-15 19:49:21.119
+title                 | Refresh database "TWO".
+job_state             | FAILED
+title_code            | event.action.db.refresh
+title_params          | ["TWO"]
+target_name           | Untitled/TWO
+action                | ACTION-358
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+2. Does ACTION-358 have anything of use? Yes, it has fail_message_params && fail_message_desc:
+
+hercules=> select * from dlpx_action where action_id=358;
+-[ RECORD 1 ]---------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+action_id             | 358
+action_type           | DB_REFRESH
+state                 | FAILED
+desc_message_id       | event.action.db.refresh
+desc_message_params   | ["TWO"]
+desc_message_desc     | Refresh database "TWO".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       | exception.oracle.target.push.failed
+fail_message_params   | ["Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write \"/tmp/host3_oracle_TWO.tar\" to the remote directory \"/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp\" on host \"kgrh79ora1911tgt.dcol2.delphix.com\".","Check connectivity to the host or permissions within the remote directory and try again.","kgrh79ora1911tgt.dcol2.delphix.com"]
+fail_message_desc     | Unable to push scripts to target host "kgrh79ora1911tgt.dcol2.delphix.com": Cannot push provisioning script content to host kgrh79ora1911tgt.dcol2.delphix.com [kgrh79ora1911tgt.dcol2.delphix.com]: An error occurred while attempting to write "/tmp/host3_oracle_TWO.tar" to the remote directory "/var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/tmp" on host "kgrh79ora1911tgt.dcol2.delphix.com".
+parent_action         |
+parent_job            |
+start_time            | 2022-08-15 19:49:08.68
+end_time              | 2022-08-15 19:49:21.083
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.128.11
+http_session_id       | 93AFBCBEB75D28F4E4E7E49D22AC6DD4
+work_source_principal | admin
+
+
+3.

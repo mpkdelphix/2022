@@ -1,0 +1,73 @@
+pick an Oracle VDB on your appliance and using MDS, tell me what Oracle Home it is using and on which host
+
+hercules=> select * from dlpx_container;
+3 |           | f                         | ORACLE_DB_CONTAINER | myVDB        | GROUP-2   |             | ORACLE_DB_CONTAINER-1 | ORACLE_TIMEFLOW-3 |                   | 2022-08-02 21:49:08.231 | f             | X86       | LINUX | []  
+
+hercules=> select repository,database_name from orcl_db_config where unique_name ~ 'my';
+    repository    | database_name
+------------------+---------------
+ ORACLE_INSTALL-2 | myVDB
+
+hercules=> select environment,oracle_home from orcl_install where install_id=2;
+       environment       |                oracle_home
+-------------------------+-------------------------------------------
+ UNIX_HOST_ENVIRONMENT-2 | /u01/app/oracle/product/19.0.0.0/dbhome_1
+(1 row)
+
+hercules=> select name from dlpx_host_environment where host_environment_id=2;
+         name
+----------------------
+ mkrh74ora19tgt.dcol2
+
+
+
+ hercules=> select unique_name,repository from orcl_db_config;
+ unique_name  |    repository
+--------------+------------------
+ CDOMLOSR9CD5 | ORACLE_INSTALL-1
+              |
+              |
+              |
+ CDOMSHSR84EB | ORACLE_INSTALL-1
+              |
+              |
+              |
+ DBOMSR0296BA | ORACLE_INSTALL-1
+ VDBO_75K     | ORACLE_INSTALL-1
+ CDOMLOTGE3AD | ORACLE_INSTALL-2
+              |
+              |
+              |
+ CDOMSHTG002F | ORACLE_INSTALL-2
+              |
+              |
+              |
+ myVDB        | ORACLE_INSTALL-2
+ kgapilab     | ORACLE_INSTALL-2
+(20 rows)
+
+hercules=> select environment,oracle_home from orcl_install where install_id=2;
+       environment       |                oracle_home
+-------------------------+-------------------------------------------
+ UNIX_HOST_ENVIRONMENT-2 | /u01/app/oracle/product/19.0.0.0/dbhome_1
+(1 row)
+
+hercules=> select name from dlpx_host_environment where host_environment_id=2;
+         name
+----------------------
+ mkrh74ora19tgt.dco
+
+====================KG Solution===============================
+downloaded from KG slack.
+
+faults can occur when taking snapshots, or getting archive logs, we query db and try to get new logs, and it says we cannot obtain them...
+
+
+list timeflow=default missing=true
+
+watch workflows for:
+provisioning db
+provision environment
+refresh
+
+read the debug.logs

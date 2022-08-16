@@ -1,0 +1,21 @@
+1. the DXVIRT600 course states dSource snapshots are deleted eventually if there are no dependencies; Do we ever have customers asking for access to those deleted dSource snapshots?
+2. Do we find the dSource of a VDB via mds_client query? I'm wondering how to associate which dSource is used for which VDB.
+3.  restore customer environments from Support Bundle TOI.
+4. Understand the endpoint, and the payload, this can be observed in JSON body of API calls within Support Bundle.
+5. Understand our expected interoperability behaviors.
+6. Learn containers, timeflows, zpool, snapSync, logSync, journalctl, where to collect data.
+7. Can I look at any customer's console from dcol2?
+8. Every container has a timeflow, and every container can have multiple timeflows. 
+RMAN is used for incremental backups, we query for archive logs every 5 seconds.
+-sense of urgency is sometimes self-inflicted, customer isn't down, take the time to learn something new; No rush!
+-when you hit your technical limit, get someone else involved
+75181
+76053
+9. initially I got stuck tryind to drill into HOST-USER-[1,2] from dlpx_host_environment. After driling around I found it within the dlpx_environment_user table
+----------------------------
+MK questions
+1. What does Delphix consider to be a container?
+2. How do you verify containers in mds_client? How about each container's direct timeflows.
+dx_toolkit also
+3. list hosts, environments, databases
+4. hprof dox: https://docs.oracle.com/javase/7/docs/technotes/samples/hprof.html

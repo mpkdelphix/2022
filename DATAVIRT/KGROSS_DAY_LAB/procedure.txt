@@ -1,0 +1,98 @@
+#stand up ESX target and src, create VDB, examine MDS service
+
+1. list all dcs:
+#dcla is `dc list -a` I then awk out rh* instances
+mike.kennedy@dcol2:~$ dcla|awk '/^rh/ {print $1}'
+rh610-ebf-as-0zgt-qar-33-9cd3ebb4
+rh610-ebf-as-q0zt-qar-33-9cd3ebb4
+rh73-orastage
+rh74-crdb-src
+rh74-crdb-src--dev
+rh74-crdb-src--dev1
+rh74-crdb-tgt
+rh74-crdb-tgt--dev
+rh74-crdb-tgt--dev1
+rh74-mongo-srd1
+rh77-ora1-zbm3-qar-39830-27a4593a
+rh77-ora1-ziu6-qar-39830-27a4593a
+rh77ora12201-src
+rh77ora12201-tgt
+rh83-desktop
+rhel-80-orac-3zqc-qar-8-c073aecb
+rhel-80-orac-djsj-qar-8-c073aecb
+rhel-83-ora-9zhp-qar-30-23269b6d
+rhel-83-ora-f7mx-qar-32-760d1e34
+rhel-83-ora-mc8k-qar-30-23269b6d
+rhel-83-ora-x0jl-qar-32-760d1e34
+rhel76DCT
+rhel79-src
+rhel79-tgt
+rhel8
+
+2. find groups created by kg && mk60150mike.kennedy@dcol2:~$ dcla|awk '/kg/ {print $1}'
+kg6013
+kg6015
+kgrh79ora1911src
+kgrh79ora1911tgt
+rs60140
+rsrhel79ora1911src
+mike.kennedy@dcol2:~$ dcla|awk '/mk/ {print $1}'
+mk60150
+mkrh74ora19src
+
+3. dc clone ora source: 
+dc clone-latest rh74-ora19000-src mkrh74ora19src
+
+4. examine ORCL environment, and install toolkit on target:
+
+ 8  set -o vi ;set -o allexport
+    9  cd /work
+   10  ls
+   11  mkdir toolkit
+   12  ls
+   13  chmod 770 toolkit/
+   14   ls -l
+   15  cd toolkit/
+   16  ls
+   17  cd Delphix_COMMON_c7b3d2b8ca6a_f70f9bc90a7d_1_host
+   18  ls
+   19  cat systemInfo.json
+   20  ps -elf|grep client.jar
+   21  pgrep client.jar
+   22  ps -elf|grep client.jar
+   23  cd ..
+   24  ls
+   25  cd Delphix_c7b3d2b8ca6a_f70f9bc90a7d_1_host
+   26  ls
+   27  cd log
+   28  ls
+   29  cd connector/
+   30  ls
+   31  tail -f debug.log
+   32  ps -elf|grep client.jar
+   33  df -h
+   34  mount|grep nfs
+   35  lsnrctl
+   36  export ORACLE_SID=VDBO_75K
+   37  env|grep -i ora
+   38  sqlplus '/ AS SYSDBA'
+   39  ps -elf|grep -i vdbo_75k
+   40  ssh delphix@mk60150.dcol2.delphix.com
+   41  exit
+   42  whoami
+   43  ls
+   44  pwd
+   45  ls
+   46  env
+   47  history
+
+5. From orcl target ssh into metadata server?
+ssh delphix@mk60150.dcol2.delphix.com
+shark in moat eats whole pie
+
+6. export PATH and enter mds:
+PATH=$PATH:/opt/delphix/server/bin
+msd_client
+7. ssh admin@mk60150.dcol2.delphix.com login returns the shell prompt:
+mk60150.dcol2>
+

@@ -1,0 +1,5 @@
+#API call lab with Kevin Gross
+
+-setopt trace=true reveals API endpoints && calls
+-http://mk60150.dcol2.delphix.com/api/#HostEnvironment
+- set container.group=mkoracledsrc Datasets

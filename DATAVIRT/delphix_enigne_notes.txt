@@ -1,0 +1,27 @@
+#https://docs.delphix.com/docs/overview-of-data-virtualization/delphix-engine-overview
+
+mike.kennedy@dcol2 - X3mpk#Delfixz
+---------------------------------------------------------
+
+dsource - entire file and log blocks of source databases sent to Delphix Engine; Compressed data ingested from that source host is called a dSource; This includes new changes to the database, those new blocks are also ingested into the dsource.
+
+timeflow - a record of snapshots and log changes.
+
+vdb - virtual database instantly provisioned from dsource database timeflow. It is sharing the blocks from that point in time.
+
+
+ In order to use dSource snapshots, you must create a virtual database (VDB), an independent, writable copy of a dSource snapshot.
+
+
+-------+------------+-------------------------
+       46 | JOB-9 | 2022-08-01 22:02:31.628 | RUNNING   |                0 | event.job.started                                    | ["DB_PROVISION","mkoracledsrc/VDBO_75K"] | DB_PROVISION job started for "mkoracledsrc/VDBO_75K".                                                              |                |                        | INFO       | 2022-08-01 22:02:31.628
+       47 | JOB-9 | 2022-08-01 22:02:31.716 | RUNNING   |                0 | event.jobs.oraclevdb.provision.starting              | ["VDBO_75K"]                             | Starting provision of the virtual database "VDBO_75K".                                                             |                |                        | INFO       | 2022-08-01 22:02:31.716
+       48 | JOB-9 | 2022-08-01 22:02:31.725 | RUNNING   |                0 | event.jobs.oraclevdb.create.timeflow                 | []                                       | Creating new TimeFlow.                                                                                             |                |                        | INFO       | 2022-08-01 22:02:31.725
+       49 | JOB-9 | 2022-08-01 22:02:32.493 | RUNNING   |                3 | event.jobs.oraclevdb.generate.scripts                | []                                       | Generating recovery scripts.                                                                                       |                |                        | INFO       | 2022-08-01 22:02:32.493
+       50 | JOB-9 | 2022-08-01 22:02:32.623 | RUNNING   |                6 | event.jobs.oraclevdb.storage.export                  | []                                       | Exporting storage.                                                                                                 |                |                        | INFO       | 2022-08-01 22:02:32.623
+       51 | JOB-9 | 2022-08-01 22:02:33.688 | RUNNING   |                9 | event.jobs.oraclevdb.mount                           | ["1"]                                    | Mounting filesystems for the virtual database instance "1".                                                        |                |                        | INFO       | 2022-08-01 22:02:33.688
+       52 | JOB-9 | 2022-08-01 22:02:34.763 | RUNNING   |               10 | event.jobs.oraclevdb.mount_source_archive            | ["1"]                                    | Mounting read-only archive log filesystem for the virtual database instance "1".                                   |                |                        | INFO       | 2022-08-01 22:02:34.763
+       53 | JOB-9 | 2022-08-01 22:02:34.951 | RUNNING   |               15 | event.jobs.oracledb.oracle.recovering                | []                                       | Recovering Oracle database.                                                                                        |                |                        | INFO       | 2022-08-01 22:02:34.951
+       54 | JOB-9 | 2022-08-01 22:02:35.019 | RUNNING   |               18 | event.jobs.oracledb.oracle.creating.control.file  
+
+       

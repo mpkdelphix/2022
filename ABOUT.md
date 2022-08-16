@@ -1,0 +1,1 @@
+This is an informal repo of my onboarding steps at Delphix. Kevin Gross is my mentor at Delphix and these are my first month activities doing things like following the data from JOB->JOB EVENTS->debug.logs on appliance and events within connector logs on ORCL targets.

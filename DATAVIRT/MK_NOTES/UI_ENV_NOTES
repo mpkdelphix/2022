@@ -1,0 +1,17 @@
+Where can you find the environments within a deployment?
+UI->Manage->environments
+
+Where do you find the toolkit path for an environment?
+UI->Manage->environments scroll down in center pane to "toolkit path"
+
+Toolkit Path
+/var/tmp
+
+
+How can I determine access credentials for an environment user?
+UI->Manage->Environments->click on user in center pane under "ENVIRONMENT USERS",
+then, click the pencil icon and you will be redirected to the authentication type
+page, it's called "Login Type".
+
+kgrh79ora1911src.dcol2.delphix.com -> username and password(oracle/oracle)
+kgrh79ora1911tgt.dcol2.delphix.com -> username and public key

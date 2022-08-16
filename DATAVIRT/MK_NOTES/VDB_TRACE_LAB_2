@@ -1,0 +1,20 @@
+0. list all names within dlpx_container - these can be dsource or vd
+hercules=> select name,timeflow from dlpx_container;
+-[ RECORD 1 ]----------------
+name     | carnival
+timeflow | ORACLE_TIMEFLOW-8
+-[ RECORD 2 ]----------------
+name     | DBOMSRCD94D3
+timeflow | ORACLE_TIMEFLOW-3
+-[ RECORD 3 ]----------------
+name     | TWO
+timeflow | ORACLE_TIMEFLOW-22
+
+hercules=> select name from dlpx_host_environment where host_environment_id=3;
+-[ RECORD 1 ]----------
+name | kgrh79ora1911tgt
+
+
+hercules=> select oracle_home from orcl_install where environment ~ '-3';
+-[ RECORD 1 ]-------------------------------------------
+oracle_home | /u01/app/oracle/product/19.11.0.0/dbhome_1

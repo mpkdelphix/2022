@@ -1,0 +1,30 @@
+hercules=> select container_id,container_type,name from dlpx_container where name = 'VDBO_BTF';
+ container_id |   container_type    |   name
+--------------+---------------------+----------
+           84 | ORACLE_DB_CONTAINER | VDBO_BTF
+(1 row)
+hercules=> select vdb_id,name,container,config from orcl_virtual_db where container ~ '-84';
+ vdb_id |   name   |       container        |          config
+--------+----------+------------------------+--------------------------
+     54 | VDBO_BTF | ORACLE_DB_CONTAINER-84 | ORACLE_SINGLE_CONFIG-134
+(1 row)
+hercules=> select db_config_id,repository,config_type,unique_name  from orcl_db_config where db_config_id = 134;
+ db_config_id |    repository    |     config_type      | unique_name
+--------------+------------------+----------------------+-------------
+          134 | ORACLE_INSTALL-7 | ORACLE_SINGLE_CONFIG | VDBO_BTF
+(1 row)
+hercules=> select install_id,environment,oracle_home from orcl_install where install_id = 7;
+ install_id |       environment        |                oracle_home
+------------+--------------------------+--------------------------------------------
+          7 | UNIX_HOST_ENVIRONMENT-17 | /u01/app/oracle/product/19.11.0.0/dbhome_1
+(1 row)
+hercules=> select host_environment_id,name,host from dlpx_host_environment where host_environment_id = 17;
+ host_environment_id |       name       |     host
+---------------------+------------------+--------------
+                  17 | kgrh79ora1911tgt | UNIX_HOST-19
+(1 row)
+hercules=> select host_id,host_address,toolkit_directory,delphix_uuid from dlpx_host where host_id = 19;
+ host_id |            host_address            | toolkit_directory |             delphix_uuid
+---------+------------------------------------+-------------------+--------------------------------------
+      19 | kgrh79ora1911tgt.dcol2.delphix.com | /var/tmp          | 1a09bd4e-0861-4b34-97cf-238fe1deebaa
+(1 row)

@@ -272,3 +272,4 @@ Additional information: 9925
 rm -rf old archivelog directories, and the dSource && VDB automagically started
 /u01/app/oracle/fast_recovery_area/CDOMLOSR9CD5/archivelog
 
+#KG advises use RMAN to make them officially deleted; google 'mark archive logs deleted with RMAN';

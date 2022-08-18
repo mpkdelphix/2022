@@ -1,0 +1,249 @@
+#I want to watch the workflows when deleting a vdb
+
+
+0. login to dcol2.delphix.com and list my vmz:
+mike.kennedy@dcol2:~$ . ./.bashrc
+mike.kennedy@dcol2:~$ dcl
+NAME           ESX_HOST     EXPIRES
+mk60150        dcol2-esxi01 Wed Aug 31 21:11 (13d 3h)
+mkrh74ora19src dcol2-esxi06 Wed Aug 31 21:27 (13d 3h)
+mkrh74ora19tgt dcol2-esxi03 Thu Sep 01 22:14 (14d 4h)
+mike.kennedy@dcol2:~$
+
+1.tail /var/delphix/server/debug.log and delete VDBO_75K
+
+2. we have an error:
+
+Error
+Unable to shut down and clean virtual database.
+Error Code
+exception.oracle.vdb.clean.failed
+Suggested Action
+Review shutdown clean job for more details and try again, or try again with force option.
+
+Error
+SOURCE_STOP job for "VDBO_75K" failed due to an internal error during execution.
+Error Code
+exception.job.execute.internal
+Suggested Action
+Contact Delphix Support.
+
+3. investigate workflow within debug log , first locate FAILED JOBS in mds_client
+
+hercules=> select * from dlpx_jobs where job_state ~ 'FAILED' ;
+-[ RECORD 1 ]---------+---------------------------
+job_id                | 82
+target_reference      | ORACLE_DB_CONTAINER-2
+job_type              | DB_DELETE
+start_time            | 2022-08-18 17:57:58.387
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-18 17:58:01.822
+title                 | Delete dataset "VDBO_75K".
+job_state             | FAILED
+title_code            | event.action.db.delete
+title_params          | ["VDBO_75K"]
+target_name           | mkoracledsrc/VDBO_75K
+action                | ACTION-302
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 2 ]---------+---------------------------
+job_id                | 83
+target_reference      | ORACLE_VIRTUAL_SOURCE-1
+job_type              | SOURCE_STOP
+start_time            | 2022-08-18 17:58:01.242
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-18 17:58:01.763
+title                 | Stop dataset "VDBO_75K".
+job_state             | FAILED
+title_code            | event.action.source.stop
+title_params          | ["VDBO_75K"]
+target_name           | VDBO_75K
+action                | ACTION-303
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+2. review ACTION-303
+
+hercules=> select * from dlpx_action where action_id=303;
+-[ RECORD 1 ]---------+---------------------------------------------------------------------------------
+action_id             | 303
+action_type           | SOURCE_STOP
+state                 | FAILED
+desc_message_id       | event.action.source.stop
+desc_message_params   | ["VDBO_75K"]
+desc_message_desc     | Stop dataset "VDBO_75K".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       | exception.job.execute.internal
+fail_message_params   | ["SOURCE_STOP","VDBO_75K"]
+fail_message_desc     | SOURCE_STOP job for "VDBO_75K" failed due to an internal error during execution.
+parent_action         | ACTION-302
+parent_job            | JOB-82
+start_time            | 2022-08-18 17:58:01.221
+end_time              | 2022-08-18 17:58:01.721
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+3. trace JOB-83 in latest debug.log
+delphix@mk60150:/var/delphix/server/log$ awk '/JOB-83/' debug.log
+[2022-08-18T12:58:01,652][DEBUG][session.module.rmi.impl.RmiFactoryImpl#call:163][Worker-225|JOB-83|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-1)][AION-303] remote method invocation shutdownDatabase failed
+[2022-08-18T12:58:01,657][DEBUG][jcm.impl.JobInstance#execute:317][Worker-225|JOB-83|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-1)][ACTION-303] job quested state null, requested reason null, throwable java.lang.NoClassDefFoundError: Could not initialize class com.delphix.boot.LibCTarget
+[2022-08-18T12:58:01,659][DEBUG][exception.DelphixUserException#logMe:70][Worker-225|JOB-83|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-1)][ACTION-30 Encountered User Exception in convertInternalErrorToDUE(), JobInstance.java:272: exception.job.execute.internal {SOURCE_STOP|VDBO_75K}
+[2022-08-18T12:58:01,661][ERROR][jcm.impl.JobInstance#execute:349][Worker-225|JOB-83|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-1)][ACTION-303] job iled with internal error
+
+4. verify mount at Oracle source:
+[oracle@gi-rh74-ora19000-src ~]$ mount |awk '/VDBO_75K/'
+10.43.35.196:/domain0/group-3/oracle_db_container-7/oracle_timeflow-8 on /mnt/provision/VDBO_75K type nfs (rw,nosuid,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,port=2049,timeo=600,retrans=2,sec=sys,mountaddr=10.43.35.196,mountvers=3,mountport=54043,mountproto=tcp,local_lock=all,addr=10.43.35.196)
+10.43.35.196:/domain0/group-3/oracle_db_container-7/oracle_timeflow-8/datafile on /mnt/provision/VDBO_75K/datafile type nfs (rw,nosuid,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,port=2049,timeo=600,retrans=2,sec=sys,mountaddr=10.43.35.196,mountvers=3,mountport=54043,mountproto=tcp,local_lock=all,addr=10.43.35.196)
+10.43.35.196:/domain0/group-3/oracle_db_container-7/oracle_timeflow-8/archive on /mnt/provision/VDBO_75K/archive type nfs (rw,nosuid,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,port=2049,timeo=600,retrans=2,sec=sys,mountaddr=10.43.35.196,mountvers=3,mountport=54043,mountproto=tcp,local_lock=all,addr=10.43.35.196)
+10.43.35.196:/domain0/group-3/oracle_db_container-7/oracle_timeflow-8/external on /mnt/provision/VDBO_75K/external type nfs (rw,nosuid,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,port=2049,timeo=600,retrans=2,sec=sys,mountaddr=10.43.35.196,mountvers=3,mountport=54043,mountproto=tcp,local_lock=all,addr=10.43.35.196)
+10.43.35.196:/domain0/group-3/oracle_db_container-7/oracle_timeflow-8/temp on /mnt/provision/VDBO_75K/temp type nfs (rw,nosuid,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,port=2049,timeo=600,retrans=2,sec=sys,mountaddr=10.43.35.196,mountvers=3,mountport=54043,mountproto=tcp,local_lock=all,addr=10.43.35.196)
+
+5.
+hercules=> select * from orcl_db_config where db_config_id=10;
+-[ RECORD 1 ]----------------+---------------------
+db_config_id                 | 10
+namespace                    |
+namespace_data_dependency    | f
+environment_user             | HOST_USER-1
+repository                   | ORACLE_INSTALL-1
+config_type                  | ORACLE_SINGLE_CONFIG
+database_name                | VDBO_75K
+user_name                    |
+password                     |
+non_sys_user_name            |
+non_sys_password             |
+linking_enabled              | t
+discovered                   | t
+cdb_config                   |
+con_id                       |
+db_id                        |
+guid                         |
+unique_name                  | VDBO_75K
+policy_managed               | f
+is_temporary                 | f
+cdb_type                     | NON_CDB
+aux_cdb_config               |
+db_domain                    |
+crs_database_name            |
+tde_keystore_password        |
+con_uid                      |
+user_credential_type         |
+vault_ref                    |
+vault_cred_id                |
+vault_engine                 |
+vault_path                   |
+vault_user_key               |
+vault_secret_key             |
+non_sys_user_credential_type |
+non_sys_vault_ref            |
+non_sys_vault_cred_id        |
+non_sys_vault_engine         |
+non_sys_vault_path           |
+non_sys_vault_user_key       |
+non_sys_vault_secret_key     |
+
+6. details of orcl_install
+
+
+
+hercules=> select * from orcl_install where install_id=1;
+-[ RECORD 1 ]-------------+------------------------------------------
+install_id                | 1
+namespace                 |
+namespace_data_dependency | f
+environment               | UNIX_HOST_ENVIRONMENT-1
+staging                   | f
+oracle_home               | /u01/app/oracle/product/19.0.0.0/dbhome_1
+oracle_base               | /u01/app/oracle
+version                   | 19.3.0.0.0
+group_name                | oinstall
+group_id                  | 1000
+user_name                 | oracle
+user_id                   | 1000
+bits                      | 64
+rac                       | f
+provisioning_enabled      | t
+discovered                | t
+applied_patches           | []
+oracle_base_config        | /u01/app/oracle/product/19.0.0.0/dbhome_1
+oracle_base_home          | /u01/app/oracle/product/19.0.0.0/dbhome_1
+
+hercules=> select * from dlpx_host_environment where host_environment_id=1;
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | mkrh74ora19src
+description               |
+primary_user              | HOST_USER-1
+enabled                   | t
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-1
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | 172e7812-f978-4f82-a181-c2082c3bf9ce
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      
+
+7. details of host UNIX-HOST-1
+
+a. host details
+ercules=> select * from dlpx_host where host_id=1;
+-[ RECORD 1 ]---------------------+-------------------------------------
+host_id                           | 1
+namespace                         |
+namespace_data_dependency         | f
+name                              | mkrh74ora19src.dcol2.delphix.com
+host_address                      | mkrh74ora19src.dcol2.delphix.com
+port_number                       | 22
+toolkit_directory                 | /work/toolkit
+creation_time                     | 2022-08-01 21:36:59.945
+delphix_uuid                      | adc360ae-3f4b-471c-a39d-f70f9bc90a7d
+
+
+b. db is running:
+[root@gi-rh74-ora19000-src /]# ps -elf|grep pmon
+0 S root       883   779  0  80   0 - 28177 pipe_w 14:28 pts/0    00:00:00 grep --color=auto pmon
+0 S oracle    2189     1  0  80   0 - 446335 SYSC_s Aug01 ?       00:01:18 ora_pmon_CDOMSHSR84EB
+0 S oracle    2682     1  0  80   0 - 380738 SYSC_s Aug01 ?       00:01:43 ora_pmon_DBOMSR0296BA
+0 S oracle   10319     1  0  80   0 - 376885 SYSC_s Aug01 ?       00:01:33 ora_pmon_VDBO_75K
+
+
+8. errors in UI:
+Unable to connect to database "DBOMSR0296BA" via JDBC. The database or host may be down. Connection error: Loading Oracle libraries "/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libclntsh.so,/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libocijdbc19.so" failed with an UnsatisfiedLinkError
+
+9. out of space issue...
+
+[oracle@gi-rh74-ora19000-src connector]$ df -h
+Filesystem                                                                      Size  Used Avail Use% Mounted on
+/dev/sda3                                                                        39G   39G   16K 100% /
+
+
+[2022-08-15T21:19:10,564][ERROR][com.delphix.ojdbc.OracleConnectionPoolUtil][pool-6-thread-4159][OracleConnectionPoolUtil.validatePoolDataSource] Failed to create pool data source for connectionPoolName=DBOMSR0296BA
+java.sql.SQLException: Exception occurred while getting connection: oracle.ucp.UniversalConnectionPoolException: Cannot get Connection from Datasource: java.sql.SQLException: ORA-09925: Unable to create audit trail file
+Linux-x86_64 Error: 28: No space left on device
+Additional information: 9925
+
+
+############# RESOLUTION ###############################
+rm -rf old archivelog directories, and the dSource && VDB automagically started
+/u01/app/oracle/fast_recovery_area/CDOMLOSR9CD5/archivelog
+

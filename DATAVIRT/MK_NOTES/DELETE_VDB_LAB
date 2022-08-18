@@ -232,6 +232,31 @@ Unable to connect to database "DBOMSR0296BA" via JDBC. The database or host may 
 
 9. out of space issue...
 
+delphix@mk60150:/var/delphix/server/log$ grep -in space error.log
+356:Linux-x86_64 Error: 28: No space left on device
+365:Linux-x86_64 Error: 28: No space left on device
+381:Linux-x86_64 Error: 28: No space left on device
+416:Linux-x86_64 Error: 28: No space left on device
+437:com.delphix.common.exception.messages.OracleDbcExceptions$LoadingLibraryFailed: exception.oracle.dbc.loading.library.failed {/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libclntsh.so,/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libocijdbc19.so|Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device|gi-rh74-ora19000-src (10.43.61.60)}
+470:Caused by: java.lang.UnsatisfiedLinkError: Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device
+530:Caused by: java.io.IOException: No space left on device
+586:Caused by: java.io.IOException: No space left on device
+642:Caused by: java.io.IOException: No space left on device
+698:Caused by: java.io.IOException: No space left on device
+752:Caused by: java.io.IOException: No space left on device
+806:Caused by: java.io.IOException: No space left on device
+860:Caused by: java.io.IOException: No space left on device
+914:Caused by: java.io.IOException: No space left on device
+966:Caused by: java.io.IOException: No space left on device
+1018:Caused by: java.io.IOException: No space left on device
+1074:com.delphix.common.exception.messages.OracleDbcExceptions$LoadingLibraryFailed: exception.oracle.dbc.loading.library.failed {/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libclntsh.so,/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libocijdbc19.so|Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device|gi-rh74-ora19000-src (10.43.61.60)}
+1107:Caused by: java.lang.UnsatisfiedLinkError: Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device
+1151:com.delphix.common.exception.messages.OracleDbcExceptions$LoadingLibraryFailed: exception.oracle.dbc.loading.library.failed {/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libclntsh.so,/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libocijdbc19.so|Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device|gi-rh74-ora19000-src (10.43.61.60)}
+1184:Caused by: java.lang.UnsatisfiedLinkError: Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device
+1345:com.delphix.common.exception.messages.OracleDbcExceptions$LoadingLibraryFailed: exception.oracle.dbc.loading.library.failed {/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libclntsh.so,/u01/app/oracle/product/19.0.0.0/dbhome_1/lib/libocijdbc19.so|Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device|gi-rh74-ora19000-src (10.43.61.60)}
+1378:Caused by: java.lang.UnsatisfiedLinkError: Failed to create temporary file for /com/sun/jna/linux-x86-64/libjnidispatch.so library: No space left on device
+
+
 [oracle@gi-rh74-ora19000-src connector]$ df -h
 Filesystem                                                                      Size  Used Avail Use% Mounted on
 /dev/sda3                                                                        39G   39G   16K 100% /

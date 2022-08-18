@@ -1,0 +1,47 @@
+#https://delphix.zendesk.com/agent/tickets/76231
+
+[2022-08-16 11:54:02,984][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-1681][] Job JOB-189: adding event JobEventDO{id=-1, job=JOB-189, event=event.jobs.oracledb.oracle.renaming.datafiles, state=RUNNING}
+[2022-08-16 11:56:21,640][DEBUG][session.module.rmi.impl.RmiFactoryImpl#call:163][Worker-278|JOB-189|DB_PROVISION(ORACLE_DB_CONTAINER-10)][ACTION-678] remote method invocation doRenameDatafiles failed
+com.delphix.common.exception.messages.OracleTargetscriptsExceptions$RenameDatafiles: exception.oracle.targetscripts.rename.datafiles {command: umask 027; . $DB_SCRIPT_DIR/setup-oraenv.sh; $DLPX_SHELL -x $DB_SCRIPT_DIR/doRenameDatafiles.sh $DB_SCRIPT_DIR "$LOGON_STR" "/db/pscsdev3/pscsdev3a/datafile" "" "false"
+
+
+#I wasn't sure where to find the $DB_SCRIPT_DIR, including whether it resides on source or appliance.
+
+0. become root on oracle target and issue find
+
+[oracle@kgrh79ora1911tgt toolkits]$ su -
+Password:
+Last login: Tue Aug 16 17:30:39 EDT 2022 on pts/1
+[root@kgrh79ora1911tgt ~]# cd /
+[root@kgrh79ora1911tgt /]# find . -name setup-oraenv.sh -print
+./var/tmp/Delphix_003903688a27_238fe1deebaa_18_host/databases/oracle/VDBO_BTF/VDBO_BTF/setup-oraenv.sh
+./var/tmp/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/carnival/carnival/setup-oraenv.sh
+./var/tmp/tooltest/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/TWO/TWO/setup-oraenv.sh
+./var/tmp/tooltest/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/carnival/carnival/setup-oraenv.sh
+./var/tmp/tooltest/Delphix_7f76776d5089_aff5a41046ee_3_host/databases/oracle/VDBO/VDBO/setup-oraenv.sh
+./var/tmp/Delphix_7f76776d5089_aff5a41046ee_3_host/databases/oracle/VDBO/VDBO/setup-oraenv.sh
+./var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/carnival/carnival/setup-oraenv.sh
+./var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/TWO/TWO/setup-oraenv.sh
+find: ‘./mnt/provision/VDBO_BTF’: Permission denied
+find: ‘./mnt/provision/VDBO’: Permission denied
+find: ‘./mnt/provision/TWO’: Permission denied
+./work/toolkit/Delphix_d5d5caeae943_9f0c82b661a1_2_host/databases/oracle/VDBO_Tst/VDBO_Tst/setup-oraenv.sh
+[root@kgrh79ora1911tgt /]# cd /var/tmp/mytoolkitdir/
+[root@kgrh79ora1911tgt mytoolkitdir]# ls
+
+
+1. link common and uncommon(my terms) directories to avoid typing:
+2. select uncommon:
+./var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/TWO/TWO/setup-oraenv.sh
+
+3. review doRenameDatafiles.sh
+4. review README.txt:
+Copyright (c) 2018 by Delphix. All rights reserved.
+
+This directory contains generated scripts for Delphix VDB operations. These
+scripts will be used in provision and v2p operations.
+
+These scripts should NOT be manually used or modified.
+
+For automation, please use the Delphix API.
+---------------------------------------------------------------------------

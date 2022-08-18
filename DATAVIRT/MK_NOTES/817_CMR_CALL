@@ -1,0 +1,7 @@
+SN advises review debug logs in-tandem with job events, 76136 has an 8-hour gap in events, but there's possibly much more in the corresponding debug.log
+
+-DSP last element is the tag element; Client-side the queue is almost empty for both nexus, that confirms the source-side isn't sending data; So we need to review what's going on at the source end. queue full on client- network; queue full on network -
+
+Replicaton cannot break a given dataset over multipl enexus. so you can only take advantage of multiple nexus if more than one dataset is sent, it parallelizes. If you are only replicating one, you will see on ly one nexus active.
+
+9 of 10 objects are small, when they finish and big dSource is sent, it's possible to see a dropoff in performance.

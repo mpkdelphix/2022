@@ -1,0 +1,58 @@
+#notice deleting a dSource will include user_agent(Chrome), source ip, work_source_name(admin)
+
+hercules=> select * from dlpx_jobs where job_id=99;
+-[ RECORD 1 ]---------+-------------------------------
+job_id                | 99
+target_reference      | ORACLE_DB_CONTAINER-1
+job_type              | DB_DELETE
+start_time            | 2022-08-19 14:02:56.028
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 14:02:59.364
+title                 | Delete dataset "DBOMSR0296BA".
+job_state             | COMPLETED
+title_code            | event.action.db.delete
+title_params          | ["DBOMSR0296BA"]
+target_name           | mkoracledsrc/DBOMSR0296BA
+action                | ACTION-331
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+
+
+hercules=> select * from dlpx_action where action_id=331;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 331
+action_type           | DB_DELETE
+state                 | COMPLETED
+desc_message_id       | event.action.db.delete
+desc_message_params   | ["DBOMSR0296BA"]
+desc_message_desc     | Delete dataset "DBOMSR0296BA".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-08-19 14:02:55.921
+end_time              | 2022-08-19 14:02:59.362
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.58
+http_session_id       | 92F28F50D24543010A1691F03DFF1298
+work_source_principal | admin
+
+#/var/delphix/server/log 
+35590:[2022-08-19T09:02:59,302][INFO][oracle.external.OracleLinkedDatabaseManagerImpl#deleteDSource:369][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][ACTION-331] Deletion of database DBOMSR0296BA/DBOMSR0296BA completed
+35591:[2022-08-19T09:02:59,335][DEBUG][jcm.impl.JobManagerImpl#createJob:462][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][ACTION-332] Job JOB-100: Created Job 100 for object DOMAIN
+35592:[2022-08-19T09:02:59,337][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][ACTION-332] Job JOB-100: dispatching for reason event.job.started.domain
+35593:[2022-08-19T09:02:59,337][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][ACTION-332] Getting lock object for JOB-100.
+35596:[2022-08-19T09:02:59,353][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][] Job JOB-99: execution complete
+35597:[2022-08-19T09:02:59,353][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][] Job JOB-99: suspended by request for state RUNNING (event.job.completed)
+35600:[2022-08-19T09:02:59,364][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-65][] Job JOB-99: updating state to COMPLETED
+35602:[2022-08-19T09:02:59,368][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-65][] Job JOB-99: adding event JobEventDO{id=-1, job=JOB-99, event=event.job.completed, state=COMPLETED}
+35612:[2022-08-19T09:02:59,405][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-244|JOB-99|DB_DELETE(ORACLE_DB_CONTAINER-1)][] action doneAsync (1) ACTION-331
+delphix@mk60150:/var/delphix/server/log$

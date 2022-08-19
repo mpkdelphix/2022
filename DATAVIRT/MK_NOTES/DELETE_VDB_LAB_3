@@ -1,0 +1,83 @@
+Delete kg_api_lab and learn workflow in debug log. This entails following the job, the associated job events and the /var/delphix/server/log debug logs as well as the connector logs on the client which is the target in this case.
+job and associated action:
+-[ RECORD 1 ]---------+-----------------------------
+job_id                | 96
+target_reference      | ORACLE_DB_CONTAINER-4
+job_type              | DB_DELETE
+start_time            | 2022-08-19 13:13:34.912
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 13:13:48.006
+title                 | Delete dataset "kg_api_lab".
+job_state             | COMPLETED
+title_code            | event.action.db.delete
+title_params          | ["kg_api_lab"]
+target_name           | mkoracledsrc/kg_api_lab
+action                | ACTION-327
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 327
+action_type           | DB_DELETE
+state                 | COMPLETED
+desc_message_id       | event.action.db.delete
+desc_message_params   | ["kg_api_lab"]
+desc_message_desc     | Delete dataset "kg_api_lab".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-08-19 13:13:34.762
+end_time              | 2022-08-19 13:13:48.004
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.58
+http_session_id       | 92F28F50D24543010A1691F03DFF1298
+work_source_principal | admi
+
+3. appliance debug log
+delphix@mk60150:/var/delphix/server$ cd log
+delphix@mk60150:/var/delphix/server/log$ ls
+access_log    debug.log.15  debug.log.22  debug.log.3   debug.log.37  debug.log.44  debug.log.6    info.log.2        opensource.log.2
+debug.log     debug.log.16  debug.log.23  debug.log.30  debug.log.38  debug.log.45  debug.log.7    info.log.3        opensource.log.3
+debug.log.1   debug.log.17  debug.log.24  debug.log.31  debug.log.39  debug.log.46  debug.log.8    info.log.4        opensource.log.4
+debug.log.10  debug.log.18  debug.log.25  debug.log.32  debug.log.4   debug.log.47  debug.log.9    info.log.5        opensource.log.5
+debug.log.11  debug.log.19  debug.log.26  debug.log.33  debug.log.40  debug.log.48  error.log      info.log.6        osadmin
+debug.log.12  debug.log.2   debug.log.27  debug.log.34  debug.log.41  debug.log.49  failedActions  nginx             stats
+debug.log.13  debug.log.20  debug.log.28  debug.log.35  debug.log.42  debug.log.5   info.log       opensource.log    stdout.log
+debug.log.14  debug.log.21  debug.log.29  debug.log.36  debug.log.43  debug.log.50  info.log.1     opensource.log.1  trace.log
+delphix@mk60150:/var/delphix/server/log$ grep -in job-96 debug.log
+31572:[2022-08-19T08:13:34,925][DEBUG][jcm.impl.JobManagerImpl#createJob:462][http-nio-127.0.0.1-8586-exec-252:DELETE /delphix/database/ORACLE_DB_CONTAINER-4][ACTION-327] Job JOB-96: Created Job 96 for object ORACLE_DB_CONTAINER-4
+31573:[2022-08-19T08:13:34,926][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][http-nio-127.0.0.1-8586-exec-252:DELETE /delphix/database/ORACLE_DB_CONTAINER-4][ACTION-327] Job JOB-96: dispatching for reason event.job.started
+31574:[2022-08-19T08:13:34,927][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][http-nio-127.0.0.1-8586-exec-252:DELETE /delphix/database/ORACLE_DB_CONTAINER-4][ACTION-327] Getting lock object for JOB-96.
+31575:[2022-08-19T08:13:34,929][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-63][] Job JOB-96: updating state to RUNNING
+31576:[2022-08-19T08:13:34,930][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-63][] Job JOB-96: adding event JobEventDO{id=-1, job=JOB-96, event=event.job.started, state=RUNNING}
+31577:[2022-08-19T08:13:34,952][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][] Job JOB-96 gets context ACTION-327
+31578:[2022-08-19T08:13:34,953][DEBUG][executor.impl.ExecutorImpl#setupExecutorContext:361][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] action preExecute action ACTION-327
+31579:[2022-08-19T08:13:34,965][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-117
+31580:[2022-08-19T08:13:34,965][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-118
+31581:[2022-08-19T08:13:34,965][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-119
+31582:[2022-08-19T08:13:34,965][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-120
+31583:[2022-08-19T08:13:34,965][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-121
+31584:[2022-08-19T08:13:34,966][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-122
+31585:[2022-08-19T08:13:34,966][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-123
+31586:[2022-08-19T08:13:34,966][DEBUG][policy.impl.PolicyManagementServiceImpl#suspendWorkers:265][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] suspending worker WORKER-124
+31587:[2022-08-19T08:13:34,966][DEBUG][environmentMonitor.impl.AttributeTaskManagerImpl#stopMonitoring:53][Worker-241|JOB-96|DB_DELETE(ORACLE_DB_CONTAINER-4)][ACTION-327] Halting monitoring on objects in preparation for object deletion: [ORACLE_VIRTUAL_SOURCE-3]
+31751:[2022-08-19T08:13:35,071][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-63][] Job JOB-96: updating state to RUNNING
+31752:[2022-08-19T08:13:35,073][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-63][] Job JOB-96: adding event JobEventDO{id=-1, job=JOB-96, event=event.jobs.genericvdb.deprovision.starting, state=RUNNING}
+32061:[2022-08-19T08:13:47,293][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-63][] Job JOB-96: updating state to RUNNING
+32062:[2022-08-19T08:13:47,295][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-63][] Job JOB-96: adding event JobEventDO{id=-1, job=JOB-96, event=event.jobs.oraclevdb.storage.unexport, state=RUNNING}
+32068:[2022-08-19T08:13:47,486][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-63][] Job JOB-96: updating state to RUNNING
+32070:[2022-08-19T08:13:47,489][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-63][] Job JOB-96: adding event JobEventDO{id=-1, job=JOB-96, event=event.jobs.genericvdb.deprovision.success, state=RUNNING}
+32281:[2022-08-19T08:13:48,003][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-LogLinkJob.ORACLE_DB_CONTAINER-4][] Job JOB-96: execution complete
+32282:[2022-08-19T08:13:48,003][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-LogLinkJob.ORACLE_DB_CONTAINER-4][] Job JOB-96: suspended by request for state RUNNING (event.job.completed)
+32286:[2022-08-19T08:13:48,006][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-63][] Job JOB-96: updating state to COMPLETED
+32287:[2022-08-19T08:13:48,008][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-63][] Job JOB-96: adding event JobEventDO{id=-1, job=JOB-96, event=event.job.completed, state=COMPLETED}
+delphix@mk60150:/var/delphix/server/log$
+

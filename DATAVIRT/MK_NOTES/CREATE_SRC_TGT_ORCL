@@ -1,0 +1,213 @@
+#RHEL7.6 ORCL 12 source
+mike.kennedy@dcol2:~$ dc clone rh76-ora12-src mkrh76ora12src
+***** You have 1 registered VMs. *****
+VM is powered on, attempting to sync pending I/O before snapshotting...
+Pending I/O sync successful.
+Taking a snapshot of 'rh76-ora12-src'...
+Cloning 'rh76-ora12-src' current state to 'mkrh76ora12src'...
+Registering 'mkrh76ora12src' with ESX server 'dcol2-esxi08'...
+The new VM has DNS name 'mkrh76ora12src.dcol2'.
+
+#RHEL7.6 ORCL 12 target
+mike.kennedy@dcol2:~$ dc clone rh76-ora12-tgt mkrh76ora12tgt
+***** You have 2 registered VMs. *****
+VM is powered on, attempting to sync pending I/O before snapshotting...
+Pending I/O sync successful.
+Taking a snapshot of 'rh76-ora12-tgt'...
+Cloning 'rh76-ora12-tgt' current state to 'mkrh76ora12tgt'...
+Registering 'mkrh76ora12tgt' with ESX server 'dcol2-esxi06'...
+The new VM has DNS name 'mkrh76ora12tgt.dcol2'.
+
+#NOTE you will need to create /work/toolkit and chown -R it with oracle:oinstall in order to provision environment within the UI.
+
+#ENVIRONMENT CREATE job 
+hercules=> select * from dlpx_jobs where job_id=116;
+-[ RECORD 1 ]---------+-----------------------------------
+job_id                | 116
+target_reference      | UNIX_HOST_ENVIRONMENT-5
+job_type              | ENVIRONMENT_CREATE
+start_time            | 2022-08-19 16:19:05.919
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 16:19:47.087
+title                 | Create environment "10.43.46.103".
+job_state             | COMPLETED
+title_code            | event.action.environment.create
+title_params          | ["10.43.46.103"]
+target_name           | mkrh76ora12src
+action                | ACTION-385
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+
+#job events:
+hercules=> select message_code from dlpx_job_events where job ~ '116';
+-[ RECORD 1 ]+-------------------------------------------
+message_code | event.job.started
+-[ RECORD 2 ]+-------------------------------------------
+message_code | event.jobs.dhm.connect
+-[ RECORD 3 ]+-------------------------------------------
+message_code | event.job.completed
+-[ RECORD 4 ]+-------------------------------------------
+message_code | event.jobs.dhm.generate.uuid
+-[ RECORD 5 ]+-------------------------------------------
+message_code | event.jobs.dhm.push.metadata
+-[ RECORD 6 ]+-------------------------------------------
+message_code | event.jobs.dhm.preparing.toolkit.directory
+-[ RECORD 7 ]+-------------------------------------------
+message_code | event.jobs.dhm.push.toolkit
+-[ RECORD 8 ]+-------------------------------------------
+message_code | event.jobs.dhm.push.toolkit
+-[ RECORD 9 ]+-------------------------------------------
+message_code | event.jobs.dhm.inspecting
+-[ RECORD 10 ]-------------------------------------------
+message_code | event.jobs.dhm.push.jre
+
+
+#target CREATE ENVIRONEMNT 
+hercules=> select * from dlpx_jobs where job_id=119;
+-[ RECORD 1 ]---------+----------------------------------
+job_id                | 119
+target_reference      | UNIX_HOST_ENVIRONMENT-6
+job_type              | ENVIRONMENT_CREATE
+start_time            | 2022-08-19 16:23:46.101
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 16:24:10.251
+title                 | Create environment "10.43.55.40".
+job_state             | COMPLETED
+title_code            | event.action.environment.create
+title_params          | ["10.43.55.40"]
+target_name           | mkrh76ora12tgt
+action                | ACTION-392
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+#target create job events
+hercules=> select * from dlpx_jobs where job_id=119;
+-[ RECORD 1 ]---------+----------------------------------
+job_id                | 119
+target_reference      | UNIX_HOST_ENVIRONMENT-6
+job_type              | ENVIRONMENT_CREATE
+start_time            | 2022-08-19 16:23:46.101
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 16:24:10.251
+title                 | Create environment "10.43.55.40".
+job_state             | COMPLETED
+title_code            | event.action.environment.create
+title_params          | ["10.43.55.40"]
+target_name           | mkrh76ora12tgt
+action                | ACTION-392
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_job_events where job ~ '119';
+percent_complete       | 35
+message_code           | event.jobs.dhm.inspecting
+message_params         | ["10.43.55.40","10.43.55.40"]
+message_details        | Inspecting OS configuration on host 10.43.55.40 [10.43.55.40].
+message_action         |
+message_command_output |
+event_type             | INFO
+start_time             | 2022-08-19 16:23:57.401
+-[ RECORD 9 ]----------+--------------------------------------------------------------------
+event_id               | 954
+job                    | JOB-119
+event_time             | 2022-08-19 16:24:02.143
+job_state              | RUNNING
+percent_complete       | 60
+message_code           | event.jobs.dhm.push.toolkit
+message_params         | ["10.43.55.40","10.43.55.40"]
+message_details        | Pushing Delphix toolkit to host 10.43.55.40 [10.43.55.40].
+message_action         |
+message_command_output |
+event_type             | INFO
+start_time             | 2022-08-19 16:24:02.143
+-[ RECORD 10 ]---------+--------------------------------------------------------------------
+event_id               | 955
+job                    | JOB-119
+event_time             | 2022-08-19 16:24:10.253
+job_state              | COMPLETED
+percent_complete       | 100
+message_code           | event.job.completed
+message_params         | ["ENVIRONMENT_CREATE","mkrh76ora12tgt"]
+message_details        | ENVIRONMENT_CREATE job for "mkrh76ora12tgt" completed successfully.
+message_action         |
+message_command_output |
+event_type             | INFO
+start_time             | 2022-08-19 16:24:10.253
+
+domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+
+delphix@mk60150:/var/delphix/server/log$ sudo zpool history -i |grep domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:08:08 [txg:300620] clone domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) origin=domain0/group-3/oracle_db_container-86/oracle_timeflow-87/datafile@oracle_snapshot-88 (7442)
+2022-08-19.18:08:08 [txg:300626] set domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) recordsize=8192
+2022-08-19.18:08:08 zfs set recordsize=8192 domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:08:09 [txg:300628] set domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) sync=2
+2022-08-19.18:08:10 zfs set sync=disabled domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:08:10 [txg:300629] set domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) canmount=2
+2022-08-19.18:08:10 zfs set canmount=noauto domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:08:47 [txg:300641] set domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) recordsize=131072
+2022-08-19.18:08:47 zfs set recordsize=131072 domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:09:55 [txg:300670] set domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) recordsize=8192
+2022-08-19.18:09:55 zfs set recordsize=8192 domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:09:55 [txg:300671] inherit domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) sync=0
+2022-08-19.18:09:55 zfs inherit sync domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:09:55 [txg:300673] set domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile (7585) canmount=1
+2022-08-19.18:09:55 zfs set canmount=on domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile
+2022-08-19.18:10:01 [txg:300684] snapshot domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile@oracle_snapshot-91 (7643)
+            domain0/group-3/oracle_db_container-89/oracle_timeflow-90/datafile@oracle_snapshot-91
+
+/work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/bash/linux_x86/bin64/bash -x '/work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/provision/oracle/common/validate_provision_reqs' '/work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host' '/mnt/provision' 'VCDO_RT8-CDOMLOTGD38D' '10.43.35.196' '/public' 'CDOMLOTGD38D' 'VCDO_RT8' 'true' '3' '1001' 'VCDO_RT8-CDOMLOTGD38D_7121447453492422253_VALIDATE'
+10.43.35.196:/public
+
+/work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/provision/oracle/common/mount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host 10.43.35.196 2049 /domain0/group-3/oracle_db_container-89/oracle_timeflow-90/source-archive /mnt/provision/VDBOMSR4872A9_4DX/source-archive rw,bg,hard,rsize=1048576,wsize=1048576,nointr,timeo=600,tcp,nosuid,sec=sys,vers=3,local_lock=all
+
+/work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host/scripts/provision/oracle/common/mount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_99462c203702_6_host 10.43.35.196 2049 /domain0/group-3/oracle_db_container-89/oracle_timeflow-90/source-archive /mnt/provision/VDBOMSR4872A9_4DX/source-archive rw,bg,hard,rsize=1048576,wsize=1048576,nointr,timeo=600,tcp,nosuid,sec=sys,vers=3,local_lock=all
+
+
+
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX'> enable
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX' enable *> ls
+Properties
+    type: OracleEnableParameters
+    attemptStart: true
+    credential: (unset)
+    username: (unset)
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX' enable *> set attemptStart=false
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX' enable *> commit
+    Dispatched job JOB-141
+    SOURCE_ENABLE job started for "VDBOMSR4872A9_4DX".
+    Enabling dataset "VDBOMSR4872A9_4DX".
+    Exporting storage containers from the Delphix Engine.
+    Mounting datasets.
+    Dataset "VDBOMSR4872A9_4DX" enabled.
+    SOURCE_ENABLE job for "VDBOMSR4872A9_4DX" completed successfully.
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX'>
+
+
+
+
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX' disable *> ls
+Properties
+    type: OracleDisableParameters
+    attemptCleanup: true
+    credential: (unset)
+    username: (unset)
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX' disable *> ..
+Command '..' is not a valid target context.
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX' disable *> commit
+    Dispatched job JOB-142
+    SOURCE_DISABLE job started for "VDBOMSR4872A9_4DX".
+    Disabling virtual database "VDBOMSR4872A9_4DX".
+    Unexporting storage containers.
+    Virtual database "VDBOMSR4872A9_4DX" disabled.
+    SOURCE_DISABLE job for "VDBOMSR4872A9_4DX" completed successfully.
+mk60150.dcol2 source 'VDBOMSR4872A9_4DX'>

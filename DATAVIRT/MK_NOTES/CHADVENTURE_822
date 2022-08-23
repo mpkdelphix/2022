@@ -1,0 +1,322 @@
+#case in question is 76276 Alticor
+
+0. find failed DB_REFRESH jobs on 8/19
+-[ RECORD 1 ]---------+-------------------------------------------------------------------------------
+job_id                | 24628
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_ENABLE
+start_time            | 2022-08-19 20:33:59.064
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 20:34:01.671
+title                 | Enable dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.enable
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-46160
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 2 ]---------+-------------------------------------------------------------------------------
+job_id                | 24627
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_ENABLE
+start_time            | 2022-08-19 20:18:56.444
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-19 20:18:59.081
+title                 | Enable dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.enable
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-46157
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+-[ RECORD 3 ]---------+-------------------------------------------------------------------------------
+job_id                | 24614
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_START
+start_time            | 2022-08-19 20:05:32.561
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 20:05:35.861
+title                 | Start dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.start
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-46131
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 4 ]---------+-------------------------------------------------------------------------------
+job_id                | 24612
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_START
+start_time            | 2022-08-19 20:02:00.181
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 20:02:03.446
+title                 | Start dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.start
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-46126
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+-[ RECORD 5 ]---------+-------------------------------------------------------------------------------
+job_id                | 24611
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_START
+start_time            | 2022-08-19 20:01:25.479
+user_ref              |
+email_addresses       |
+update_time           | 2022-08-19 20:01:28.782
+title                 | Start dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.start
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-46125
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 6 ]---------+-------------------------------------------------------------------------------
+job_id                | 24592
+target_reference      | UNIX_HOST-791
+job_type              | HOST_REFRESH
+start_time            | 2022-08-19 19:55:43.857
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 19:55:49.001
+title                 | Refresh host "10.137.1.181".
+job_state             | FAILED
+title_code            | event.action.host.refresh
+title_params          | ["10.137.1.181"]
+target_name           | 10.137.1.181
+action                | ACTION-46102
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+...truncated
+-[ RECORD 26 ]--------+-------------------------------------------------------------------------------
+job_id                | 24520
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_START
+start_time            | 2022-08-19 18:58:47.232
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 18:58:49.84
+title                 | Start dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.start
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-46016
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 27 ]--------+-------------------------------------------------------------------------------
+job_id                | 24506
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_START
+start_time            | 2022-08-19 18:37:55.436
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 18:37:58.04
+title                 | Start dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.start
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-45998
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 28 ]--------+-------------------------------------------------------------------------------
+job_id                | 24492
+target_reference      | ORACLE_SINGLE_CONFIG-957
+job_type              | SOURCE_CONFIG_UPDATE
+start_time            | 2022-08-19 18:07:12.11
+user_ref              | USER-9
+email_addresses       |
+update_time           | 2022-08-19 18:07:13.175
+title                 | Update source config "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source_config.update
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-45977
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 29 ]--------+-------------------------------------------------------------------------------
+job_id                | 24491
+target_reference      | ORACLE_VIRTUAL_SOURCE-797
+job_type              | SOURCE_START
+start_time            | 2022-08-19 17:48:24.688
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 17:48:27.279
+title                 | Start dataset "dsbds001".
+job_state             | FAILED
+title_code            | event.action.source.start
+title_params          | ["dsbds001"]
+target_name           | dsbds001
+action                | ACTION-45975
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+seems to happen historically for any database:
+-[ RECORD 36 ]--------+-------------------------------------------------------------------------------
+job_id                | 24401
+target_reference      | ORACLE_DB_CONTAINER-39
+job_type              | DB_REFRESH
+start_time            | 2022-08-19 17:02:09.047
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 17:02:09.515
+title                 | Refresh database "dsbds101".
+job_state             | FAILED
+title_code            | event.action.db.refresh
+title_params          | ["dsbds101"]
+target_name           | Target_dsbds101/dsbds101
+action                | ACTION-45863
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 37 ]--------+-------------------------------------------------------------------------------
+job_id                | 24166
+target_reference      | ORACLE_DB_CONTAINER-77
+job_type              | DB_SYNC
+start_time            | 2022-08-09 12:03:58.306
+user_ref              | USER-9
+email_addresses       |
+update_time           | 2022-08-09 12:04:01.955
+title                 | Run SnapSync for database "dsbts301".
+job_state             | FAILED
+title_code            | event.action.db.sync
+title_params          | ["dsbts301"]
+target_name           | Target_dsbts301/dsbts301
+action                | ACTION-45398
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 38 ]--------+-------------------------------------------------------------------------------
+job_id                | 23921
+target_reference      | ORACLE_DB_CONTAINER-23
+job_type              | DB_SYNC
+start_time            | 2022-07-28 13:39:44.908
+user_ref              | USER-9
+email_addresses       |
+update_time           | 2022-07-28 13:39:45.209
+title                 | Run SnapSync for database "dsbts101".
+job_state             | FAILED
+title_code            | event.action.db.sync
+title_params          | ["dsbts101"]
+target_name           | Target_dsbts101/dsbts101
+action                | ACTION-44894
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+-[ RECORD 39 ]--------+-
+
+1. select first error and drill into action and events:
+-[ RECORD 36 ]--------+-------------------------------------------------------------------------------
+job_id                | 24401
+target_reference      | ORACLE_DB_CONTAINER-39
+job_type              | DB_REFRESH
+start_time            | 2022-08-19 17:02:09.047
+user_ref              | USER-19
+email_addresses       |
+update_time           | 2022-08-19 17:02:09.515
+title                 | Refresh database "dsbds101".
+job_state             | FAILED
+title_code            | event.action.db.refresh
+title_params          | ["dsbds101"]
+target_name           | Target_dsbds101/dsbds101
+action                | ACTION-45863
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+
+2. select ACTION-45863
+hercules=> select * from dlpx_action where action_id=45863;
+-[ RECORD 1 ]---------+--------------------------------------------------------------------------------------------------------------------------------------
+action_id             | 45863
+action_type           | DB_REFRESH
+state                 | FAILED
+desc_message_id       | event.action.db.refresh
+desc_message_params   | ["dsbds101"]
+desc_message_desc     | Refresh database "dsbds101".
+work_source           | WEBSERVICE
+work_source_ref       | USER-19
+fail_message_id       | exception.oracle.target.version.incompatible
+fail_message_params   | ["19.14.0.0.0","19.15.0.0.0"]
+fail_message_desc     | Target database version "19.14.0.0.0" is not compatible with the source version "19.15.0.0.0".
+parent_action         |
+parent_job            |
+start_time            | 2022-08-19 17:02:08.811
+end_time              | 2022-08-19 17:02:09.458
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.47
+work_source_name      | a832eb58-15b1-4a20-9266-fe754c68451f
+origin_ip             | 10.55.49.167
+http_session_id       | 832A9CE6E7B7BA985DFCE2C8DC01CEC4
+work_source_principal | AIUNCF3
+
+seems to be version incompatibility, maybe they are patching?
+
+3. associated events:
+hercules=> select * from dlpx_job_events where job ~ '24401';
+-[ RECORD 1 ]----------+-----------------------------------------------------------------------------------------------
+event_id               | 134309
+job                    | JOB-24401
+event_time             | 2022-08-19 17:02:09.483
+job_state              | FAILED
+percent_complete       | 0
+message_code           | exception.oracle.target.version.incompatible
+message_params         | ["19.14.0.0.0","19.15.0.0.0"]
+message_details        | Target database version "19.14.0.0.0" is not compatible with the source version "19.15.0.0.0".
+message_action         | Select a compatible target installation or source snapshot.
+message_command_output |
+event_type             | ERROR
+-[ RECORD 2 ]----------+-----------------------------------------------------------------------------------------------
+event_id               | 134308
+job                    | JOB-24401
+event_time             | 2022-08-19 17:02:09.118
+job_state              | RUNNING
+percent_complete       | 0
+message_code           | event.job.started
+message_params         | ["DB_REFRESH","Target_dsbds101/dsbds101"]
+message_details        | DB_REFRESH job started for "Target_dsbds101/dsbds101".
+message_action         |
+message_command_output |
+event_type             | INFO
+
+
+
+#I asked on the 8/22 stand-up call if it's normal for us to drive the zoom from the command-line moving our toolkit aside, and figuring out the customer's ORCL setup. Customer claims no vfiles present, but D Gillespie's notes indicate there are indeed vfiles.
+
+

@@ -19,3 +19,7 @@ MK questions
 dx_toolkit also
 3. list hosts, environments, databases
 4. hprof dox: https://docs.oracle.com/javase/7/docs/technotes/samples/hprof.html
+
+--------------------------
+how do I access the evidence server?
+x@support-tools.delphix.com

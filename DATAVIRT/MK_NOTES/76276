@@ -1,0 +1,10 @@
+#look at Enel 76274 on monday 8/22
+
+Remote environment validation failed for environment "Target_Masking_dsbds001" host "10.137.1.181". Delphix found the following problems: 1. OS user 'oracle' failed to connect to sqlplus for Oracle Home '/u01/apps/oracle/dsbds001/19.0.0.0/dbhome_1' on host 'ip-10-137-1-181.intranet.local (10.137.1.181)'. 2. OS user 'oracle' failed to connect to RMAN for Oracle Home '/u01/apps/oracle/dsbds001/19.0.0.0/dbhome_1' on host 'ip-10-137-1-181.intranet.local (10.137.1.181)'.
+Error Code
+exception.oracle.vdb.remote.environment.validation
+
+delphix@support-tools:/nas/support/
+
+-------------------------------------------------------------------------------------------
+

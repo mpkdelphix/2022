@@ -1,0 +1,22 @@
+/work/toolkit/common/scripts/provision/oracle/common/validate_provision_reqz
+
+ Command line arguments:
+#   <relative/absolute path to the Delphix Toolkit directory>
+#   <absolute path to the VDB Mount Point>
+#   <name of the target mount directory relative to the VDB Mount Point>
+#   <Appliance IP Address>
+#   <Exported FS from the Appliance to mount>
+#   <Oracle SID for VDB>
+#   <PDB name, for vPDB> (for non-PDBs, pass _NOT_PDB)
+#   <Is VCDB>
+#   <NFS version>
+#   <VDB User ID>
+#   <Ownership check file>
+#
+
+--------------------------------------------------
+
+debug.log.9-    /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -c set -x; umask 027; . /var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/TWO/TWO/setup-oraenv.sh; /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -x /var/tmp/mytoolkitdir/Delphix_b6cae0c73fa6_da55a9d3200d_3_host/databases/oracle/TWO/TWO/check-db-status.sh
+[oracle@kgrh79ora1911tgt connector]$ grep -A1 cmd debug.log*|grep validate
+debug.log.1-    /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -c set -x; /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -x '/var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/provision/oracle/common/validate_provision_reqs' '/var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host' '/mnt/provision' 'SILVA' '10.43.53.20' '/public' 'SILVA' '_NOT_PDB_' 'true' '3' '1000' 'SILVA_9048859485615545379_VALIDATE'
+debug.log.1-    /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -c set -x; /var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/bash/linux_x86/bin64/bash -x '/var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host/scripts/provision/oracle/common/validate_provision_reqs' '/var/tmp/mytoolkitdir/Delphix_COMMON_b6cae0c73fa6_da55a9d3200d_3_host' '/mnt/provision' 'SILVA' '10.43.53.20' '/public' ''"'"''"'"'' '_NOT_PDB_' 'true' '4' '1000' 'SILVA_7788292552323338888_VALIDATE'

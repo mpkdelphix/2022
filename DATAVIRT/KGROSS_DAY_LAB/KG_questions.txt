@@ -23,3 +23,36 @@ dx_toolkit also
 --------------------------
 how do I access the evidence server?
 x@support-tools.delphix.com
+-----------------------------------
+[root@kgrh79ora1911tgt ~]# cat /etc/hostname
+kgrh79ora1911tgt.dcol2
+[root@kgrh79ora1911tgt ~]# cat /proc/sys/kernel/hostname
+kgrh79ora1911tgt.dcol2
+
+
+Why are these orcl_db_container and orcl_timeflow ids not found?
+10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612             15G     0   15G   0% /mnt/provision/nonMTVDB
+10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile    17G  1.6G   15G  10% /mnt/provision/nonMTVDB/datafile
+10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612/archive     15G   12M   15G   1% /mnt/provision/nonMTVDB/archive
+10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612/external    15G     0   15G   0% /mnt/provision/nonMTVDB/external
+10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612/temp        15G     0   15G   0% /mnt/provision/nonMTVDB/temp
+
+hercules=> select * from orcl_db_container where container_id=611;
+(0 rows)
+
+hercules=>
+
+hercules=> select * from orcl_timeflow where timeflow_id=612;
+(0 rows)
+
+hercules=>
+
+hercules=> select group_id from dlpx_group;
+-[ RECORD 1 ]
+group_id | 1
+-[ RECORD 2 ]
+group_id | 3
+
+
+
+------------------------------------------------------------------------------------------

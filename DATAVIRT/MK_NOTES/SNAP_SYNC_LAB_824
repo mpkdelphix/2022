@@ -1,0 +1,55 @@
+https://delphix.atlassian.net/wiki/spaces/SUP/pages/15311541047/SnapSync+Support+Training+Module
+
+
+0. select * from dlpx_jobs where job_type ~ 'DB_SYNC' order by job_id DESC;
+a. select latest DB_SYNC from today(8/24):
+-[ RECORD 1 ]---------+------------------------------------------
+job_id                | 265
+target_reference      | ORACLE_DB_CONTAINER-8
+job_type              | DB_SYNC
+start_time            | 2022-08-24 10:30:00.212
+user_ref              |
+email_addresses       |
+update_time           | 2022-08-24 10:30:39.702
+title                 | Run SnapSync for database "nonMTVDB".
+job_state             | FAILED
+title_code            | event.action.db.sync
+title_params          | ["nonMTVDB"]
+target_name           | newGroup/nonMTVDB
+action                | ACTION-552
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+1. review associated acction:
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------
+action_id             | 552
+action_type           | DB_SYNC
+state                 | FAILED
+desc_message_id       | event.action.db.sync
+desc_message_params   | ["nonMTVDB"]
+desc_message_desc     | Run SnapSync for database "nonMTVDB".
+work_source           | POLICY
+work_source_ref       | POLICY_SNAPSHOT-6
+fail_message_id       | exception.oracle.vdb.snapshot.no.change
+fail_message_params   | ["nonMTVDB"]
+fail_message_desc     | Cannot snapshot virtual database "nonMTVDB" because the database has not changed since the last snapshot.
+parent_action         |
+parent_job            |
+start_time            | 2022-08-24 10:30:00.03
+end_time              | 2022-08-24 10:30:39.669
+user_agent            |
+work_source_name      | Default Snapshot
+origin_ip             |
+http_session_id       |
+work_source_principal |
+
+
+2. debug log at target:
+
+[2022-08-24T10:30:13,434][DEBUG][com.delphix.ojdbc.connect.DxOracleT2CConnectionExtensions][pool-6-thread-1][DxOracleT2CConnectionExtensions.logMessage] Setting return value of getVersionNumber to 10000
+[2022-08-24T10:30:13,583][DEBUG][com.delphix.ojdbc.OracleConnectionPoolUtil][pool-6-thread-1][OracleConnectionPoolUtil.createNewBequeathDataSource] Got bequeath pool data source for [nonMTVDB], JDBC string: [jdbc:oracle:oci8:@(DESCRIPTION = (ADDRESS = (PROTOCOL = BEQ) (PROGRAM = /u01/app/oracle/product/19.11.0.0/dbhome_1/bin/oracle) (ARGV0 = oraclenonMTVDB) (ARGS = '(DESCRIPTION=(LOCAL=YES)(ADDRESS=(PROTOCOL=BEQ)))') (ENVS = 'ORACLE_HOME=/u01/app/oracle/product/19.11.0.0/dbhome_1,ORACLE_SID=nonMTVDB,ORACLE_UNQNAME=nonMTVDB,ORACLE_BASE=/u01/app/oracle,LD_LIBRARY_PATH=/u01/app/oracle/product/19.11.0.0/dbhome_1/lib')) (CONNECT_DATA = (SID = nonMTVDB)))]
+[2022-08-24T10:30:13,910][DEBUG][com.delphix.session.module.rmi.impl.RmiProtocolServerImpl][pool-6-thread-1][RmiProtocolServerImpl.destroyObject] local object 4ff3f21e-07ec-40f9-81ea-74f2074d832c destroyed upon request
+[2022-08-24T10:30:28,485][DEBUG][com.delphix.session.module.rmi.impl.RmiProtocolServerImpl][pool-6-thread-1][RmiProtocolServerImpl.destroyObject] local object 551be663-3d0c-4167-8f7d-4afd72d0f1e4 destroyed upon request
+

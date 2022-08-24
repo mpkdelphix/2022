@@ -1,0 +1,61 @@
+0. destroy all old vms, and spin up new src and tgt servers.
+mike.kennedy@dcol2:~$ dc clone-latest rh74-ora19000-src mkrh74ora19src
+***** You have 1 registered VMs. *****
+Cloning latest 'rh74-ora19000-src' state to 'mkrh74ora19src'...
+Registering 'mkrh74ora19src' with ESX server 'dcol2-esxi08'...
+The new VM has DNS name 'mkrh74ora19src.dcol2'.
+mike.kennedy@dcol2:~$ dc clone-latest rh74-ora19000-src mkrh74ora19tgt
+***** You have 2 registered VMs. *****
+Cloning latest 'rh74-ora19000-src' state to 'mkrh74ora19tgt'...
+Registering 'mkrh74ora19tgt' with ESX server 'dcol2-esxi09'...
+The new VM has DNS name 'mkrh74ora19tgt.dcol2'.
+
+-----------------------------------------------------------------
+mkrh74ora19src.dcol2.delphix.com
+mkrh79ora19tgt.dcol2.delphix.com
+
+Environment provisioned in UI, let's review all of the jobs.
+--------------------------------------------------------------------
+hercules=> select * from dlpx_jobs where job_id=158;
+-[ RECORD 1 ]---------+----------------------------------
+job_id                | 158
+target_reference      | ORACLE_VIRTUAL_SOURCE-6
+job_type              | SOURCE_STOP
+start_time            | 2022-08-24 18:35:01.132
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-24 18:35:22.538
+title                 | Stop dataset "VDBOMSR4872A9_4DX".
+job_state             | COMPLETED
+title_code            | event.action.source.stop
+title_params          | ["VDBOMSR4872A9_4DX"]<---my database
+target_name           | VDBOMSR4872A9_4DX
+action                | ACTION-448
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=448;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 448
+action_type           | SOURCE_STOP
+state                 | COMPLETED
+desc_message_id       | event.action.source.stop
+desc_message_params   | ["VDBOMSR4872A9_4DX"]
+desc_message_desc     | Stop dataset "VDBOMSR4872A9_4DX".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-08-24 18:35:00.924
+end_time              | 2022-08-24 18:35:22.534
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.111
+http_session_id       | 6BFDCCC96F797C433DD1AA98A29387A0
+work_source_principal | admin
+

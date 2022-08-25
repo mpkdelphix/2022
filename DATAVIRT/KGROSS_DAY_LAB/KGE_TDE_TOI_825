@@ -1,0 +1,22 @@
+wallet needs to be an auto-login wallet
+There can be an ewallet.
+There can be a cwallet.
+
+Delphix backs up the data, encryption or not; However, VDB provisioning will 
+
+#sqlnet.ora needs the wallet?
+--------------------------------------------------------------
+We support two working models of TDB: single-instance || multi-tenant.
+----------------------------------------------------------------
+https://docs.delphix.com/docs/datasets/oracle-environments-and-data-sources/provisioning-and-managing-virtual-databases-with-oracle/provisioning-a-vdb-from-an-encrypted-oracle-database
+
+https://www.oracle.com/technetwork/database/security/tde-faq-093689.html
+------------------------------------------------------------------
+steps:
+vi $ORACLE_HOME/network/admin/sqlnet.ora(doesn't exist automatically)
+
+mkdir -p $ORACLE_BASE/admin/$ORACLE_SID/wallet
+
+
+
+

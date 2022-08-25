@@ -30,7 +30,7 @@ kgrh79ora1911tgt.dcol2
 kgrh79ora1911tgt.dcol2
 
 
-s
+
 Why are these orcl_db_container and orcl_timeflow ids not found?
 10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612             15G     0   15G   0% /mnt/provision/nonMTVDB
 10.43.53.20:/domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile    17G  1.6G   15G  10% /mnt/provision/nonMTVDB/datafile
@@ -54,6 +54,15 @@ group_id | 1
 -[ RECORD 2 ]
 group_id | 3
 
+#workaround with KG 8/25/22
+
+
+hercules=> select * from dlpx_timeflow where timeflow_id=612;
+hercules=> select * from dlpx_storage_container;
+hercules=> select * from dlpx_storage_container where filesystem ~ '612';
+hercules=> select * from dlpx_timeflow where timeflow_id=23;
+hercules=> select * from dlpx_container where container_id=8;
+hercules=>
 
 
 ------------------------------------------------------------------------------------------

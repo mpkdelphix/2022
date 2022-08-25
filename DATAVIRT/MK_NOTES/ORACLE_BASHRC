@@ -1,0 +1,17 @@
+# .bashrc
+set -o vi
+set -o allexport
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+alias work='cd /work/toolkit'
+alias com='cd /work/toolkit/common'
+alias unc='cd /work/toolkit/uncommon'
+alias clog='cd /work/toolkit/uncommon/log/connector'

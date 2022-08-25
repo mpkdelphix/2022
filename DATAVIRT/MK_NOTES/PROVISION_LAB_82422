@@ -100,3 +100,8 @@ new_cdb_container          |
 converted_to_pdb           | f
 nonmt_container            |
 rac_max_instance_lag       | 3
+#DXVIRT210
+#full RMAN backup is taken into Delphix using RMAN API (SnapSync Service)
+#logs are shipped via LogSync
+#what is a dSource?
+Delphix-side representation of a database. The dSource requirement is adding an environment where one more databases reside.

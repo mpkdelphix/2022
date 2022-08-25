@@ -59,3 +59,44 @@ origin_ip             | 172.16.124.111
 http_session_id       | 6BFDCCC96F797C433DD1AA98A29387A0
 work_source_principal | admin
 
+#aside auth.delphix.com/authenticate - challenge/response
+
+
+#folloiwng timeflow created via db_link
+
+hercules=> select * from dlpx_timeflow;
+-[ RECORD 1 ]-------------+-----------------------
+timeflow_id               | 13
+namespace                 |
+namespace_data_dependency | f
+timeflow_type             | ORACLE_TIMEFLOW
+name                      | default
+container                 | ORACLE_DB_CONTAINER-12
+parent_timeflow           |
+parent_db_change_id       |
+parent_timestamp          |
+parent_snapshot           |
+is_temporary              | f
+state                     | CONFIGURED
+spatial_clone             | f
+creation_type             | INITIAL
+
+hercules=> select * from orcl_db_container where container_id=12;
+-[ RECORD 1 ]--------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+container_id               | 12
+diagnose_no_logging_faults | t
+pre_provisioning_enabled   | f
+logsync_interval           | 5
+logsync_enabled            | t
+logsync_mode               | ARCHIVE_ONLY_MODE
+logsync_timestamp          | 2022-08-24 19:27:35.906
+content_type               | NON_CDB
+physical_standby           | f
+performance_mode           | DISABLED
+source_key                 | {"type":"ORACLE_DATABASE_KEY","changedProperties":null,"currentScn":"2263764","dbId":"2541326966","dbName":"DBOMSR02","resetlogsScn":"1920977","resetlogsTime":"20190516 051745","guid":"88FEBD7F2B655EA8E053210A2B0AA335"}
+live_source                | f
+force_full_snapsync        | f
+new_cdb_container          |
+converted_to_pdb           | f
+nonmt_container            |
+rac_max_instance_lag       | 3

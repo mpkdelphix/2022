@@ -1,0 +1,5 @@
+#What is the difference between instance and a database?
+
+The Oracle instance consists of the memory structures(SGA, PGA) and processes(smon,pmon,dbwr,lgwr,etc..) needed to manage the database. The database itself is a collection of database files(.dbf), redo logs files, archive logs, control files, param files, password files, backup files, trace files and alert files.
+
+Note: You can attach a database to one ore more instances, this is found in Real Application Environments, but you cannot connect an instance to more than one database(11grid , 12cloud). This - from my Udemy course.

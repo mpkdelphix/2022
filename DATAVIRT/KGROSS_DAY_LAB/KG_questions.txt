@@ -65,4 +65,24 @@ hercules=> select * from dlpx_container where container_id=8;
 hercules=>
 
 
+delphix@kg6015:~$ sudo zpool history|grep 612
+2022-08-18.16:15:53 zfs set recordsize=8192 domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:15:53 zfs set sharenfs=insecure,no_wdelay,root_squash,rw=@10.43.43.217 domain0/group-607/oracle_db_container-611/oracle_timeflow-612
+2022-08-18.16:15:54 zfs set sync=disabled domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:15:55 zfs set canmount=noauto domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:15:55 zfs set sync=disabled domain0/group-607/oracle_db_container-611/oracle_timeflow-612/temp
+2022-08-18.16:15:55 zfs set canmount=noauto domain0/group-607/oracle_db_container-611/oracle_timeflow-612/temp
+2022-08-18.16:15:55 zfs set sync=disabled domain0/group-607/oracle_db_container-611/oracle_timeflow-612/archive
+2022-08-18.16:15:55 zfs set canmount=noauto domain0/group-607/oracle_db_container-611/oracle_timeflow-612/archive
+2022-08-18.16:16:36 zfs set recordsize=131072 domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:17:47 zfs set recordsize=8192 domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:17:47 zfs inherit sync domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:17:47 zfs set canmount=on domain0/group-607/oracle_db_container-611/oracle_timeflow-612/datafile
+2022-08-18.16:17:47 zfs inherit sync domain0/group-607/oracle_db_container-611/oracle_timeflow-612/temp
+2022-08-18.16:17:47 zfs set canmount=on domain0/group-607/oracle_db_container-611/oracle_timeflow-612/temp
+2022-08-18.16:17:47 zfs inherit sync domain0/group-607/oracle_db_container-611/oracle_timeflow-612/archive
+2022-08-18.16:17:47 zfs set canmount=on domain0/group-607/oracle_db_container-611/oracle_timeflow-612/archive
+2022-08-18.16:17:48 zfs set sharenfs=off domain0/group-607/oracle_db_container-611/oracle_timeflow-612/source-archive
+2022-08-24.18:44:06 zfs set sharenfs=off domain0/group-607/oracle_db_container-611/oracle_timeflow-612
+
 ------------------------------------------------------------------------------------------

@@ -1,0 +1,193 @@
+1. Manage -> Datasets -> Stop VDB
+2. System -> Jobs -> JOB-189:
+hercules=> select * from dlpx_jobs where job_id=189;
+-[ RECORD 1 ]---------+----------------------------------
+job_id                | 189
+target_reference      | ORACLE_VIRTUAL_SOURCE-7
+job_type              | SOURCE_STOP
+start_time            | 2022-08-30 17:57:29.546
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-30 17:58:07.877
+title                 | Stop dataset "VDBOMSR0296BA_NF0".
+job_state             | COMPLETED
+title_code            | event.action.source.stop
+title_params          | ["VDBOMSR0296BA_NF0"]
+target_name           | VDBOMSR0296BA_NF0
+action                | ACTION-549
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+3. review ACTION-549
+
+hercules=> select * from dlpx_action where action_id=549;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 549
+action_type           | SOURCE_STOP
+state                 | COMPLETED
+desc_message_id       | event.action.source.stop
+desc_message_params   | ["VDBOMSR0296BA_NF0"]
+desc_message_desc     | Stop dataset "VDBOMSR0296BA_NF0".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-08-30 17:57:29.451
+end_time              | 2022-08-30 17:58:07.874
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.38
+http_session_id       | C4CB13FC3EE9B169D79FA4568EF61197
+work_source_principal | admin
+
+4. what is ORACLE_VIRTUAL_SOURCE-7 ?
+
+You can grep it out of /var/delphix/server/log:
+32902:[2022-08-30T13:11:35,793][DEBUG][nws.impl.TransportEndPointServiceImpl#getLocalAddressForHost:49][Worker-425|JOB-191|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-7)][ACTION-551] Mapped host 10.43.40.135 to local address 10.43.35.196
+
+
+
+hercules=> select * from orcl_virtual_db where vdb_id=7;
+-[ RECORD 1 ]-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+vdb_id                                | 7
+namespace                             |
+namespace_data_dependency             | f
+name                                  | VDBOMSR0296BA_NF0
+container                             | ORACLE_DB_CONTAINER-13
+config                                | ORACLE_SINGLE_CONFIG-58
+enabled                               | t
+upgrade_disabled                      | f
+status                                | DEFAULT
+description                           |
+mount_base                            | /mnt/provision
+operations                            | {"type":"VirtualSourceOperations","configureClone":[],"preRefresh":[],"postRefresh":[],"preRollback":[],"postRollback":[],"preSnapshot":[],"postSnapshot":[],"preStart":[],"postStart":[],"preStop":[],"postStop":[]}
+file_mapping                          |
+config_params                         | {"memory_target":"1073741824","processes":"300","log_archive_dest_1":"'location=/mnt/provision/VDBOMSR0296BA_NF0/archive/ MANDATORY'","nls_language":"'AMERICAN'","_omf":"'ENABLED'","filesystemio_options":"'setall'","log_archive_format":"'%t_%s_%r.dbf'","nls_territory":"'AMERICA'","compatible":"'19.0.0'","audit_trail":"'NONE'","memory_max_target":"1073741824","remote_login_passwordfile":"'EXCLUSIVE'","open_cursors":"300","audit_sys_operations":"FALSE"}
+config_template   
+----------------------------------------------------------------------------------------------
+
+5. Manage -> Datasets -> VDB0 -> ... -> DELETE -> System -> JOBS -> JOB-190 DB_DELETE
+hercules=> select * from dlpx_jobs where job_id=190;
+-[ RECORD 1 ]---------+---------------------------
+job_id                | 190
+target_reference      | ORACLE_DB_CONTAINER-13
+job_type              | DB_DELETE
+start_time            | 2022-08-30 18:11:33.878
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-08-30 18:11:37.332
+title                 | Delete dataset "VDBO_NF0".
+job_state             | COMPLETED
+title_code            | event.action.db.delete
+title_params          | ["VDBO_NF0"]
+target_name           | mk824onboarding/VDBO_NF0
+action                | ACTION-550
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=550;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 550
+action_type           | DB_DELETE
+state                 | COMPLETED
+desc_message_id       | event.action.db.delete
+desc_message_params   | ["VDBO_NF0"]
+desc_message_desc     | Delete dataset "VDBO_NF0".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-08-30 18:11:33.775
+end_time              | 2022-08-30 18:11:37.328
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.38
+http_session_id       | C4CB13FC3EE9B169D79FA4568EF61197
+work_source_principal | admin
+-------------------------------------------------------------------------------------------------------
+6.   connector log excerpt:
+[2022-08-30T14:10:58,976][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-1][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; umask 027; . /work/toolkit/Delphix_c7b3d2b8ca6a_a9919155e5df_8_host/databases/oracle/VDBOMSR0296BA_NF0/VDBOMSR0296NF0/setup-oraenv.sh; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_c7b3d2b8ca6a_a9919155e5df_8_host/databases/oracle/VDBOMSR0296BA_NF0/VDBOMSR0296NF0/check-db-status.sh
+--
+[2022-08-30T14:12:50,171][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; umask 027; . /work/toolkit/Delphix_c7b3d2b8ca6a_a9919155e5df_8_host/databases/oracle/VDBOMSR0296BA_NF0/VDBOMSR0296NF0/setup-oraenv.sh; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_c7b3d2b8ca6a_a9919155e5df_8_host/databases/oracle/VDBOMSR0296BA_NF0/VDBOMSR0296NF0/doShutdownOracleInstance.sh "/ AS SYSDBA" "ABORT" "true"
+--
+[2022-08-30T14:12:51,459][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/provision/oracle/common/unmount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host /mnt/provision/VDBOMSR0296BA_NF0/source-archive no_rmdir
+--
+[2022-08-30T14:12:51,679][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/provision/oracle/common/unmount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host /mnt/provision/VDBOMSR0296BA_NF0/datafile no_rmdir
+--
+[2022-08-30T14:12:51,757][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/provision/oracle/common/unmount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host /mnt/provision/VDBOMSR0296BA_NF0/archive no_rmdir
+--
+[2022-08-30T14:12:51,831][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/provision/oracle/common/unmount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host /mnt/provision/VDBOMSR0296BA_NF0/external no_rmdir
+--
+[2022-08-30T14:12:51,890][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/provision/oracle/common/unmount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host /mnt/provision/VDBOMSR0296BA_NF0/temp no_rmdir
+--
+[2022-08-30T14:12:52,018][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-2][ShellCommand.execute] cmd:
+        /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/bash/linux_x86/bin64/bash -x /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host/scripts/provision/oracle/common/unmount_vdb /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_a9919155e5df_8_host /mnt/provision/VDBOMSR0296BA_NF0 rmdi
+
+--------------------------------------------------------------------------------
+7. /var/delphix/server/log/debug.log excerpt JOB-189
+30454:[2022-08-30T12:57:29,561][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-120][] Job JOB-189: updating state to RUNNING
+30455:[2022-08-30T12:57:29,563][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-120][] Job JOB-189: adding event JobEventDO{id=-1, job=JOB-189, event=event.job.started, state=RUNNING}
+30456:[2022-08-30T12:57:29,582][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-423|JOB-189|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-7)][] Job JOB-189 gets context ACTION-549
+30457:[2022-08-30T12:57:29,583][DEBUG][executor.impl.ExecutorImpl#setupExecutorContext:361][Worker-423|JOB-189|SOURCE_STOP(ORACLE_VIRTUAL_SOURCE-7)][ACTION-549] action preExecute action ACTION-549
+30523:[2022-08-30T12:57:35,422][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-120][] Job JOB-189: updating state to RUNNING
+30524:[2022-08-30T12:57:35,423][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-120][] Job JOB-189: adding event JobEventDO{id=-1, job=JOB-189, event=event.jobs.oraclevdb.shutdown.starting, state=RUNNING}
+30565:[2022-08-30T12:58:06,878][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-120][] Job JOB-189: updating state to RUNNING
+30566:[2022-08-30T12:58:06,881][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-120][] Job JOB-189: adding event JobEventDO{id=-1, job=JOB-189, event=event.jobs.oraclevdb.unmount, state=RUNNING}
+30601:[2022-08-30T12:58:07,857][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-120][] Job JOB-189: updating state to RUNNING
+30602:[2022-08-30T12:58:07,859][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-120][] Job JOB-189: adding event JobEventDO{id=-1, job=JOB-189, event=event.jobs.oraclevdb.shutdown.success, state=RUNNING}
+30604:[2022-08-30T12:58:07,870][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-LogLinkJob.ORACLE_DB_CONTAINER-13][ACTION-549] Job JOB-189: execution complete
+30605:[2022-08-30T12:58:07,870][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-LogLinkJob.ORACLE_DB_CONTAINER-13][] Job JOB-189: suspended by request for state RUNNING (event.job.completed)
+30607:[2022-08-30T12:58:07,877][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-120][] Job JOB-189: updating state to COMPLETED
+30612:[2022-08-30T12:58:07,881][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-120][] Job JOB-189: adding event JobEventDO{id=-1, job=JOB-189, event=event.job.completed, state=COMPLETED}
+-----------------------------------------------------------------------------------
+8. /var/delphix/sever/log/debug log excerpts JOB-190:
+33023:[2022-08-30T13:11:36,648][DEBUG][dhm.DhmCommandResult#logCommandResult:130][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] executeScriptRemotely - exitCode: 0
+33028:[2022-08-30T13:11:36,654][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-121][] Job JOB-190: updating state to RUNNING
+33029:[2022-08-30T13:11:36,656][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-121][] Job JOB-190: adding event JobEventDO{id=-1, job=JOB-190, event=event.jobs.oraclevdb.storage.unexport, state=RUNNING}
+33030:[2022-08-30T13:11:36,928][DEBUG][appliance.node.exec.ExecuteUtils#executeInternal:184][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] ran 'zfs set sharenfs=off domain0/group-101/oracle_db_container-106/oracle_timeflow-107' passed (sid 2572380). output: []
+33031:[2022-08-30T13:11:36,945][DEBUG][appliance.common.util.process.ProcessUtil#execute:84][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Starting command :  [sudo, /usr/sbin/rpcinfo, -p]
+33032:[2022-08-30T13:11:36,978][DEBUG][appliance.common.util.process.ProcessUtil#execute:121][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Finished executing command :  [sudo, /usr/sbin/rpcinfo, -p]
+33033:[2022-08-30T13:11:36,978][DEBUG][bos.impl.BaseOSServicesImpl#disableNFSv3Services:700][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Did not disable NFSv3 services
+33035:[2022-08-30T13:11:37,002][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-121][] Job JOB-190: updating state to RUNNING
+33036:[2022-08-30T13:11:37,004][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-121][] Job JOB-190: adding event JobEventDO{id=-1, job=JOB-190, event=event.jobs.genericvdb.deprovision.success, state=RUNNING}
+33127:[2022-08-30T13:11:37,187][INFO][cms.impl.DeadbeatManagerImpl#destroyFilesystem:223][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Deadbeating filesystem ORACLE_TIMEFLOW-14 with storage dependents [STORAGE_SNAPSHOT-162, STORAGE_SNAPSHOT-166, STORAGE_SNAPSHOT-170, STORAGE_SNAPSHOT-174, STORAGE_SNAPSHOT-160, STORAGE_SNAPSHOT-178, STORAGE_SNAPSHOT-161, STORAGE_SNAPSHOT-163, STORAGE_SNAPSHOT-167, STORAGE_SNAPSHOT-171, STORAGE_SNAPSHOT-175, STORAGE_SNAPSHOT-179] with owners []
+33128:[2022-08-30T13:11:37,188][INFO][cms.impl.DeadbeatManagerImpl#deadbeatFilesystem:109][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Deadbeating filesystem ORACLE_TIMEFLOW-14
+33129:[2022-08-30T13:11:37,194][INFO][cms.impl.DeadbeatManagerImpl#deadbeatFilesystem:122][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Patching references to ORACLE_TIMEFLOW-14 because it was removed but has dependencies: [ORACLE_TIMEFLOW-13, ORACLE_SNAPSHOT-76, ORACLE_DB_CONTAINER-13]
+33130:[2022-08-30T13:11:37,200][INFO][cms.impl.DeadbeatManagerImpl#destroyFilesystem:223][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Deadbeating filesystem ORACLE_DB_CONTAINER-13 with storage dependents [STORAGE_CONTAINER-88] with owners []
+33131:[2022-08-30T13:11:37,200][INFO][cms.impl.DeadbeatManagerImpl#deadbeatFilesystem:109][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Deadbeating filesystem ORACLE_DB_CONTAINER-13
+33132:[2022-08-30T13:11:37,205][INFO][cms.impl.DeadbeatManagerImpl#deadbeatFilesystem:122][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Patching references to ORACLE_DB_CONTAINER-13 because it was removed but has dependencies: [GROUP-3, ORACLE_DB_CONTAINER-12]
+33133:[2022-08-30T13:11:37,207][DEBUG][policy.impl.PolicyManagementServiceImpl#lambda$unregisterTarget$5:230][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] unregistering policies for target ORACLE_DB_CONTAINER-13
+33134:[2022-08-30T13:11:37,207][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 382
+33135:[2022-08-30T13:11:37,211][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 383
+33136:[2022-08-30T13:11:37,213][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 384
+33137:[2022-08-30T13:11:37,214][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 385
+33138:[2022-08-30T13:11:37,215][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 386
+33139:[2022-08-30T13:11:37,216][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 387
+33140:[2022-08-30T13:11:37,217][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 388
+33141:[2022-08-30T13:11:37,218][DEBUG][policy.impl.PolicyManagementServiceImpl#deleteWorkers:244][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] deleting worker 389
+33152:[2022-08-30T13:11:37,291][DEBUG][jcm.impl.JobManagerImpl#createJob:462][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][ACTION-552] Job JOB-192: Created Job 192 for object DOMAIN
+33153:[2022-08-30T13:11:37,302][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][ACTION-552] Job JOB-192: dispatching for reason event.job.started.domain
+33154:[2022-08-30T13:11:37,302][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][ACTION-552] Getting lock object for JOB-192.
+33157:[2022-08-30T13:11:37,327][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Job JOB-190: execution complete
+33158:[2022-08-30T13:11:37,327][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] Job JOB-190: suspended by request for state RUNNING (event.job.completed)
+33162:[2022-08-30T13:11:37,333][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-121][] Job JOB-190: updating state to COMPLETED
+33163:[2022-08-30T13:11:37,340][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-121][] Job JOB-190: adding event JobEventDO{id=-1, job=JOB-190, event=event.job.completed, state=COMPLETED}
+33170:[2022-08-30T13:11:37,358][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-424|JOB-190|DB_DELETE(ORACLE_DB_CONTAINER-13)][] action doneAsync (1) ACTION-550
+---------------------------------------------------------------------------

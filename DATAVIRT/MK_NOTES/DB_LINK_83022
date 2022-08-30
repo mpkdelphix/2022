@@ -1,0 +1,94 @@
+#DB_LINK JOB-195, linking CDB/PDB
+
+#API call: POST /delphix/database/link
+
+36499:[2022-08-30T14:15:36,504][DEBUG][jcm.impl.JobManagerImpl#createJob:462][http-nio-127.0.0.1-8586-exec-272:POST /delphix/database/link][ACTION-556] Job JOB-195: Created Job 195 for object ORACLE_DB_CONTAINER-15
+36500:[2022-08-30T14:15:36,506][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][http-nio-127.0.0.1-8586-exec-272:POST /delphix/database/link][ACTION-556] Job JOB-195: dispatching for reason event.job.started
+36501:[2022-08-30T14:15:36,507][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][http-nio-127.0.0.1-8586-exec-272:POST /delphix/database/link][ACTION-556] Getting lock object for JOB-195.
+36502:[2022-08-30T14:15:36,509][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-124][] Job JOB-195: updating state to RUNNING
+36503:[2022-08-30T14:15:36,513][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-124][] Job JOB-195: adding event JobEventDO{id=-1, job=JOB-195, event=event.job.started, state=RUNNING}
+36504:[2022-08-30T14:15:36,545][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][] Job JOB-195 gets context ACTION-556
+36505:[2022-08-30T14:15:36,546][DEBUG][executor.impl.ExecutorImpl#setupExecutorContext:361][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] action preExecute action ACTION-556
+36506:[2022-08-30T14:15:36,553][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-124][] Job JOB-195: updating state to RUNNING
+36507:[2022-08-30T14:15:36,556][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-124][] Job JOB-195: adding event JobEventDO{id=-1, job=JOB-195, event=event.jobs.oracledsource.link.get.info.source, state=RUNNING}
+36508:[2022-08-30T14:15:36,573][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] Lock acquisition time for host: 10.43.44.242 was 0 ms
+36509:[2022-08-30T14:15:36,574][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-7 with user HOST_USER-7
+36510:[2022-08-30T14:15:36,599][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] Lock acquisition time for host: 10.43.44.242 was 0 ms
+36511:[2022-08-30T14:15:36,600][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] Sharing Connector Connection! 2 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-7 with user HOST_USER-7
+36512:[2022-08-30T14:15:36,858][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-124][] Job JOB-195: updating state to RUNNING
+36513:[2022-08-30T14:15:36,862][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-124][] Job JOB-195: adding event JobEventDO{id=-1, job=JOB-195, event=event.jobs.oracledsource.link.create_timeflow, state=RUNNING}
+36514:[2022-08-30T14:15:37,093][DEBUG][appliance.node.exec.ExecuteUtils#executeInternal:184][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] ran 'chown -Rh 0:0 /domain0/group-101/oracle_db_container-119/oracle_timeflow-121' passed (sid 2582252). output: []
+36515:[2022-08-30T14:15:37,119][DEBUG][appliance.node.exec.ExecuteUtils#executeInternal:184][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] ran 'chmod 751 /domain0/group-101/oracle_db_container-119/oracle_timeflow-121' passed (sid 2582255). output: []
+36516:[2022-08-30T14:15:37,944][DEBUG][appliance.node.exec.ExecuteUtils#executeInternal:184][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] ran 'chown -Rh 0:0 /domain0/group-101/oracle_db_container-120/oracle_timeflow-122' passed (sid 2582267). output: []
+36517:[2022-08-30T14:15:37,970][DEBUG][appliance.node.exec.ExecuteUtils#executeInternal:184][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] ran 'chmod 751 /domain0/group-101/oracle_db_container-120/oracle_timeflow-122' passed (sid 2582269). output: []
+36518:[2022-08-30T14:15:38,719][DEBUG][lifecycle.impl.SourceManagerImpl#updateSourceConfig:367][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-556] Updating config: CDOMLOSR9CD5PDB1
+36529:[2022-08-30T14:15:38,868][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-124][] Job JOB-195: updating state to RUNNING
+36532:[2022-08-30T14:15:38,882][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-124][] Job JOB-195: adding event JobEventDO{id=-1, job=JOB-195, event=event.jobs.oracledsource.link.success, state=RUNNING}
+36533:[2022-08-30T14:15:39,119][DEBUG][jcm.impl.JobManagerImpl#createJob:462][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-557] Job JOB-196: Created Job 196 for object ORACLE_DB_CONTAINER-15
+36534:[2022-08-30T14:15:39,120][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-557] Job JOB-196: dispatching for reason event.job.started
+36535:[2022-08-30T14:15:39,121][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][ACTION-557] Getting lock object for JOB-196.
+36544:[2022-08-30T14:15:39,165][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][] Job JOB-195: execution complete
+36545:[2022-08-30T14:15:39,165][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][] Job JOB-195: suspended by request for state RUNNING (event.job.completed)
+36547:[2022-08-30T14:15:39,175][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-124][] Job JOB-195: updating state to COMPLETED
+36550:[2022-08-30T14:15:39,183][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-124][] Job JOB-195: adding event JobEventDO{id=-1, job=JOB-195, event=event.job.completed, state=COMPLETED}
+36556:[2022-08-30T14:15:39,235][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-438|JOB-195|DB_LINK(ORACLE_DB_CONTAINER-15)][] action doneAsync (1) ACTION-556
+---------------------------------------------------------
+
+SQL> show pdbs
+ERROR:
+ORA-01034: ORACLE not available
+Process ID: 0
+Session ID: 0 Serial number: 0
+
+
+SP2-1545: This feature requires Database availability.
+SQL> startup;
+ORA-01078: failure in processing system parameters
+ORA-01565: error in identifying file '/mnt/provision/VDBOMSR0296BA_NF0/datafile/spfile.ora'
+ORA-27037: unable to obtain file status
+Linux-x86_64 Error: 2: No such file or directory
+Additional information: 7
+SQL> exit
+Disconnected
+[oracle@mkrh74ora19tgt oracle]$ cd /mnt/provision/VDBOMSR0296BA_NF0/datafile
+-bash: cd: /mnt/provision/VDBOMSR0296BA_NF0/datafile: No such file or directory
+
+--------------------------------------------------------------
+[oracle@mkrh74ora19tgt oracle]$ echo $ORACLE_SID
+VDBOMSR0296NF0
+
+my .bashrc was exporting the old ORACLE_SID:
+export ORACLE_SID=VDBOMSR0296NF0
+--------------------------------------------------------------
+
+[oracle@mkrh74ora19tgt ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Tue Aug 30 16:23:19 2022
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+SQL> select name from v$database;
+
+NAME
+---------
+CDOMLOTG
+
+SQL> show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOTGE3ADPDB1               READ WRITE NO
+         4 CDOMLOTGE3ADPDB2               READ WRITE NO
+         5 CDOMLOTGE3ADPDB3               READ WRITE NO
+         6 VCDO_UUS                       READ WRITE NO
+
+#FIXED
+[oracle@mkrh74ora19tgt ~]$ echo $ORACLE_SID
+CDOMLOTGE3AD

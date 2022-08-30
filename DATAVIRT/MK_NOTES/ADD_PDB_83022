@@ -1,0 +1,35 @@
+[oracle@gi-rh74-ora19000-src ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Tue Aug 30 15:20:40 2022
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+SQL> select name from v$database
+  2  ;
+
+NAME
+---------
+CDOMLOSR
+
+SQL> select instance from v$thread
+  2  ;
+
+INSTANCE
+--------------------------------------------------------------------------------
+CDOMLOSR9CD5
+
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOSR9CD5PDB1               READ WRITE NO
+         4 CDOMLOSR9CD5PDB2               READ WRITE NO
+         5 CDOMLOSR9CD5PDB3               READ WRITE NO
+-----------------------------------------------------------------------------------

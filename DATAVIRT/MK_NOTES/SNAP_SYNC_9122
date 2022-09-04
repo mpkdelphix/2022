@@ -1,0 +1,19 @@
+#SnapSync lab 9/1/2022 I've been here 30 days now :)
+
+0. SnapSync client starts
+[2022-09-01T10:30:09,539][INFO][com.delphix.client.oracle.snapsync.impl.SnapSyncClientImpl][main][SnapSyncClientImpl.start] SnapSync starting
+
+1. SnapSync options are listed
+   [2022-09-01T10:30:09,613][INFO][com.delphix.client.oracle.snapsync.impl.SnapSyncClientImpl][main][SnapSyncClientImpl.init] SNL.1.18.cQOazGEvenOd353o5vOFk3L: SnapSync options oracle@UNIX_HOST_ENVIRONMENT-8@[<>-/10.43.35.196:8415] <---Appliance IP and port 8415
+-- listing properties --
+snapsync.client.queueDepth=64
+snapsync.client.compressionEnabled=true
+snapsync.client.loginTimeout=300
+snapsync.client.maxResponseSize=278528
+snapsync.client.recvBufferSize=262144
+snapsync.client.sendBufferSize=1048576
+snapsync.client.maxRequestSize=278528
+snapsync.client.bandwidthLimit=0
+snapsync.client.encryptionEnabled=false
+
+2. 

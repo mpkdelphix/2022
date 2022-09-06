@@ -1,0 +1,24 @@
+0. alias dgla='dc groups list -a' ; This alias allows us to find hosts in order to clone-latest builds
+
+1. use the following machines:
+rhel-7.9-oracle-19.11.0.0-src               -       -
+rhel-7.9-oracle-19.11.0.0-tgt 
+
+2. clone src:
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-src mkrh79ora19src
+***** You have 1 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-src' state to 'mkrh79ora19src'...
+Registering 'mkrh79ora19src' with ESX server 'dcol2-esxi07'...
+The new VM has DNS name 'mkrh79ora19src.dcol2'.
+
+3. clone tgt:
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-tgt mkrh79ora19tgt
+***** You have 2 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-tgt' state to 'mkrh79ora19tgt'...
+Registering 'mkrh79ora19tgt' with ESX server 'dcol2-esxi04'...
+The new VM has DNS name 'mkrh79ora19tgt.dcol2'.
+
+
+
+
+

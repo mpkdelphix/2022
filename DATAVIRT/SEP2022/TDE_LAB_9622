@@ -1,0 +1,29 @@
+URL containing instructions: https://delphix.atlassian.net/wiki/spaces/SUP/pages/15359490444/Creating+Oracle+TDE+Lab
+
+0. build engine:
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-trunk mkdlpx-trunk
+***** You have 1 registered VMs. *****
+Cloning latest 'dlpx-trunk' state to 'mkdlpx-trunk'...
+COMPONENT           VERSION                                                     
+app                 ccc917e95263e57e0bd531ac8a7a35c9fc403631                    
+appliance_build     32073a788e58ef806806861febb08d636432325b                    
+dlpx                trunk                                                       
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/master/post-push/1405/internal-dev-esx/internal-dev-esx.ova
+masking             180bfd68e456cff3440d6c79b2f929fbbb883b75                    
+Registering 'mkdlpx-trunk' with ESX server 'dcol2-esxi04'...
+The new VM has DNS name 'mkdlpx-trunk.dcol2'.
+
+1.  clone ORCL 19 src:
+mike.kennedy@dcol2:~$ dc clone-latest rh74-ora19000-src mkrh74ora19src
+***** You have 2 registered VMs. *****
+Cloning latest 'rh74-ora19000-src' state to 'mkrh74ora19src'...
+Registering 'mkrh74ora19src' with ESX server 'dcol2-esxi06'...
+The new VM has DNS name 'mkrh74ora19src.dcol2'.
+
+2. clone ORCL 19 tgt:
+---tbc-----------------------
+
+#verify Master Key https://www.thegeeksearch.com/how-to-setup-transparent-data-encryption-tde-in-oracle-12c-for-non-pluggable-database/
+
+#TDE-specific ORCL documentation:
+https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html#GUID-769EC29B-0107-40FE-9A9D-BF81A4BBD0E9

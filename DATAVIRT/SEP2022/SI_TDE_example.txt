@@ -1,0 +1,304 @@
+https://docs.delphix.com/display/DOCS43/Provisioning+a+VDB+from+an+Encrypted+Oracle+Database
+
+
+https://www.oracle.com/technetwork/database/security/tde-faq-093689.html
+excerpt:
+
+How is the TDE wallet protected?
+On Unix, access to the wallet should be limited to the 'oracle:oinstall' user:group, using proper directory (700) and file permissions (600). 
+
+
+
+
+Validate sqlnet.ora  (default location $ORACLE_HOME/network/admin/sqlnet.ora) 
+Example:
+
+oracle@kgora11204Bsrc admin]$ env|grep ORA
+ORACLE_SID=DBOMSR66E005
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/11.2.0.4/dbhome_1
+
+[oracle@kgora11204Bsrc admin]$ pwd
+/u01/app/oracle/product/11.2.0.4/dbhome_1/network/admin
+
+[oracle@kgora11204Bsrc admin]$ cat sqlnet.ora 
+ENCRYPTION_WALLET_LOCATION=
+  (SOURCE=(METHOD=FILE)(METHOD_DATA=
+    (DIRECTORY=$ORACLE_BASE/admin/$ORACLE_SID/wallet)))
+
+
+
+
+mkdir -p $ORACLE_BASE/admin/$ORACLE_SID/wallet
+Register encryption passwd:
+
+sqlplus / as sysdba
+
+ALTER SYSTEM SET ENCRYPTION KEY IDENTIFIED BY myPassword123456;
+
+Validate:
+
+[oracle@kgora11204Bsrc wallet]$ env|grep ORA
+ORACLE_SID=DBOMSR66E005
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/11.2.0.4/dbhome_1
+
+[oracle@kgora11204Bsrc wallet]$ cd $ORACLE_BASE/admin/$ORACLE_SID/wallet
+
+[oracle@kgora11204Bsrc wallet]$ pwd
+/u01/app/oracle/admin/DBOMSR66E005/wallet
+[oracle@kgora11204Bsrc wallet]$ ls -al
+total 4
+drwxr-xr-x. 2 oracle oinstall   25 Jun 26 00:43 .
+drwxr-x---. 6 oracle oinstall   60 Jun 26 00:40 ..
+-rw-r--r--. 1 oracle oinstall 2845 Jun 26 00:43 ewallet.p12
+
+
+
+
+Next Create tablespace:
+
+
+Example:
+
+CREATE TABLESPACE encrypted_ts
+DATAFILE '/u01/app/oracle/oradata/DBOMSR66E005/datafile/encrypted_ts01.dbf' SIZE 128K AUTOEXTEND ON NEXT 64K
+ENCRYPTION USING 'AES256'
+DEFAULT STORAGE(ENCRYPT);
+
+
+Stuff table:
+
+
+CREATE TABLE ets_test (
+  id    NUMBER(10),
+  data  VARCHAR2(50)
+)
+TABLESPACE encrypted_ts;
+
+CREATE INDEX ets_test_idx ON ets_test(data) TABLESPACE encrypted_ts;
+
+INSERT INTO ets_test (id, data) VALUES (1, 'This is a secret!');
+COMMIT;
+
+
+
+
+
+
+
+Example to show encrypted tables:
+
+SELECT tablespace_name, encrypted, status FROM dba_tablespaces;
+
+
+
+Test table contents:
+
+select * from ets_test;
+
+
+
+orapki wallet create -wallet $ORACLE_BASE/admin/$ORACLE_SID/wallet -auto_login
+* optional for -auto_login
+
+
+
+
+
+On target environment, do:
+
+
+Update sqlnet.ora file with location:
+
+Example:
+
+
+Create sqlnet.ora file:       $ORACLE_HOME/network/admin/sqlnet.ora
+
+ENCRYPTION_WALLET_LOCATION=
+  (SOURCE=(METHOD=FILE)(METHOD_DATA=
+    (DIRECTORY=$ORACLE_BASE/admin/$ORACLE_SID/wallet)))
+
+
+
+
+On Target Environment:
+
+Create directory:
+
+mkdir -p $ORACLE_BASE/admin/$ORACLE_SID/wallet
+
+
+Copy ewallet.pk12 and cwallet.sso file(s) to target.
+
+scp oracle@kgora11204src.dcenter.delphix.com:/u01/app/oracle/admin/DBOMSR66E005/wallet/* $ORACLE_BASE/admin/$ORACLE_SID/wallet 
+
+
+
+If no -auto_login was ran on source, will need to set -auto_login or -auto_login_local here,
+
+
+orapki wallet create -wallet $ORACLE_BASE/admin/$ORACLE_SID/wallet -auto_login -pwd myPassword123456
+or
+orapki wallet create -wallet $ORACLE_BASE/admin/$ORACLE_SID/wallet -auto_login_local -pwd myPassword123456 
+
+
+
+Next Provision VDB:
+
+Check if wallet is open:
+
+select * from v$encryption_wallet;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To remove encrypted tablespace on source:
+
+
+
+Drop encrypted table:
+
+DROP TABLESPACE encrypted_ts INCLUDING CONTENTS AND DATAFILES;
+
+
+clear cache
+
+ALTER SYSTEM FLUSH BUFFER_CACHE;
+
+
+close wallet:
+
+ALTER SYSTEM SET ENCRYPTION WALLET CLOSE;
+
+
+
+
+
+
+
+
+
+
+
+Troubleshooting:
+
+
+
+SQL> select * from V$ENCRYPTION_WALLET;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS
+------------------
+file
+/u01/app/oracle/admin/$ORACLE_SID/wallet
+OPEN
+
+
+
+
+
+On source:
+
+sqlplus / as sysdba
+
+SQL*Plus: Release 11.2.0.4.0 Production on Tue Jun 26 00:37:12 2018
+
+Copyright (c) 1982, 2013, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL> ALTER SYSTEM SET ENCRYPTION KEY IDENTIFIED BY myPassword123456;
+ALTER SYSTEM SET ENCRYPTION KEY IDENTIFIED BY myPassword123456
+*
+ERROR at line 1:
+ORA-28368: cannot auto-create wallet
+
+
+SQL> Disconnected from Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+[oracle@kgora11204Bsrc admin]$ 
+[oracle@kgora11204Bsrc admin]$ env|grep ORA
+ORACLE_SID=DBOMSR66E005
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/11.2.0.4/dbhome_1
+
+
+The cause of this issue in my case was due to the location of the wallet (or lack of!). The location of the wallet for a database is denoted by one of the following:-
+
+1. ENCRYPTION_WALLET_LOCATION parameter in the sqlnet.ora file.
+2. WALLET_LOCATION parameter in the sqlnet.ora file.
+3. The default location for the wallet ($ORACLE_BASE/admin/$ORACLE_SID/wallet).
+
+
+
+
+
+
+On target:
+
+[oracle@kgora11204Btgt wallet]$ env|grep ORA
+ORACLE_SID=myVDB
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/11.2.0.4/dbhome_1
+
+[oracle@kgora11204Btgt wallet]$ orapki wallet create -wallet $ORACLE_BASE/admin/$ORACLE_SID/wallet -auto_login_local
+Oracle PKI Tool : Version 11.2.0.4.0 - Production
+Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Enter wallet password:                   
+   
+PKI-02003: Unable to load the wallet at: /u01/app/oracle/admin/myVDB/wallet
+
+
+* you can simply remove ewallet.p12 from $ORACLE_BASE/admin/$ORACLE_SID/wallet and use the following to create ewallet.p12 and cwallet.sso
+
+[oracle@kgora11204Btgt wallet]$ orapki wallet create -wallet $ORACLE_BASE/admin/$ORACLE_SID/wallet -auto_login_local -pwd myPassword123456
+Oracle PKI Tool : Version 11.2.0.4.0 - Production
+Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+
+[oracle@kgora11204Btgt wallet]$ ls -al
+total 12
+drwxr-xr-x. 2 oracle oinstall   64 Jun 26 01:23 .
+drwxr-xr-x. 3 oracle oinstall   20 Jun 26 01:06 ..
+-rw-------. 1 oracle oinstall 3589 Jun 26 01:23 cwallet.sso
+-rw-------. 1 oracle oinstall 3512 Jun 26 01:23 ewallet.p12
+
+
+
+
+
+
+
+adam.smith [6:26 AM]
+Hello, I have a customer who is using Oracle wallets on a dSource. They are unable to snapsync and getting the error: 
+ORA-12578: TNS:wallet open failed.
+I’ve suggested they change sqlnet.wallet_override=ture to sqlnet.wallet_override=false in sqlnet.ora but they are unwilling to do this. they have had this issue before with VDB’s but worked around it using custom envrioment variables however these cannot be configured for a dSoruce. 
+Is there anything I can try? (edited)
+
+derek.vanderveer [6:57 AM]
+@adam.smith When `SQLNET.WALLET_OVERRIDE` is set to true it forces password authentication via the wallet.  That means users can no longer connect to the database by specifying a username and password, e.g. as part of the sqlplus command line.  Currently we only support dSourcing with a username and password, so I think `SQLNET.WALLET_OVERRIDE=TRUE` is essentially not a supported configuration.
+
+
+
+
+
+

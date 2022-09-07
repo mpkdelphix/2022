@@ -21,9 +21,249 @@ Registering 'mkrh74ora19src' with ESX server 'dcol2-esxi06'...
 The new VM has DNS name 'mkrh74ora19src.dcol2'.
 
 2. clone ORCL 19 tgt:
----tbc-----------------------
+dc clone-latest rhel-7.9-oracle-19.11.0.0-tgt mkrh79ora19tgt
+***** You have 2 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-tgt' state to 'mkrh79ora19tgt'...
+Registering 'mkrh79ora19tgt' with ESX server 'dcol2-esxi08'...
+The new VM has DNS name 'mkrh79ora19tgt.dcol2'.
+
 
 #verify Master Key https://www.thegeeksearch.com/how-to-setup-transparent-data-encryption-tde-in-oracle-12c-for-non-pluggable-database/
 
 #TDE-specific ORCL documentation:
 https://docs.oracle.com/en/database/oracle/oracle-database/19/asoag/introduction-to-transparent-data-encryption.html#GUID-769EC29B-0107-40FE-9A9D-BF81A4BBD0E9
+
+##################################SRC CONFIGURATION##############################################
+
+0. verify my env variables ORACLE_BASE, ORACLE_HOME and ORACLE_SID:
+[oracle@mkrh79ora19src ~]$ env|grep -i ora
+HOSTNAME=mkrh79ora19src.dcol2
+USER=oracle
+ORACLE_SID=VDBOMSRCD94VNZ
+ORACLE_BASE=/u01/app/oracle
+MAIL=/var/spool/mail/oracle
+PATH=/u01/app/oracle/product/19.11.0.0/dbhome_1/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/bin
+PWD=/home/oracle
+colors=/home/oracle/.dircolors
+HOME=/home/oracle
+LOGNAME=oracle
+ORACLE_HOME=/u01/app/oracle/product/19.11.0.0/dbhome_1
+
+
+1. validate sqlnet.ora:
+[oracle@mkrh79ora19tgt admin]$ cd $ORACLE_HOME/network/admin;cat sqlnet.ora;pwd
+SQLNET.ALLOWED_LOGON_VERSION_SERVER=11
+ENCRYPTION_WALLET_LOCATION=
+  (SOURCE=(METHOD=FILE)(METHOD_DATA=
+    (DIRECTORY=$ORACLE_BASE/admin/$ORACLE_SID/wallet)))
+/u01/app/oracle/product/19.11.0.0/dbhome_1/network/admin
+
+2. create wallet dir chown oracle:oinstall, 700 dir permissions, 600 file permissions within dirmkdir -p $ORACLE_BASE/admin/$ORACLE_SID/wallet
+[oracle@mkrh79ora19src xdb_wallet]$ pwd
+/u01/app/oracle/admin/DBOMSRCD94D3/xdb_wallet
+
+
+
+3. register encryption password:
+SQL> ALTER SYSTEM SET ENCRYPTION KEY IDENTIFIED BY steak5keveryday2023
+
+System altered
+
+5. create tablespace!
+SQL> create tablespace krypton_ts
+  2  datafile '/u01/app/oradata/DBOMSRCD94D3/datafile' size 128k autoextend on next 64k
+  3  encryption using 'aes256'
+  4  default storage(encrypt);
+create tablespace krypton_ts
+*
+ERROR at line 1:
+ORA-28361: master key not yet set
+
+
+# ERROR datafile dir not found #
+SQL> create tablespace krypton_ts
+  2  datafile '/u01/app/oradata/DBOMSRCD94D3/datafile' size 128k autoextend on next 64k
+  3  encryption using 'aes256'
+  4  default storage(encrypt);
+create tablespace krypton_ts
+*
+ERROR at line 1:
+ORA-01119: error in creating database file
+'/u01/app/oradata/DBOMSRCD94D3/datafile'
+ORA-27040: file create error, unable to create file
+Linux-x86_64 Error: 2: No such file or directory
+Additional information: 1
+
+# REMEDIATION #
+[oracle@mkrh79ora19src wallet]$ mkdir -p /u01/app/oradata/DBOMSRCD94D3/datafile
+
+SQL> create tablespace krpyton_ts
+  2  DATAFILE '/u01/app/oracle/oradata/DBOMSRCD94D3/datafile/krypton_ts01.dbf' SIZE 128K AUTOEXTEND ON NEXT 64K
+  3  ENCRYPTION USING 'AES256'
+  4  DEFAULT STORAGE(ENCRYPT);
+
+Tablespace created.
+
+
+[oracle@mkrh79ora19tgt datafile]$ pwd; ls -l
+/u01/app/oracle/oradata/VDBOMSRCD94VNZ/datafile
+total 136
+-rw-r-----. 1 oracle oinstall 139264 Sep  6 16:36 krypton_ts01.dbf
+
+7. create encrypted table
+SQL> create table krypton_slogans(
+  2  id NUMBER(10),
+  3  slogan VARCHAR2(50))
+  4  TABLESPACE krypton_ts;
+
+Table created.
+
+8. create krypton_test index on slogan:
+SQL> create index krypton_index ON krypton_test(slogan) tablespace krypton_ts;
+
+Index created.
+
+9. insert data into table
+SQL> insert all
+  2  into krypton_slogans(id, slogan) VALUES (1, 'sup d00d? This is encrypted')
+  3  into krypton_slogans(id, slogan) VALUES (2, 'our planet is exploding..')
+  4  into krypton_slogans(id, slogan) VALUES (3, 'Ghosthookers ROCK')
+  5  select * from dual;
+
+3 rows created.
+
+SQL> select * from krypton_slogans;
+
+        ID SLOGAN
+---------- --------------------------------------------------
+         1 sup d00d? This is encrypted
+         2 our planet is exploding..
+         3 Ghosthookers ROCK
+
+
+10. display tablespace encrypted status:
+SQL> select tablespace_name,encrypted,status from dba_tablespaces;
+
+TABLESPACE_NAME                ENC STATUS
+------------------------------ --- ---------
+SYSTEM                         NO  ONLINE
+SYSAUX                         NO  ONLINE
+UNDOTBS1                       NO  ONLINE
+TEMP                           NO  ONLINE
+USERS                          NO  ONLINE
+KRYPTON_TS                     YES ONLINE
+
+6 rows selected.
+
+
+12. enable auto_login for wallet:
+[oracle@mkrh79ora19src datafile]$ orapki wallet create -wallet $ORACLE_BASE/admin/$ORACLE_SID/wallet -auto_login
+Oracle PKI Tool Release 19.0.0.0.0 - Production
+Version 19.4.0.0.0
+Copyright (c) 2004, 2021, Oracle and/or its affiliates. All rights reserved.
+
+Enter wallet password:
+Operation is successfully completed.
+[oracle@mkrh79ora19src datafile]$ cd $ORACLE_BASE/admin/$ORACLE_SID/wallet
+[oracle@mkrh79ora19src wallet]$ ls
+cwallet.sso  cwallet.sso.lck  ewallet.p12  ewallet.p12.lck
+[oracle@mkrh79ora19src wallet]$ pwd ;ls -l
+/u01/app/oracle/admin/DBOMSRCD94D3/wallet
+total 8
+-rw-------. 1 oracle oinstall 3053 Sep  7 10:14 cwallet.sso
+-rw-------. 1 oracle oinstall    0 Sep  7 10:14 cwallet.sso.lck
+-rw-------. 1 oracle oinstall 2987 Sep  7 10:02 ewallet.p12
+-rw-------. 1 oracle oinstall    0 Sep  7 10:14 ewallet.p12.lck
+
+
+
+13. bReAk STUFF!!!!!
+
+[oracle@mkrh79ora19tgt wallet]$ wal
+/u01/app/oracle/admin/VDBOMSRCD94VNZ/wallet
+total 8
+-rw-------. 1 oracle oinstall 3053 Sep  6 16:49 cwallet.sso
+-rw-------. 1 oracle oinstall    0 Sep  6 16:49 cwallet.sso.lck
+-rw-------. 1 oracle oinstall 2987 Sep  6 16:18 ewallet.p12
+-rw-------. 1 oracle oinstall    0 Sep  6 16:49 ewallet.p12.lck
+[oracle@mkrh79ora19tgt wallet]$ mv ewallet.p12 htmp.p12
+
+
+14. target had issues with WALLET_TYPE "UNKNOWN":
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+/u01/app/oracle/admin/VDBOMSRCD94D3_OKE/wallet
+OPEN                           UNKNOWN              SINGLE    NONE     NO
+         0
+
+
+SQL>
+
+
+
+###RESOLUTION####
+
+https://smarttechways.com/2021/10/21/wallet_type-value-is-unknown-in-vencryption_wallet-configured-auto-login-option/
+
+[oracle@mkrh79ora19tgt wallet]$ mv cwallet.sso cwallet.sso.bkup
+[oracle@mkrh79ora19tgt wallet]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Wed Sep 7 14:06:43 2022
+Version 19.11.0.0.0
+
+Copyright (c) 1982, 2020, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.11.0.0.0
+
+SQL> alter system set wallet close;
+
+System altered.
+
+SQL> administer key management set keystore open identified by steak5keveryday;
+
+keystore altered.
+
+SQL> administer key management create AUTO_LOGIN keystore from keystore '/u01/app/oracle/admin/VDBOMSRCD94D3_OKE/wallet' identified by steak5keveryday;
+
+keystore altered.
+
+SQL> administer key management set keystore close identified by steak5keveryday;
+
+keystore altered.
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+/u01/app/oracle/admin/VDBOMSRCD94D3_OKE/wallet
+OPEN                           AUTOLOGIN            SINGLE    NONE     NO
+         0
+
+
+
+#####################
+
+
+
+
+

@@ -20,5 +20,80 @@ The new VM has DNS name 'mkrh79ora19tgt.dcol2'.
 
 
 
+4. login as root and set oracle password to oracle
+5. delete stale entries from ~/.ssh/known_hosts
+6. link dSource JOB-252
 
+hercules=> select * from dlpx_jobs where job_id=252;
+-[ RECORD 1 ]---------+--------------------------------------------------------
+job_id                | 252
+target_reference      | ORACLE_DB_CONTAINER-21
+job_type              | DB_LINK
+start_time            | 2022-09-06 15:26:07.751
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-06 15:26:09.027
+title                 | Link dSource "DBOMSRCD94D3" from source "DBOMSRCD94D3".
+job_state             | COMPLETED
+title_code            | event.action.db.link
+title_params          | ["DBOMSRCD94D3","DBOMSRCD94D3"]
+target_name           | mk824onboarding/DBOMSRCD94D3
+action                | ACTION-659
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
 
+7. review mds details of DB-SYNC JOB-253:
+hercules=> select * from dlpx_jobs where job_id=253;
+-[ RECORD 1 ]---------+------------------------------------------
+job_id                | 253
+target_reference      | ORACLE_DB_CONTAINER-21
+job_type              | DB_SYNC
+start_time            | 2022-09-06 15:26:08.984
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-06 15:27:11.216
+title                 | Run SnapSync for database "DBOMSRCD94D3".
+job_state             | COMPLETED
+title_code            | event.action.db.sync
+title_params          | ["DBOMSRCD94D3"]
+target_name           | mk824onboarding/DBOMSRCD94D3
+action                | ACTION-660
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+                      ^
+hercules=> select * from dlpx_action where action_id=660;
+-[ RECORD 1 ]---------+------------------------------------------
+action_id             | 660
+action_type           | DB_SYNC
+state                 | COMPLETED
+desc_message_id       | event.action.db.sync
+desc_message_params   | ["DBOMSRCD94D3"]
+desc_message_desc     | Run SnapSync for database "DBOMSRCD94D3".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-659
+parent_job            | JOB-252
+start_time            | 2022-09-06 15:26:08.961
+end_time              | 2022-09-06 15:27:11.213
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------

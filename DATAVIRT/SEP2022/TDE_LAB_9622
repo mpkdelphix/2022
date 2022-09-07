@@ -263,6 +263,97 @@ OPEN                           AUTOLOGIN            SINGLE    NONE     NO
 
 #####################
 
+TIME TO BREAK STUFF!!!!! WOOOOOOOOOOOOOOOO!!!!!
+
+0. mv cwallet.sso to uhoh.sso... hilarity ensues....
+
+[oracle@mkrh79ora19tgt wallet]$ pwd
+/u01/app/oracle/admin/VDBOMSRCD94D3_OKE/wallet
+[oracle@mkrh79ora19tgt wallet]$ ls
+cwallet.sso  cwallet.sso.bkup  cwallet.sso.lck  ewallet.p12  ewallet.p12.lck
+[oracle@mkrh79ora19tgt wallet]$ mv cwallet.sso uhoh.sso
+[oracle@mkrh79ora19tgt wallet]$ ls
+cwallet.sso.bkup  cwallet.sso.lck  ewallet.p12  ewallet.p12.lck  uhoh.sso
+
+
+#didn't reject read
+
+SQL> select * from krypton_slogans;
+
+        ID SLOGAN
+---------- --------------------------------------------------
+         1 sup d00d? This is encrypted
+         2 our planet is exploding..
+         3 Ghosthookers ROCK
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1073737792 bytes
+Fixed Size                  8904768 bytes
+Variable Size             620756992 bytes
+Database Buffers          436207616 bytes
+Redo Buffers                7868416 bytes
+Database mounted.
+Database opened.
+
+#shutdown && restart:
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1073737792 bytes
+Fixed Size                  8904768 bytes
+Variable Size             620756992 bytes
+Database Buffers          436207616 bytes
+Redo Buffers                7868416 bytes
+Database mounted.
+Database opened.
+
+SQL> select tablespace_name,encrypted,status from dba_tablespaces;
+
+TABLESPACE_NAME                ENC STATUS
+------------------------------ --- ---------
+SYSTEM                         NO  ONLINE
+SYSAUX                         NO  ONLINE
+UNDOTBS1                       NO  ONLINE
+TEMP                           NO  ONLINE
+USERS                          NO  ONLINE
+KRYPTON_TS                     YES ONLINE
+
+6 rows selected.
+-----------------------------
+SQL> select * from krypton_slogans;
+select * from krypton_slogans
+              *
+ERROR at line 1:
+ORA-28365: wallet is not open
+-----------------------------
+
+#REMEDIATE!!!
+[oracle@mkrh79ora19tgt wallet]$ mv uhoh.sso cwallet.sso
+[oracle@mkrh79ora19tgt wallet]$ ls
+cwallet.sso  cwallet.sso.bkup  cwallet.sso.lck  ewallet.p12  ewallet.p12.lck
+[oracle@mkrh79ora19tgt wallet]$
+
+SQL> select * from krypton_slogans;
+
+        ID SLOGAN
+---------- --------------------------------------------------
+         1 sup d00d? This is encrypted
+         2 our planet is exploding..
+
+
+
+
 
 
 

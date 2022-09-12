@@ -351,10 +351,63 @@ SQL> select * from krypton_slogans;
          1 sup d00d? This is encrypted
          2 our planet is exploding..
 
+1. mv wallet dir to "nowhere"
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ ls
+wallet  xdb_wallet
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ mv wallet nowhere
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ ls
+nowhere  xdb_wallet
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ sqlplus / as sysdba
 
 
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1073737792 bytes
+Fixed Size                  8904768 bytes
+Variable Size             620756992 bytes
+Database Buffers          436207616 bytes
+Redo Buffers                7868416 bytes
+Database mounted.
+Database opened.
+SQL> select * from krypton_slogans;
+select * from krypton_slogans
+              *
+ERROR at line 1:
+ORA-28365: wallet is not open
 
 
+#REMEDIATE!
+
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ ls
+nowhere  xdb_wallet
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ mv nowhere wallet
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ ls
+wallet  xdb_wallet
 
 
+[oracle@mkrh79ora19tgt VDBOMSRCD94D3_OKE]$ sqlplus / as sysdba
 
+SQL*Plus: Release 19.0.0.0.0 - Production on Wed Sep 7 14:24:12 2022
+Version 19.11.0.0.0
+
+Copyright (c) 1982, 2020, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.11.0.0.0
+
+SQL> select * from krypton_slogans;
+
+        ID SLOGAN
+---------- --------------------------------------------------
+         1 sup d00d? This is encrypted
+         2 our planet is exploding..
+         3 Ghosthookers ROCK
+
+----------------------------------------------------------

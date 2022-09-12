@@ -1,0 +1,477 @@
+0. I messed up my appliance and wound up deleting it.
+1. provision new appliance:
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.15.0 mk60150
+***** You have 0 registered VMs. *****
+Cloning latest 'dlpx-6.0.15.0' state to 'mk60150'...
+COMPONENT           VERSION
+app                 2476292ee7e76cf111b7168ebff5c6163206a39a
+appliance_build     ee8fa1ca9514a632ae81f8f1c66b0c33c3f69711
+dlpx                6.0.15.0
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/160/internal-dev-esx/internal-dev-esx.ova
+masking             460e2c6bcdce240c5d9c91f85802757b7f85836c
+Registering 'mk60150' with ESX server 'dcol2-esxi01'...
+The new VM has DNS name 'mk60150.dcol2'.
+
+2. you have to connect to your new appliance via IP in-browser and then perform setup as sysadmin:delphix
+3. all set up!!!
+
+4. clone src && tgt:
+mike.kennedy@dcol2:~$ dc clone-latest rh74-ora19000-src mkrh74ora19src
+***** You have 1 registered VMs. *****
+Cloning latest 'rh74-ora19000-src' state to 'mkrh74ora19src'...
+Registering 'mkrh74ora19src' with ESX server 'dcol2-esxi09'...
+The new VM has DNS name 'mkrh74ora19src.dcol2'.
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-tgt mkrh79ora19tgt
+***** You have 2 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-tgt' state to 'mkrh79ora19tgt'...
+Registering 'mkrh79ora19tgt' with ESX server 'dcol2-esxi06'...
+The new VM has DNS name 'mkrh79ora19tgt.dcol2'.
+
+5. My instance is the container database(cdb):
+SQL> select instance from v$thread
+  2  ;
+
+INSTANCE
+--------------------------------------------------------------------------------
+CDOMLOSR9CD5
+
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOSR9CD5PDB1               READ WRITE NO
+         4 CDOMLOSR9CD5PDB2               READ WRITE NO---------------------------------------------------------------------
+6. I will set WALLET_ROOT to $ORACLE_BASE/admin/CDOMLOSR9CD5/wallet---------------------------------------------------------------------
+6. I will set WALLET_ROOT to $ORACLE_BASE/admin/CDOMLOSR9CD5/wallet---------------------------------------------------------------------
+6. I will set WALLET_ROOT to $ORACLE_BASE/admin/CDOMLOSR9CD5/wallet---------------------------------------------------------------------
+6. I will set WALLET_ROOT to $ORACLE_BASE/admin/CDOMLOSR9CD5/wallet
+         5 CDOMLOSR9CD5PDB3               READ WRITE NO
+---------------------------------------------------------------------
+6. I will set WALLET_ROOT to $ORACLE_BASE/admin/CDOMLOSR9CD5/wallet
+
+SQL> alter system set wallet_root  = '$ORACLE_BASE/admin/CDOMLOSR9CD5/wallet' scope = spfile sid = '*';
+
+System altered
+
+7. PROBLEM:
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*'
+*
+ERROR at line 1:
+ORA-32017: failure in updating SPFILE
+ORA-46693: The WALLET_ROOT location is missing or invalid.
+
+REMEDIATION: restart db to let WALLET_ROOT be initialized at startup?
+https://smarttechways.com/2022/06/16/ora-46693-the-wallet_root-location-is-missing-or-invalid/
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1342173664 bytes
+Fixed Size                  9134560 bytes
+Variable Size             905969664 bytes
+Database Buffers          419430400 bytes
+Redo Buffers                7639040 bytes
+Database mounted.
+Database opened.
+SQL> select instance from v$thread;
+
+INSTANCE
+--------------------------------------------------------------------------------
+CDOMLOSR9CD5
+-------------------------
+8. retry
+SQL> alter system tde_configuration="keystore_configuration=FILE" scope=both sid='*';
+alter system tde_configuration="keystore_configuration=FILE" scope=both sid='*'
+             *
+
+SQL> alter system tde_configuration="keystore_configuration=FILE" scope=both sid='*';
+alter system tde_configuration="keystore_configuration=FILE" scope=both sid='*'
+             *
+ERROR at line 1:
+ORA-02065: illegal option for ALTER SYSTEM
+
+zut......
+
+
+SQL> alter system set tde_configuration="keystore_configuration=FILE" scope=both sid='*';
+
+System altered.
+-------------------------------------
+9. we are now ready to create an auto_login keystore I think...
+SQL> !ls -l $WALLET_ROOT;
+total 0
+
+nope:
+SQL> administer key management create keystore identified by 'learn2oraclebro';
+administer key management create keystore identified by 'learn2oraclebro'
+                                                        *
+ERROR at line 1:
+ORA-00988: missing or invalid password(s)
+
+
+-----------------------------------------------------
+
+10. remove the '<password>':
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+
+11. ewwallet.p12 archive created:
+SQL> !ls -l $WALLET_ROOT/tde
+total 4
+-rw-------. 1 oracle oinstall 2555 Sep 12 09:31 ewallet.p12
+
+
+12. enable auto_login:
+SQL> administer key management create auto_login keystore from keystore '/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/' identified by learn2oraclebro;
+
+keystore altered.
+
+13.
+SQL> !ls -l $WALLET_ROOT/tde
+total 8
+-rw-------. 1 oracle oinstall 2600 Sep 12 09:35 cwallet.sso
+-rw-------. 1 oracle oinstall 2555 Sep 12 09:31 ewallet.p12
+
+14.keystore seems to be open:
+SQL> select wrl_parameter,status from v$encryption_wallet;
+
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS
+------------------------------
+/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/
+OPEN_NO_MASTER_KEY
+
+
+15. attempt to open:
+SQL> administer key management set keystore open identified by learn2oraclebro;
+administer key management set keystore open identified by learn2oraclebro
+*
+ERROR at line 1:
+ORA-28354: Encryption wallet, auto login wallet, or HSM is already open
+
+
+SQL> select wrl_parameter,status from v$encryption_wallet;
+
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS
+------------------------------
+/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/
+OPEN_NO_MASTER_KEY
+
+16.
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/
+OPEN_NO_MASTER_KEY             AUTOLOGIN            SINGLE    NONE     UNDEFINED
+         1
+-The OPEN_NO_MASTER_KEY is a reminder there is no master encryption key available.
+
+17. set software keystore TDE master encryption key:
+
+
+SQL> administer key management set key
+  2  identified by learn2oraclebro
+  3  with backup using 'mk_key_bkup';
+administer key management set key
+*
+ERROR at line 1:
+ORA-28417: password-based keystore is not open - needs FORCE KEYSTORE option
+
+
+SQL> administer key management set key
+  2  force keystore
+  3  identified by learn2oraclebro
+  4  with backup using 'mk_key_bkup';
+
+keystore altered.
+
+18. how to select a specific pdb?
+
+SQL> select dbid, con_id, name from v$pdbs:
+SQL> alter session set container = CDOMLOSR9CD5PDB3;
+
+Session altered.
+
+https://www.carajandb.com/en/blog/2017/help-where-am-i-cdb-or-pdb-and-which-db-anyway/
+
+      DBID     CON_ID
+---------- ----------
+NAME
+--------------------------------------------------------------------------------
+2923900130          5
+CDOMLOSR9CD5PDB
+
+19. alt-method:
+SQL> select sys_context('USERENV', 'CON_NAME') CON_NAME,
+  2  sys_context('USERENV', 'CON_ID') CON_ID,
+  3  sys_context('USERENV', 'DB_NAME') DB_NAME from DUAL;
+
+CON_NAME
+--------------------------------------------------------------------------------
+CON_ID
+--------------------------------------------------------------------------------
+DB_NAME
+--------------------------------------------------------------------------------
+CDOMLOSR9CD5PDB3
+5
+CDOMLOSR9CD5PDB3
+
+20. create encrypted tablespace ala Kevin G instructions
+SQL> create tablespace CDOMLOSR9CD5PDB3_ts datafile '/u01/app/oradata/CDOMLOSR9CD5PDB3/datafile' size 128k autoextend on next 64k encryption using 'aes256' default storage(encrypt);
+create tablespace CDOMLOSR9CD5PDB3_ts datafile '/u01/app/oradata/CDOMLOSR9CD5PDB3/datafile' size 128k autoextend on next 64k encryption using 'aes256' default storage(encrypt)
+*
+ERROR at line 1:
+ORA-28361: master key not yet set
+
+
+go back to pdb$seed:
+
+SQL> alter session set container = pdb$seed;
+
+Session altered.
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN                           AUTOLOGIN            SINGLE    UNITED   NO
+
+21. you need to set master key for each specific pdb:
+
+SQL> alter session set container = CDOMLOSR9CD5PDB3;
+
+Session altered.
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN_NO_MASTER_KEY             AUTOLOGIN            SINGLE    UNITED   UNDEFINED
+         5
+
+SQL> administer key management set key force keystore identified by learn2oraclebro with backup using 'mk_key_bkup';
+
+keystore altered.
+
+
+
+
+SQL> create tablespace db3_encrypted_tbs
+  2  datafile '/u01/app/oracle/oradata/CDOMLOSR9CD5PDB3/datafile' size 128k autoextend on next 64k
+  3  encryption using 'aes256'
+  4  default storage(encrypt);
+
+Tablespace created.  awesome...
+
+22. create table:
+
+DONE 
+
+24: break stuff!!!!
+
+[oracle@gi-rh74-ora19000-src tde]$ mv ewallet.p12 floof 
+[oracle@gi-rh74-ora19000-src tde]$ ls
+cwallet.sso                               ewallet_2022091215085927_mk_key_bkup.p12 floof
+ewallet_2022091213595015_mk_key_bkup.p12  ewallet_2022091215104402_mk_key_bkup.p12
+[oracle@gi-rh74-ora19000-src tde]$ cp cwallet.sso cwallet.sso.bkup
+[oracle@gi-rh74-ora19000-src tde]$ mv cwallet.sso derp
+
+
+#TEST shutdown && startup PDB:
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+NOT_AVAILABLE                  UNKNOWN              SINGLE    UNITED   UNDEFINED
+         5
+
+
+SQL> select * from miscrit_info;
+select * from miscrit_info
+              *
+ERROR at line 1:
+ORA-28365: wallet is not open
+
+#REMEDIATE!!!
+
+[oracle@gi-rh74-ora19000-src tde]$ mv floof ewallet.p12
+[oracle@gi-rh74-ora19000-src tde]$ mv derp cwallet.sso
+
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN                           AUTOLOGIN            SINGLE    UNITED   NO
+         5
+
+
+SQL> select projname from miscrit_info;
+
+PROJNAME
+--------------------------------------------------------------------------------
+Fortune Cookie
+Royal Succession
+Whisky Dance
+Brandon Derp
+Hellstorm
+Nostromo
+Ezekiel
+Monopoly
+Bad Hair Day
+
+9 rows selected.
+
+#######################################END OF SRC CONFIGURATION#####################################
+########## START OF TARGET CONFIGURATION ##################
+
+0. add target environment:
+mike.kennedy@dcol2:~$ nslookup mkrh79ora19tgt.dcol2.delphix.com
+Server:         172.16.101.11
+Address:        172.16.101.11#53
+
+Non-authoritative answer:
+Name:   mkrh79ora19tgt.dcol2.delphix.com
+Address: 10.43.49.223
+
+1. I need to export keys first:
+ command: umask 027; . $DB_SCRIPT_DIR/setup-oraenv.sh; $DLPX_SHELL -x $DB_SCRIPT_DIR/doFinalizePDB.sh false false false true false "/work/toolkit"
+output:END_OF_SETUP
+END_OF_SETUP
+Pluggable database altered.
+
+
+Pluggable database altered.'
+Pluggable database altered.
+
+alter pluggable database "CDOMLOSR9CD5PDB3" unplug into '\''/mnt/provision/VCDO_B9X-CDOMLOTGB1A6-9aBAmF5cDgivCOvp/datafile/delphix_group_writable/VCDO_B9X.xml'\''
+*
+ERROR at line 1:
+ORA-46680: master keys of the container database must be exported'
+Pluggable database altered.
+
+alter pluggable database "CDOMLOSR9CD5PDB3" unplug into '\''/mnt/provision/VCDO_B9X-CDOMLOTGB1A6-9aBAmF5cDgivCOvp/datafile/delphix_group_writable/VCDO_B9X.xml'\''
+*
+ERROR at line 1:
+ORA-46680: master keys of the container database must be exported' FINALIZE_PDB_ERROR
+Pluggable database altered.
+
+alter pluggable database "CDOMLOSR9CD5PDB3" unplug into '\''/mnt/provision/VCDO_B9X-CDOMLOTGB1A6-9aBAmF5cDgivCOvp/datafile/delphix_group_writable/VCDO_B9X.xml'\''
+*
+ERROR at line 1:
+ORA-46680: master keys of the container database must be exported'
+XML file not created. Unplug output:\n
+Pluggable database altered.
+
+alter pluggable database "CDOMLOSR9CD5PDB3" unplug into '/mnt/provision/VCDO_B9X-CDOMLOTGB1A6-9aBAmF5cDgivCOvp/datafile/delphix_group_writable/VCDO_B9X.xml'
+*
+ERROR at line 1:
+ORA-46680: master keys of the container database must be exported
+FINALIZE_PDB_ERROR
+
+
+-----------------------------------------------------
+#### REMEDIATION ####
+
+0. mv cwallet.sso cwallet.sso.bkup:
+
+[oracle@gi-rh74-ora19000-src ~]$ cd $WALLET_ROOT
+[oracle@gi-rh74-ora19000-src wallet]$ cd tde
+[oracle@gi-rh74-ora19000-src tde]$ ls
+cwallet.sso       ewallet_2022091213595015_mk_key_bkup.p12  ewallet_2022091215104402_mk_key_bkup.p12
+cwallet.sso.bkup  ewallet_2022091215085927_mk_key_bkup.p12  ewallet.p12
+[oracle@gi-rh74-ora19000-src tde]$ rm -f cwallet.sso
+
+
+1. verify status and open password-protected wallet on all containers:
+
+SQL> select con_id,wallet_type,status from v$encryption_wallet order by 1,2;
+
+    CON_ID WALLET_TYPE          STATUS
+---------- -------------------- ------------------------------
+         1 UNKNOWN              CLOSED
+         2 UNKNOWN              CLOSED
+         3 UNKNOWN              CLOSED
+         4 UNKNOWN              CLOSED
+         5 UNKNOWN              CLOSED
+
+SQL> administer key management set keystore open identified by learn2oraclebro container=all;
+
+keystore altered.
+
+SQL> select con_id,wallet_type,status from v$encryption_wallet order by 1,2;
+
+    CON_ID WALLET_TYPE          STATUS
+---------- -------------------- ------------------------------
+         1 PASSWORD             OPEN
+         2 PASSWORD             OPEN
+         3 PASSWORD             OPEN_NO_MASTER_KEY
+         4 PASSWORD             OPEN_NO_MASTER_KEY
+         5 PASSWORD             OPEN
+
+SQL> alter session set container=CDOMLOSR9CD5PDB3;
+
+Session altered.
+
+SQL> administer key management export encryption keys with secret "fullabaloo" to '/var/tmp/db3.p12' identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l /var/tmp
+total 4
+-rw-r--r--. 1 oracle oinstall 2612 Sep 12 15:47 db3.p12
+drwx------. 3 root   root       17 Sep  9 15:14 systemd-private-482699b33543404187bb0b8804ddcd9b-chronyd.service-USIOl2
+drwx------. 3 root   root       17 Sep  9 15:14 systemd-private-482699b33543404187bb0b8804ddcd9b-vgauthd.service-esJvlO
+drwx------. 3 root   root       17 Sep  9 15:14 systemd-private-482699b33543404187bb0b8804ddcd9b-vmtoolsd.service-cbtxom

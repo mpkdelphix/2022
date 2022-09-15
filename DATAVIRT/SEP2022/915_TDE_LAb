@@ -56,5 +56,262 @@ SQL> alter system set wallet_root='/u01/app/oracle/admin/CDOMLOSRED50/wallet
 
 SQL> alter system set wallet_root='/u01/app/oracle/admin/CDOMLOTGB1A6/wallet' scope=spfile sid='*';
 -------------------------------------------------------
-4. 
+4. restart dbs to use wallet_root:
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
 
+Total System Global Area 1342173656 bytes
+Fixed Size                  9134552 bytes
+Variable Size             973078528 bytes
+Database Buffers          352321536 bytes
+Redo Buffers                7639040 bytes
+Database mounted.
+Database opened.
+SQL> show parameter wallet_root
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+wallet_root                          string      /u01/app/oracle/admin/CDOMLOSR
+                                                 ED50/wallet
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1342173656 bytes
+Fixed Size                  9134552 bytes
+Variable Size             989855744 bytes
+Database Buffers          335544320 bytes
+Redo Buffers                7639040 bytes
+Database mounted.
+Database opened.
+SQL> show parameter wallet_root
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+wallet_root                          string      /u01/app/oracle/admin/CDOMLOTG
+                                                 B1A6/wallet
+4. set TDE_CONFIGURATION:
+
+
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+
+System altered.
+
+
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+
+System altered.
+
+5. set password-protected wallet:
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+
+
+6. create auto_login keystore:
+
+SQL> administer key management create auto_login keystore from keystore '$WALLET_ROOT/tde' identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l $WALLET_ROOT/tde
+total 8
+-rw-------. 1 oracle oinstall 2600 Sep 15 09:59 cwallet.sso
+-rw-------. 1 oracle oinstall 2555 Sep 15 09:56 ewallet.p12
+
+SQL> administer key management create auto_login keystore from keystore '$WALLET_ROOT/tde' identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l $WALLET_ROOT/tde
+total 8
+-rw-------. 1 oracle oinstall 2600 Sep 15 09:59 cwallet.sso
+-rw-------. 1 oracle oinstall 2555 Sep 15 09:50 ewallet.p12
+
+7. open keystore for all containers:
+
+8. create encrypted_tbs:
+SQL> select tablespace_name,encrypted,status from dba_tablespaces;
+
+TABLESPACE_NAME                ENC STATUS
+------------------------------ --- ---------
+SYSTEM                         NO  ONLINE
+SYSAUX                         NO  ONLINE
+UNDOTBS1                       NO  ONLINE
+TEMP                           NO  ONLINE
+USERS                          NO  ONLINE
+ENCRYPTED_TBS                  YES ONLINE
+
+6 rows selected.
+
+
+9. create table
+####################### FIX tgt keys.....########################
+
+0. create WALLET_ROOT DIR:
+[oracle@mkpdbtgt CDOMLOTGB1A6]$ mkdir wallet
+[oracle@mkpdbtgt CDOMLOTGB1A6]$ ls -l
+total 16
+drwxr-x---. 6 oracle oinstall 16384 Sep 15 16:01 adump
+drwxr-x---. 6 oracle oinstall   180 May 10  2021 dpdump
+drwxr-x---. 2 oracle oinstall    36 May 10  2021 pfile
+drwxr-xr-x. 2 oracle oinstall     6 Sep 15 16:07 wallet
+drwxr-x---. 2 oracle oinstall    44 May 10  2021 xdb_wallet
+[oracle@mkpdbtgt CDOMLOTGB1A6]$ chmod 750 wallet
+[oracle@mkpdbtgt CDOMLOTGB1A6]$ pwd
+/u01/app/oracle/admin/CDOMLOTGB1A6
+
+1. export ORACLE_SID && WALLET_ROOT
+[oracle@mkpdbtgt ~]$ echo $ORACLE_SID $WALLET_ROOT
+CDOMLOTGB1A6 /u01/app/oracle/admin/CDOMLOTGB1A6/wallet
+
+2. login sqlplus set wallet_root parameter:
+
+SQL> alter system set wallet_root = '/u01/app/oracle/admin/CDOMLOTGB1A6/wallet' scope=spfile sid='*';
+
+System altered.
+
+3. set tde_configuration:
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1342173656 bytes
+Fixed Size                  9134552 bytes
+Variable Size             989855744 bytes
+Database Buffers          335544320 bytes
+Redo Buffers                7639040 bytes
+Database mounted.
+Database opened.
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+
+System altered.
+
+SQL> show parameter wallet_root;
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+wallet_root                          string      /u01/app/oracle/admin/CDOMLOTG
+                                                 B1A6/wallet
+4.create password-protected keystore:
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l $WALLET_ROOT/tde
+total 4
+-rw-------. 1 oracle oinstall 2555 Sep 15 16:13 ewallet.p12
+
+5. create auto_login
+SQL> administer key management set key
+  2  force keystore
+  3  identified by learn2oraclebro
+  4  with backup using 'mkbkup';
+
+keystore altered.
+
+
+
+SQL> administer key management create auto_login keystore from keystore '/u01/app/oracle/admin/CDOMLOTGB1A6/wallet/tde' identified by learn2oraclebro;
+
+keystore altered.
+
+6. close pasword keystore to leave auto_login in place:
+
+SQL> administer key management set keystore close identified by learn2oraclebro container=current;
+
+keystore altered.
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+/u01/app/oracle/admin/CDOMLOTGB1A6/wallet/tde/
+OPEN                           AUTOLOGIN            SINGLE    NONE     NO
+         1
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN                           AUTOLOGIN            SINGLE    UNITED   NO
+         2
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN_NO_MASTER_KEY             AUTOLOGIN            SINGLE    UNITED   UNDEFINED
+         3
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN_NO_MASTER_KEY             AUTOLOGIN            SINGLE    UNITED   UNDEFINED
+         4
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+OPEN_NO_MASTER_KEY             AUTOLOGIN            SINGLE    UNITED   UNDEFINED
+         5
+
+
+
+SUCCESS:
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOTGB1A6PDB1               READ WRITE NO
+         4 CDOMLOTGB1A6PDB2               READ WRITE NO
+         5 CDOMLOTGB1A6PDB3               READ WRITE NO
+         6 VCDO_3DJ                       READ WRITE NO

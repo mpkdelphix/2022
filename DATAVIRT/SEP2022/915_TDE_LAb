@@ -1,0 +1,60 @@
+# rhel-7.9-oracle-19.11.0.0-tgt
+# rhel-7.9-oracle-19.11.0.0-src
+
+0. clone src && tgt with identical kernel + ORCL revisions:
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-src mkpdbsrc
+***** You have 1 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-src' state to 'mkpdbsrc'...
+Registering 'mkpdbsrc' with ESX server 'dcol2-esxi06'...
+The new VM has DNS name 'mkpdbsrc.dcol2'.
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-tgt mkpdbtgt
+***** You have 2 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-tgt' state to 'mkpdbtgt'...
+Registering 'mkpdbtgt' with ESX server 'dcol2-esxi11'...
+The new VM has DNS name 'mkpdbtgt.dcol2'.
+-----------------------------------------------------------
+1. add hosts to puTTy
+Name:   mkpdbsrc.dcol2.delphix.com
+Address: 10.43.42.48
+
+Name:   mkpdbtgt.dcol2.delphix.com
+Address: 10.43.44.248
+-----------------------------------------------------------
+2. set WALLET_ROOT and ORACLE_SID at src && tgt
+
+[oracle@mkpdbsrc ~]$ hostname;env|egrep -i 'ora|wallet'
+mkpdbsrc.dcol2
+USER=oracle
+ORACLE_SID=CDOMLOSRED50
+ORACLE_BASE=/u01/app/oracle
+MAIL=/var/spool/mail/oracle
+PATH=/u01/app/oracle/product/19.11.0.0/dbhome_1/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/bin
+PWD=/home/oracle
+colors=/home/oracle/.dircolors
+HOME=/home/oracle
+WALLET_ROOT=/u01/app/oracle/admin/CDOMLOSRED50/wallet
+LOGNAME=oracle
+ORACLE_HOME=/u01/app/oracle/product/19.11.0.0/dbhome_1
+
+[oracle@mkpdbtgt ~]$ env|egrep -i 'ora|wallet'
+USER=oracle
+ORACLE_SID=CDOMLOTGB1A6
+ORACLE_BASE=/u01/app/oracle
+MAIL=/var/spool/mail/oracle
+PATH=/u01/app/oracle/product/19.11.0.0/dbhome_1/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/bin
+PWD=/home/oracle
+colors=/home/oracle/.dircolors
+HOME=/home/oracle
+WALLET_ROOT=/u01/app/oracle/admin/CDOMLOTGB1A6/wallet
+LOGNAME=oracle
+ORACLE_HOME=/u01/app/oracle/product/19.11.0.0/dbhome_1
+
+
+3.set wallet root at src && tgt
+SQL> alter system set wallet_root='/u01/app/oracle/admin/CDOMLOSRED50/wallet
+  2  ' scope=spfile sid='*'
+
+SQL> alter system set wallet_root='/u01/app/oracle/admin/CDOMLOTGB1A6/wallet' scope=spfile sid='*';
+-------------------------------------------------------
+4. 
+

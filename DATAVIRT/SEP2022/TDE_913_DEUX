@@ -1,0 +1,294 @@
+0. this time use 12c-sqlnet.ora:
+ENCRYPTION_WALLET_LOCATION=
+  (SOURCE=(METHOD=FILE)(METHOD_DATA=
+    (DIRECTORY=$ORACLE_BASE/admin/$ORACLE_SID/wallet)))
+
+1. my src:
+[oracle@gi-rh74-ora19000-src admin]$ cat sqlnet.ora
+SQLNET.ALLOWED_LOGON_VERSION_SERVER=11
+ENCRYPTION_WALLET_LOCATION=
+  (SOURCE=(METHOD=FILE)(METHOD_DATA=
+    (DIRECTORY=$ORACLE_BASE/admin/$ORACLE_SID/wallet)))
+
+2. my tgt:
+[oracle@mkrh79ora19tgt ~]$ cat $ORACLE_HOME/network/admin/sqlnet.ora
+SQLNET.ALLOWED_LOGON_VERSION_SERVER=11
+ENCRYPTION_WALLET_LOCATION=
+  (SOURCE=(METHOD=FILE)(METHOD_DATA=
+    (DIRECTORY=$ORACLE_BASE/admin/$ORACLE_SID/wallet)))
+
+3. added ORACLE_SID and WALLET_ROOT at src && tgt:
+export ORACLE_SID=CDOMLOSR9CD5
+export WALLET_ROOT=$ORACLE_BASE/admin/CDOMLOSR9CD5/wallet
+
+export ORACLE_SID=CDOMLOTGB1A6
+export WALLET_ROOT=$ORACLE_BASE/admin/CDOMLOTGB1A6/wallet
+
+
+#  iniziamo... #
+
+3. verify wallet root directories:
+src:
+[oracle@gi-rh74-ora19000-src ~]$ cd $WALLET_ROOT
+[oracle@gi-rh74-ora19000-src wallet]$ ls
+[oracle@gi-rh74-ora19000-src wallet]$ pwd
+/u01/app/oracle/admin/CDOMLOSR9CD5/walle
+
+tgt:
+[oracle@mkrh79ora19tgt ~]$ cd $WALLET_ROOT
+[oracle@mkrh79ora19tgt wallet]$ pwd
+/u01/app/oracle/admin/CDOMLOTGB1A6/wallet
+
+
+4.set wallet_root in Oracle:
+src:
+SQL> alter system set wallet_root = '/u01/app/oracle/admin/CDOMLOSR9CD5/wallet' scope = spfile sid='*';
+
+System altered.
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+tgt:
+SQL> alter system set wallet_root = '/u01/app/oracle/admin/CDOMLOTGB1A6/wallet' scope=spfile sid='*';
+
+System altered.
+
+5. restart src and tgt cdb
+6. set TDE_CONFIGURATION:
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+
+System altered.
+
+SQL>
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+
+System altered.
+
+SQL>
+
+7.create password-protected keystore:
+src:
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+SQL> !ls -l $WALLET_ROOT/tde
+total 4
+-rw-------. 1 oracle oinstall 2555 Sep 13 12:44 ewallet.p12
+
+SQL>
+
+
+
+tgt:
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+SQL> !ls -l $WALLET_ROOT/tde
+total 4
+-rw-------. 1 oracle oinstall 2555 Sep 13 12:44 ewallet.p12
+
+SQL>
+
+8. enable auto_login
+
+SQL> administer key management set key
+  2  force keystore
+  3  identified by learn2oraclebro
+  4  with backup using 'mk_key_bkup';
+
+keystore altered.
+
+SQL>
+SQL> administer key management set key
+  2  force keystore identified by learn2oraclebro
+  3  with backup using 'mk_key_bkup';
+
+keystore altered.
+
+SQL>
+
+
+
+
+9. create auto_login keystores
+src:
+SQL> administer key management create auto_login keystore from keystore '/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde' identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l $WALLET_ROOT/tde
+total 12
+-rw-------. 1 oracle oinstall 4040 Sep 13 13:14 cwallet.sso
+-rw-------. 1 oracle oinstall 2555 Sep 13 13:05 ewallet_2022091317052290_mk_key_bkup.p12
+-rw-------. 1 oracle oinstall 3995 Sep 13 13:05 ewallet.p12
+
+tgt: 
+SQL> administer key management create auto_login keystore from keystore '/u01/app/oracle/admin/CDOMLOTGB1A6/wallet/tde' identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l $WALLET_ROOT/tde
+total 12
+-rw-------. 1 oracle oinstall 4040 Sep 13 13:17 cwallet.sso
+-rw-------. 1 oracle oinstall 2555 Sep 13 13:05 ewallet_2022091317055416_mk_key_bkup.p12
+-rw-------. 1 oracle oinstall 3995 Sep 13 13:05 ewallet.p12
+
+
+10. auto_login verified selecting pdb for encrypted tablespaces:
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOSR9CD5PDB1               READ WRITE NO
+         4 CDOMLOSR9CD5PDB2               READ WRITE NO
+         5 CDOMLOSR9CD5PDB3               READ WRITE NO
+SQL> alter session set container = CDOMLOSR9CD5PDB3;
+
+Session altered.
+
+11. create encrypted_tbs
+SQL> create tablespace encrpted_tbs
+  2  datafile '/u01/app/oracle/oradata/CDOMLOSR9CD5PDB3/datafile' size 128k autoextend on next 64k
+  3  encryption using 'aes256'
+  4  default storage(encrypt);
+
+Tablespace created.
+
+12. added encrypted table, inserted records into said table, moved auto_login wallet aside, shut down auto_login, opened password-protected keystore and exported keys:
+
+[oracle@gi-rh74-ora19000-src wallet]$ cd tde
+[oracle@gi-rh74-ora19000-src tde]$ ls
+cwallet.sso  ewallet_2022091317052290_mk_key_bkup.p12  ewallet_2022091318034818_mk_key_bkup.p12  ewallet.p12
+[oracle@gi-rh74-ora19000-src tde]$ mv cwallet.sso cwallet.sso.bkup
+[oracle@gi-rh74-ora19000-src tde]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Tue Sep 13 14:37:32 2022
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+SQL> administer key management set keystore close container=all;
+
+keystore altered.
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/
+CLOSED                         UNKNOWN              SINGLE    NONE     UNDEFINED
+         1
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+CLOSED                         UNKNOWN              SINGLE    UNITED   UNDEFINED
+         2
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+CLOSED                         UNKNOWN              SINGLE    UNITED   UNDEFINED
+         3
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+CLOSED                         UNKNOWN              SINGLE    UNITED   UNDEFINED
+         4
+
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS                         WALLET_TYPE          WALLET_OR KEYSTORE FULLY_BAC
+------------------------------ -------------------- --------- -------- ---------
+    CON_ID
+----------
+FILE
+
+CLOSED                         UNKNOWN              SINGLE    UNITED   UNDEFINED
+         5
+
+
+SQL> administer key management set keystore open identified by "learn2oraclebro" container=all;
+
+keystore altered.
+
+SQL> select con_id,wallet_type,status from v$encryption_wallet order by 1,2;
+
+    CON_ID WALLET_TYPE          STATUS
+---------- -------------------- ------------------------------
+         1 PASSWORD             OPEN
+         2 PASSWORD             OPEN
+         3 PASSWORD             OPEN_NO_MASTER_KEY
+         4 PASSWORD             OPEN_NO_MASTER_KEY
+         5 PASSWORD             OPEN
+
+SQL> administer key management export encryption keys with secret fullaballoo to '/var/tmp/keys.p12' identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l /var/tmp
+total 4
+-rw-r--r--. 1 oracle oinstall 2612 Sep 13 14:39 keys.p12
+drwx------. 3 root   root       17 Sep 13 11:27 systemd-private-682b2633792b4acc977d6b118ba625cf-chronyd.service-DzCNc4
+drwx------. 3 root   root       17 Sep 13 11:27 systemd-private-682b2633792b4acc977d6b118ba625cf-vgauthd.service-hQmbjf
+drwx------. 3 root   root       17 Sep 13 11:27 systemd-private-682b2633792b4acc977d6b118ba625cf-vmtoolsd.service-lF1O8S
+
+13. add environments to appliance
+
+Error
+No value present for the tdeKeystorePassword parameter in target CDB sourceConfig "CDOMLOTGB1A6".
+Error Code
+exception.oracle.vdb.tde.target.keystore.password.not.provided
+Suggested Action
+Delphix operations on virtual PDBs with Transparent Data Encryption enabled require that the keystore password for the target CDB be set in the target CDB sourceConfig. Set this parameter for "CDOMLOTGB1A6" and try again
+
+14. you will need to cp source keys to a target directory; Best practice is to not use the target $WALLET_ROOT as it clobbers the existing keys:
+
+[oracle@mkrh79ora19tgt tde]$ mkdir -p /u01/app/oracle/admin/CDOMLOSR9CD5/wallet
+[oracle@mkrh79ora19tgt tde]$ cd /u01/app/oracle/admin/CDOMLOSR9CD5/wallet
+[oracle@mkrh79ora19tgt wallet]$ ls
+cwallet.sso  cwallet.sso.bkup  ewallet_2022091317052290_mk_key_bkup.p12  ewallet_2022091318034818_mk_key_bkup.p12  ewallet.p12
+[oracle@mkrh79ora19tgt wallet]$

@@ -1,0 +1,97 @@
+#try again....
+0. provision machines:
+mike.kennedy@dcol2:~$ dc clone-latest rh74-ora19000-src mkrh74ora19src
+***** You have 1 registered VMs. *****
+Cloning latest 'rh74-ora19000-src' state to 'mkrh74ora19src'...
+Registering 'mkrh74ora19src' with ESX server 'dcol2-esxi07'...
+The new VM has DNS name 'mkrh74ora19src.dcol2'.
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-tgt mkrh79ora19tgt
+***** You have 2 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-tgt' state to 'mkrh79ora19tgt'...
+Registering 'mkrh79ora19tgt' with ESX server 'dcol2-esxi06'...
+The new VM has DNS name 'mkrh79ora19tgt.dcol2'.
+
+
+1. setup ORACLE_SID and WALLET_ROOT variables:
+export ORACLE_SID=CDOMLOSR9CD5
+export WALLET_ROOT=$ORACLE_BASE/admin/CDOMLOSR9CD5/wallet
+
+2. mkdir -p $ORACLE_BASE/admin/CDOMLOSR9CD5/wallet
+
+3. set wallet_root, restart and set tde_configuration:
+SQL> alter system set wallet_root = '/u01/app/oracle/admin/CDOMLOSR9CD5/wallet' scope = spfile sid='*';
+
+System altered.
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 1342173664 bytes
+Fixed Size                  9134560 bytes
+Variable Size             771751936 bytes
+Database Buffers          553648128 bytes
+Redo Buffers                7639040 bytes
+Database mounted.
+Database opened.
+SQL> alter system set tde_configuration="KEYSTORE_CONFIGURATION=FILE" SCOPE=BOTH SID='*';
+
+System altered.
+
+4. set password-protected keyster:
+SQL> administer key management create keystore identified by learn2oraclebro;
+
+keystore altered.
+
+SQL> !ls -l $WALLET_ROOT
+total 0
+drwxr-x---. 2 oracle oinstall 25 Sep 13 10:29 tde
+
+SQL> !ls -l $WALLET_ROOT/tde
+total 4
+-rw-------. 1 oracle oinstall 2555 Sep 13 10:29 ewallet.p12
+
+
+5. enabled auto_login:
+SQL> administer key management create auto_login keystore from keystore '/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/' identified by learn2oraclebro;
+
+keystore altered. 
+
+6. set master key for cdb$root; NOTE: all pdbs are OPEN_NO_MASTER_KEY:
+SQL> administer key management set key
+  2  force keystore
+  3  identified by learn2oraclebro
+  4  with backup using 'mk_key_bkup';
+
+keystore altered.
+
+SQL> select wrl_parameter,status from v$encryption_wallet order by 1,2;
+
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS
+------------------------------
+/u01/app/oracle/admin/CDOMLOSR9CD5/wallet/tde/
+OPEN
+
+
+OPEN
+
+
+OPEN_NO_MASTER_KEY
+
+
+WRL_PARAMETER
+--------------------------------------------------------------------------------
+STATUS
+------------------------------
+
+OPEN_NO_MASTER_KEY
+
+
+OPEN_NO_MASTER_KEY
+
+7.

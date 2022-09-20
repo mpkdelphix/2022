@@ -1,3 +1,4 @@
+#Delphix thought: we function as a virtual tape drive when doing backup/db_discovery/provisioning
 # rhel-7.9-oracle-19.11.0.0-tgt
 # rhel-7.9-oracle-19.11.0.0-src
 
@@ -315,3 +316,240 @@ SQL> show pdbs
          4 CDOMLOTGB1A6PDB2               READ WRITE NO
          5 CDOMLOTGB1A6PDB3               READ WRITE NO
          6 VCDO_3DJ                       READ WRITE NO
+##########################################################################
+Trace jobs 126-138 leading to 915 successful provisioning
+
+0. JOB-126 ENVIRONMENT DISCOVERY
+hercules=> select * from dlpx_jobs where job_id=126;
+-[ RECORD 1 ]---------+-------------------------------------------------------------
+job_id                | 126
+target_reference      | UNIX_HOST_ENVIRONMENT-8
+job_type              | ENVIRONMENT_DISCOVER
+start_time            | 2022-09-15 20:20:03.681
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-15 20:20:09.595
+title                 | Discover information and objects for environment "mkpdbtgt".
+job_state             | COMPLETED
+title_code            | event.action.environment.discover
+title_params          | ["mkpdbtgt"]
+target_name           | mkpdbtgt
+action                | ACTION-303
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=303;
+-[ RECORD 1 ]---------+-------------------------------------------------------------
+action_id             | 303
+action_type           | ENVIRONMENT_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.discover
+desc_message_params   | ["mkpdbtgt"]
+desc_message_desc     | Discover information and objects for environment "mkpdbtgt".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-298
+parent_job            | JOB-124
+start_time            | 2022-09-15 20:20:03.673
+end_time              | 2022-09-15 20:20:09.594
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+
+delphix@mk60150:/var/delphix/server/log$ grep -in JOB-126 *
+access_log:39839:172.16.124.81 - - [15/Sep/2022:15:20:03 -0500] "GET /resources/json/delphix/job/JOB-126?_=1663269049792 HTTP/1.1" 200 970 10
+access_log:39841:172.16.124.81 - - [15/Sep/2022:15:20:03 -0500] "GET /resources/json/delphix/job/JOB-126 HTTP/1.1" 200 970 7
+access_log:39848:172.16.124.81 - - [15/Sep/2022:15:20:04 -0500] "GET /resources/json/delphix/job/JOB-126 HTTP/1.1" 200 970 6
+access_log:39893:172.16.124.81 - - [15/Sep/2022:15:20:09 -0500] "GET /resources/json/delphix/job/JOB-126?_=1663269049819 HTTP/1.1" 200 1648 5
+access_log:39895:172.16.124.81 - - [15/Sep/2022:15:20:09 -0500] "GET /resources/json/delphix/job/JOB-126 HTTP/1.1" 200 1648 5
+debug.log.5:18421:[2022-09-15T15:20:03,686][DEBUG][jcm.impl.JobManagerImpl#createJob:462][Worker-218|JOB-124|ENVIRONMENT_CREATE_AND_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Job JOB-126: Created Job 126 for object UNIX_HOST_ENVIRONMENT-8
+debug.log.5:18422:[2022-09-15T15:20:03,687][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][Worker-218|JOB-124|ENVIRONMENT_CREATE_AND_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Job JOB-126: dispatching for reason event.job.started
+debug.log.5:18423:[2022-09-15T15:20:03,687][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-218|JOB-124|ENVIRONMENT_CREATE_AND_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Getting lock object for JOB-126.
+debug.log.5:18424:[2022-09-15T15:20:03,688][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-40][] Job JOB-126: updating state to RUNNING
+debug.log.5:18425:[2022-09-15T15:20:03,689][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-40][] Job JOB-126: adding event JobEventDO{id=-1, job=JOB-126, event=event.job.started, state=RUNNING}
+debug.log.5:18446:[2022-09-15T15:20:03,698][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Job JOB-126 gets context ACTION-303
+debug.log.5:18447:[2022-09-15T15:20:03,699][DEBUG][executor.impl.ExecutorImpl#setupExecutorContext:361][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] action preExecute action ACTION-303
+debug.log.5:18448:[2022-09-15T15:20:03,700][INFO][environment.impl.discovery.ASEHostEnvironmentDiscoveryProvider#discoverEnvironment:493][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Start environment discovery
+debug.log.5:18449:[2022-09-15T15:20:03,701][INFO][environment.impl.discovery.ASEHostEnvironmentDiscoveryProvider#discoverEnvironment:499][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Skipping discovery for SAP ASE instances as ASE host discovery parameters were not provided and there were no ASE instances found
+debug.log.5:18450:[2022-09-15T15:20:03,704][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18451:[2022-09-15T15:20:03,704][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18452:[2022-09-15T15:20:04,061][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Discovered object: OracleNodeListenerList - OracleNodeListener - name LISTENER, serviceNames CDOMLOTGB1A6,CDOMLOTGB1A6XDB,CDOMSHTG651D,CDOMSHTG651DXDB,c2040be2c82c22c4e055000000000001,c2040cc517ab23b8e055000000000001,c2040da85d8223d1e055000000000001,c204ce59b02c56e9e055000000000001,c204cf1be66657dce055000000000001,c204cfa2a25557ece055000000000001,cdomlotgb1a6pdb1,cdomlotgb1a6pdb2,cdomlotgb1a6pdb3,cdomshtg651dpdb1,cdomshtg651dpdb2,cdomshtg651dpdb3, instanceNames CDOMSHTG651D,CDOMLOTGB1A6, protocolAddressList (ADDRESS=(PROTOCOL=tcp)(HOST=10.43.34.11)(PORT=1521))
+debug.log.5:18456:[2022-09-15T15:20:04,426][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OracleInstallList - OracleInstall - InstallationHome: /u01/app/oracle/product/19.11.0.0/dbhome_1, OracleBase: /u01/app/oracle, OracleBaseConfig: /u01/app/oracle/product/19.11.0.0/dbhome_1, OracleBaseHome: /u01/app/oracle/product/19.11.0.0/dbhome_1, GroupName: oinstall, GroupId: 1000, UserName: oracle, UserId: 1000, Bits: 64, Rac: false, Version: 19.11.0.0.0
+debug.log.5:18457:[2022-09-15T15:20:04,433][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18458:[2022-09-15T15:20:04,434][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 2 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18459:[2022-09-15T15:20:06,572][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OracleUserPrivilege - sysbackupHomes: [/u01/app/oracle/product/19.11.0.0/dbhome_1], sysdbaHomes: [/u01/app/oracle/product/19.11.0.0/dbhome_1]
+debug.log.5:18460:[2022-09-15T15:20:06,648][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OracleSIConfigList - OracleSIConfig - OracleConfig - name: CDOMSHTG651D, uniqueName: CDOMSHTG651D, databaseName: CDOMSHTG OracleInstance: OracleInstance - instanceName: CDOMSHTG651D, instanceNumber: 1
+debug.log.5:18462:[2022-09-15T15:20:06,654][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMSHTG651D
+debug.log.5:18463:[2022-09-15T15:20:06,665][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMLOTGB1A6
+debug.log.5:18464:[2022-09-15T15:20:06,684][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18465:[2022-09-15T15:20:06,685][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18497:[2022-09-15T15:20:08,717][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18498:[2022-09-15T15:20:08,718][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18499:[2022-09-15T15:20:08,909][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:81][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: PDBs in CDB CDOMSHTG - 3
+debug.log.5:18500:[2022-09-15T15:20:08,909][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:83][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OraclePDBInfoPOJO {conId=3, dbId=4291420616, guid=C204CE59B02C56E9E055000000000001, databaseName=CDOMSHTG651DPDB1, mode=READ_WRITE, conUid=4291420616, status=NORMAL}
+debug.log.5:18501:[2022-09-15T15:20:08,909][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:83][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OraclePDBInfoPOJO {conId=4, dbId=578258443, guid=C204CF1BE66657DCE055000000000001, databaseName=CDOMSHTG651DPDB2, mode=READ_WRITE, conUid=578258443, status=NORMAL}
+debug.log.5:18502:[2022-09-15T15:20:08,910][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:83][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OraclePDBInfoPOJO {conId=5, dbId=2357609563, guid=C204CFA2A25557ECE055000000000001, databaseName=CDOMSHTG651DPDB3, mode=READ_WRITE, conUid=2357609563, status=NORMAL}
+debug.log.5:18503:[2022-09-15T15:20:08,914][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMSHTG651DPDB1
+debug.log.5:18504:[2022-09-15T15:20:08,919][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18505:[2022-09-15T15:20:08,920][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18506:[2022-09-15T15:20:08,972][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMSHTG651DPDB2
+debug.log.5:18507:[2022-09-15T15:20:08,977][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18508:[2022-09-15T15:20:08,978][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18509:[2022-09-15T15:20:09,019][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMSHTG651DPDB3
+debug.log.5:18510:[2022-09-15T15:20:09,024][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18511:[2022-09-15T15:20:09,024][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18512:[2022-09-15T15:20:09,052][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18513:[2022-09-15T15:20:09,052][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18514:[2022-09-15T15:20:09,252][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18515:[2022-09-15T15:20:09,253][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18516:[2022-09-15T15:20:09,419][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:81][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: PDBs in CDB CDOMLOTG - 3
+debug.log.5:18517:[2022-09-15T15:20:09,420][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:83][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OraclePDBInfoPOJO {conId=3, dbId=2857913371, guid=C2040BE2C82C22C4E055000000000001, databaseName=CDOMLOTGB1A6PDB1, mode=READ_WRITE, conUid=2857913371, status=NORMAL}
+debug.log.5:18518:[2022-09-15T15:20:09,420][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:83][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OraclePDBInfoPOJO {conId=4, dbId=91275038, guid=C2040CC517AB23B8E055000000000001, databaseName=CDOMLOTGB1A6PDB2, mode=READ_WRITE, conUid=91275038, status=NORMAL}
+debug.log.5:18519:[2022-09-15T15:20:09,421][DEBUG][environment.impl.discovery.OracleSourceConfigDiscoveryProviderImpl#updateCDBAndPDBConfigs:83][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Discovered object: OraclePDBInfoPOJO {conId=5, dbId=2166427065, guid=C2040DA85D8223D1E055000000000001, databaseName=CDOMLOTGB1A6PDB3, mode=READ_WRITE, conUid=2166427065, status=NORMAL}
+debug.log.5:18520:[2022-09-15T15:20:09,424][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMLOTGB1A6PDB1
+debug.log.5:18521:[2022-09-15T15:20:09,430][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18522:[2022-09-15T15:20:09,430][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18523:[2022-09-15T15:20:09,463][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMLOTGB1A6PDB2
+debug.log.5:18524:[2022-09-15T15:20:09,469][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18525:[2022-09-15T15:20:09,469][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18526:[2022-09-15T15:20:09,495][DEBUG][lifecycle.impl.SourceManagerImpl#createConfig:300][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Adding config: CDOMLOTGB1A6PDB3
+debug.log.5:18527:[2022-09-15T15:20:09,500][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:298][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Lock acquisition time for host: 10.43.34.11 was 0 ms
+debug.log.5:18528:[2022-09-15T15:20:09,500][DEBUG][dhm.impl.connector.ConnectorManagerImpl#connect:501][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Sharing Connector Connection! 1 Delphix Connectors are now sharing a DSP session on host UNIX_HOST-8 with user HOST_USER-8
+debug.log.5:18529:[2022-09-15T15:20:09,531][DEBUG][appdata.AppDataHostEnvironmentDiscoveryProvider#discoverEnvironment:155][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Running discovery on environment mkpdbtgt for toolkit Unstructured Files
+debug.log.5:18530:[2022-09-15T15:20:09,532][DEBUG][appdata.AppDataHostEnvironmentDiscoveryProvider#runDiscovery:191][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Repository schema
+debug.log.5:18532:[2022-09-15T15:20:09,551][DEBUG][workflow.lua.LuaUtil#luaToJson:151][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Schema: [{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"}},"additionalProperties":false,"required":["name"]}}]
+debug.log.5:18533:[2022-09-15T15:20:09,551][DEBUG][workflow.lua.LuaUtil#luaToJson:151][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Schema: [{"type":"object","properties":{"name":{"type":"string"}},"additionalProperties":false,"required":["name"]}]
+debug.log.5:18534:[2022-09-15T15:20:09,552][DEBUG][workflow.lua.LuaUtil#luaToJson:151][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Schema: [{"type":"string"}]
+debug.log.5:18535:[2022-09-15T15:20:09,565][DEBUG][appdata.AppDataHostEnvironmentDiscoveryProvider#runDiscovery:248][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Creating repository Unstructured Files
+debug.log.5:18536:[2022-09-15T15:20:09,570][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-40][] Job JOB-126: updating state to RUNNING
+debug.log.5:18537:[2022-09-15T15:20:09,572][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-40][] Job JOB-126: adding event JobEventDO{id=-1, job=JOB-126, event=event.action.repository.create, state=RUNNING}
+debug.log.5:18538:[2022-09-15T15:20:09,575][DEBUG][appdata.AppDataHostEnvironmentDiscoveryProvider#runSourceConfigDiscovery:348][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Source config schema
+debug.log.5:18540:[2022-09-15T15:20:09,576][DEBUG][appdata.impl.LuaWorkflowRunner#getLuaToolkit:137][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Getting Lua toolkit from repo %s APPDATA_REPOSITORY-8
+debug.log.5:18541:[2022-09-15T15:20:09,590][DEBUG][workflow.lua.LuaUtil#luaToJson:151][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Schema: [{"type":"array","items":{"type":"object","additionalProperties":false,"properties":{}}}]
+debug.log.5:18542:[2022-09-15T15:20:09,592][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Job JOB-126: execution complete
+debug.log.5:18543:[2022-09-15T15:20:09,593][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Job JOB-126: suspended by request for state RUNNING (event.job.completed)
+debug.log.5:18545:[2022-09-15T15:20:09,595][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-40][] Job JOB-126: updating state to COMPLETED
+debug.log.5:18546:[2022-09-15T15:20:09,596][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-40][] Job JOB-126: adding event JobEventDO{id=-1, job=JOB-126, event=event.job.completed, state=COMPLETED}
+debug.log.5:18554:[2022-09-15T15:20:09,609][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] action doneAsync (1) ACTION-303
+grep: failedActions: Is a directory
+info.log:38056:[2022-09-15T15:20:03,698][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][] Job JOB-126 gets context ACTION-303
+info.log:38057:[2022-09-15T15:20:03,700][INFO][environment.impl.discovery.ASEHostEnvironmentDiscoveryProvider#discoverEnvironment:493][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Start environment discovery
+info.log:38058:[2022-09-15T15:20:03,701][INFO][environment.impl.discovery.ASEHostEnvironmentDiscoveryProvider#discoverEnvironment:499][Worker-220|JOB-126|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-8)][ACTION-303] Skipping discovery for SAP ASE instances as ASE host discovery parameters were not provided and there were no ASE instances found
+
+------------------------------end of JOB-126----------------------------------------------
+1. JOB-127 SOURCE_CONFIG_UPDATE:
+hercules=> select * from dlpx_jobs where job_id=127;
+-[ RECORD 1 ]---------+-------------------------------------
+job_id                | 127
+target_reference      | ORACLE_SINGLE_CONFIG-94
+job_type              | SOURCE_CONFIG_UPDATE
+start_time            | 2022-09-15 20:22:23.272
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-15 20:22:23.322
+title                 | Update source config "CDOMLOTGB1A6".
+job_state             | COMPLETED
+title_code            | event.action.source_config.update
+title_params          | ["CDOMLOTGB1A6"]
+target_name           | CDOMLOTGB1A6
+action                | ACTION-305
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=305;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 305
+action_type           | SOURCE_CONFIG_UPDATE
+state                 | COMPLETED
+desc_message_id       | event.action.source_config.update
+desc_message_params   | ["CDOMLOTGB1A6"]
+desc_message_desc     | Update source config "CDOMLOTGB1A6".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-15 20:22:23.206
+end_time              | 2022-09-15 20:22:23.32
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.81
+http_session_id       | 986E870668D652329D9C1F200ADFA670
+work_source_principal | admin
+
+delphix@mk60150:/var/delphix/server/log$ grep -in JOB-127 *
+access_log:40076:172.16.124.81 - - [15/Sep/2022:15:22:23 -0500] "GET /resources/json/delphix/job/JOB-127 HTTP/1.1" 200 1302 6
+access_log:40077:172.16.124.81 - - [15/Sep/2022:15:22:23 -0500] "GET /resources/json/delphix/job/JOB-127?_=1663269049922 HTTP/1.1" 200 1302 8
+access_log:40085:172.16.124.81 - - [15/Sep/2022:15:22:23 -0500] "GET /resources/json/delphix/job/JOB-127 HTTP/1.1" 200 1302 7
+debug.log.5:18814:[2022-09-15T15:22:23,275][DEBUG][jcm.impl.JobManagerImpl#createJob:462][http-nio-127.0.0.1-8586-exec-1:POST /delphix/sourceconfig/ORACLE_SINGLE_CONFIG-94][ACTION-305] Job JOB-127: Created Job 127 for object ORACLE_SINGLE_CONFIG-94
+debug.log.5:18815:[2022-09-15T15:22:23,276][DEBUG][jcm.impl.JobManagerImpl#doDispatchTransactional:1308][http-nio-127.0.0.1-8586-exec-1:POST /delphix/sourceconfig/ORACLE_SINGLE_CONFIG-94][ACTION-305] Job JOB-127: dispatching for reason event.job.started
+debug.log.5:18816:[2022-09-15T15:22:23,277][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][http-nio-127.0.0.1-8586-exec-1:POST /delphix/sourceconfig/ORACLE_SINGLE_CONFIG-94][ACTION-305] Getting lock object for JOB-127.
+debug.log.5:18817:[2022-09-15T15:22:23,278][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-41][] Job JOB-127: updating state to RUNNING
+debug.log.5:18818:[2022-09-15T15:22:23,280][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-41][] Job JOB-127: adding event JobEventDO{id=-1, job=JOB-127, event=event.job.started, state=RUNNING}
+debug.log.5:18819:[2022-09-15T15:22:23,296][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][] Job JOB-127 gets context ACTION-305
+debug.log.5:18820:[2022-09-15T15:22:23,296][DEBUG][executor.impl.ExecutorImpl#setupExecutorContext:361][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][ACTION-305] action preExecute action ACTION-305
+debug.log.5:18821:[2022-09-15T15:22:23,298][DEBUG][lifecycle.impl.SourceManagerImpl#updateSourceConfig:367][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][ACTION-305] Updating config: null
+debug.log.5:18822:[2022-09-15T15:22:23,319][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1487][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][ACTION-305] Job JOB-127: execution complete
+debug.log.5:18823:[2022-09-15T15:22:23,319][DEBUG][jcm.impl.JobManagerImpl#jobComplete:1528][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][] Job JOB-127: suspended by request for state RUNNING (event.job.completed)
+debug.log.5:18825:[2022-09-15T15:22:23,322][DEBUG][jcm.impl.JobManagerImpl#updateJobStateTransactional:1729][pool-43-thread-41][] Job JOB-127: updating state to COMPLETED
+debug.log.5:18826:[2022-09-15T15:22:23,323][DEBUG][jcm.impl.JobManagerImpl#handleNewEvent:1830][pool-43-thread-41][] Job JOB-127: adding event JobEventDO{id=-1, job=JOB-127, event=event.job.completed, state=COMPLETED}
+debug.log.5:18831:[2022-09-15T15:22:23,334][DEBUG][executor.impl.ExecutorImpl#teardownExecutorContext:386][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][] action doneAsync (1) ACTION-305
+grep: failedActions: Is a directory
+info.log:38084:[2022-09-15T15:22:23,296][INFO][executor.impl.ExecutorImpl#setupExecutorContext:331][Worker-221|JOB-127|SOURCE_CONFIG_UPDATE(ORACLE_SINGLE_CONFIG-94)][] Job JOB-127 gets context ACTION-305
+
+2. JOB-128 DB_PROVISION:
+hercules=> select * from dlpx_jobs where job_id=128;
+-[ RECORD 1 ]---------+---------------------------------------
+job_id                | 128
+target_reference      | ORACLE_DB_CONTAINER-46
+job_type              | DB_PROVISION
+start_time            | 2022-09-15 20:25:35.138
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-15 20:30:18.736
+title                 | Provision virtual database "VCDO_3DJ".
+job_state             | COMPLETED
+title_code            | event.action.db.provision
+title_params          | ["VCDO_3DJ"]
+target_name           | Untitled/VCDO_3DJ
+action                | ACTION-306
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc  
+
+hercules=> select * from dlpx_action where action_id=306;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 306
+action_type           | DB_PROVISION
+state                 | COMPLETED
+desc_message_id       | event.action.db.provision
+desc_message_params   | ["VCDO_3DJ"]
+desc_message_desc     | Provision virtual database "VCDO_3DJ".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-15 20:25:28.616
+end_time              | 2022-09-15 20:30:18.734
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.81
+http_session_id       | 986E870668D652329D9C1F200ADFA670
+work_source_principal | admin
+

@@ -1,0 +1,9 @@
+#provision dSource on [oracle@rhel-7 ~]$ sqlplus -version
+
+SQL*Plus: Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+##########################################################
+
+{"type":"LinkParameters","name":"CDOMLOSRAS99PDB1","group":"GROUP-1","description":"","linkData":{"type":"OraclePDBLinkFromExternal","sourcingPolicy":{"type":"OracleSourcingPolicy","logsyncEnabled":true,"logsyncMode":"ARCHIVE_REDO_MODE","logsyncInterval":5},"syncStrategy":{"type":"OracleSourceBasedSyncStrategy","config":"ORACLE_PDB_CONFIG-105","backupLevelEnabled":false,"rmanChannels":2,"filesPerSet":5,"checkLogical":false,"encryptedLinkingEnabled":false,"compressedLinkingEnabled":true,"bandwidthLimit":0,"numberOfConnections":1},"externalFilePath":null,"operations":{"type":"LinkedSourceOperations","preSync":[],"postSync":[]},"syncParameters":{"type":"OracleSyncFromExternalParameters","forceFullBackup":false,"doubleSync":false,"skipSpaceCheck":false,"doNotResume":false,"filesForFullBackup":null},"diagnoseNoLoggingFaults":true,"preProvisioningEnabled":null,"linkNow":true,"environmentUser":"HOST_USER-9","oracleFallbackUser":"oracle","oracleFallbackCredentials":{"type":"PasswordCredential","password":"********"}}}
+
+############################################################

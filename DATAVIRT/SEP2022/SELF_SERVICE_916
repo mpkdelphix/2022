@@ -1,0 +1,282 @@
+-self-service will always provision to the latest time on the timeflow
+-template->data source-> data container -> operations
+
+0. provision VDB
+1. provision user of type of self-service in UI: ssuser/delphix
+2. we created bookmark, new branch , and performed a DB_ROLLBACK 
+hercules=> select * from dlpx_container where name ~ 'U1N';
+-[ RECORD 1 ]-------------+------------------------
+container_id              | 49
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | VDBO_U1N
+group_ref                 | GROUP-1
+description               |
+provision_container       | ORACLE_DB_CONTAINER-48
+timeflow                  | ORACLE_TIMEFLOW-29
+previous_timeflow         | ORACLE_TIMEFLOW-28
+creation_time             | 2022-09-16 16:34:25.689
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |
+
+
+
+3. we now have two timeflows for container-49:
+hercules=> select * from dlpx_timeflow where container ~ '-49';
+parent_db_change_id       | 2628787
+parent_timestamp          | 2022-09-16 16:32:18
+parent_snapshot           | ORACLE_SNAPSHOT-19
+is_temporary              | f
+state                     | CONFIGURED
+spatial_clone             | f
+creation_type             | INITIAL
+-[ RECORD 2 ]-------------+---------------------------------------------------
+timeflow_id               | 29
+namespace                 |
+namespace_data_dependency | f
+timeflow_type             | ORACLE_TIMEFLOW
+name                      | SELFSERVICE_USER_BRANCH_CREATE@2022-09-16T11:49:49
+container                 | ORACLE_DB_CONTAINER-49
+parent_timeflow           | ORACLE_TIMEFLOW-28
+parent_db_change_id       | 2730714
+parent_timestamp          | 2022-09-16 16:49:12
+parent_snapshot           | ORACLE_SNAPSHOT-23
+is_temporary              | f
+state                     | CONFIGURED
+spatial_clone             | f
+creation_type             | ROLLBACK
+
+4. list all "jetstream" tables:
+hercules=> select * from dlpx_timeflow where container ~ '-49';
+hercules=> \dt dlpx_dvc_
+dlpx_dvc_bookmark                       dlpx_dvc_data_container                 dlpx_dvc_data_template                  dlpx_dvc_operation_duration_usage_data
+dlpx_dvc_branch                         dlpx_dvc_data_source                    dlpx_dvc_operation                      dlpx_dvc_recovery_state
+dlpx_dvc_branch_segment                 dlpx_dvc_data_source_snapshot           dlpx_dvc_operation_count_usage_data     dlpx_dvc_source_bookmark
+
+
+5. list template:
+hercules=> select * from dlpx_dvc_data_template;
+-[ RECORD 1 ]-------------+--------------------------------------------
+template_id               | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-dt
+notes                     | self-service data template for 916 lab w/KG
+properties                | {}
+active_branch             | JS_BRANCH-1
+last_updated              | 2022-09-16 16:42:27.257
+first_operation           | JS_OPERATION-1
+last_operation            | JS_OPERATION-1
+layered_linked_source     | LAYERED_LINKED_SOURCE-1
+confirm_slow_operations   | t
+
+6. list first branch:
+hercules=> select * from dlpx_dvc_branch where dvc_branch_id=1;
+-[ RECORD 1 ]-------------+------------------------
+dvc_branch_id             | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | master
+data_layout               | JS_DATA_TEMPLATE-1
+creation_time             | 2022-09-16 16:42:27.232
+first_operation           | JS_OPERATION-1
+last_operation            | JS_OPERATION-1
+
+
+7. 
+hercules=> select * from dlpx_dvc_operation where dvc_operation_id=1;
+-[ RECORD 1 ]-------------+----------------------------------------------------------------------------------------
+dvc_operation_id          | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | CREATE_BRANCH
+data_layout               | JS_DATA_TEMPLATE-1
+start_time                | 2022-09-16 16:42:27.237
+end_time                  | 2022-09-16 16:32:18
+data_time                 | 2022-09-16 16:32:18
+desc_message_id           | event.selfservice.create.branch
+desc_message_params       | ["admin","master","sslab916-dt"]
+desc_message_desc         | User "admin" created the new branch "master" on Self-Service data layout "sslab916-dt".
+operation                 | CREATE_BRANCH
+branch                    | JS_BRANCH-1
+bookmark                  |
+type                      |
+dp_bookmark               |
+dp_bookmark_name          |
+dp_branch                 |
+dp_branch_name            |
+dp_time                   |
+root_action               | ACTION-330
+force_option              | f
+
+
+8. determine data source:
+hercules=> select * from dlpx_dvc_data_source;
+-[ RECORD 1 ]-------------+---------------------------
+dvc_data_source_id        | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-ds
+description               | data source for 916 ss lab
+container                 | ORACLE_DB_CONTAINER-48
+data_layout               | JS_DATA_TEMPLATE-1
+parent                    |
+properties                | {}
+enabled                   | t
+priority                  | 1
+masked                    | f
+-[ RECORD 2 ]-------------+---------------------------
+dvc_data_source_id        | 2
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-ds
+description               |
+container                 | ORACLE_DB_CONTAINER-49
+data_layout               | JS_DATA_CONTAINER-1
+parent                    | JS_DATA_SOURCE-1
+properties                | {}
+enabled                   | t
+priority                  | 1
+masked                    | f
+
+
+9.  list dlpx_dvc_data_container
+hercules=> select * from dlpx_dvc_data_container;
+-[ RECORD 1 ]-------------+-------------------------
+container_id              | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-dc
+notes                     | container for ssuser
+properties                | {}
+active_branch             | JS_BRANCH-3
+last_updated              | 2022-09-16 16:53:24.751
+state                     | ONLINE
+template                  | JS_DATA_TEMPLATE-1
+deleting                  | f
+first_operation           | JS_OPERATION-2
+last_operation            | JS_OPERATION-6
+operation_count           | 3
+layered_virtual_source    | LAYERED_VIRTUAL_SOURCE-1
+lock_user_name            |
+lock_user_reference       |
+
+
+10. examine our first branch:
+hercules=> select * from dlpx_dvc_branch where dvc_branch_id=3;
+-[ RECORD 1 ]-------------+------------------------
+dvc_branch_id             | 3
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-branch_a
+data_layout               | JS_DATA_CONTAINER-1
+creation_time             | 2022-09-16 16:49:40.363
+first_operation           | JS_OPERATION-6
+last_operation            | JS_OPERATION-6
+
+
+11. examine branch history:
+
+
+hercules=> select * from dlpx_dvc_branch_segment;
+-[ RECORD 1 ]-------------+-------------------
+dvc_branch_segment_id     | 1
+namespace                 |
+namespace_data_dependency | f
+branch                    | JS_BRANCH-1
+latest                    | t
+data_source               | JS_DATA_SOURCE-1
+timeflow                  | ORACLE_TIMEFLOW-27
+-[ RECORD 2 ]-------------+-------------------
+dvc_branch_segment_id     | 2
+namespace                 |
+namespace_data_dependency | f
+branch                    | JS_BRANCH-2
+latest                    | t
+data_source               | JS_DATA_SOURCE-2
+timeflow                  | ORACLE_TIMEFLOW-28
+-[ RECORD 3 ]-------------+-------------------
+dvc_branch_segment_id     | 3
+namespace                 |
+namespace_data_dependency | f
+branch                    | JS_BRANCH-3
+latest                    | t
+data_source               | JS_DATA_SOURCE-2
+timeflow                  | ORACLE_TIMEFLOW-29
+############ SS uses the layered_* tables#####################
+hercules=> \dt layered_
+layered_linked_source       layered_linked_sub_source   layered_virtual_source      layered_virtual_sub_source
+hercules=> select * from layered_virtual_s
+layered_virtual_source      layered_virtual_sub_source
+hercules=> select * from layered_virtual_source;
+-[ RECORD 1 ]-------------+-------------------------
+##############################################################
+
+12. examine virtual_source:
+hercules=> select * from dlpx_dvc_data_container;
+-[ RECORD 1 ]-------------+-------------------------
+container_id              | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-dc
+notes                     | container for ssuser
+properties                | {}
+active_branch             | JS_BRANCH-3
+last_updated              | 2022-09-16 16:53:24.751
+state                     | ONLINE
+template                  | JS_DATA_TEMPLATE-1
+deleting                  | f
+first_operation           | JS_OPERATION-2
+last_operation            | JS_OPERATION-6
+operation_count           | 3
+layered_virtual_source    | LAYERED_VIRTUAL_SOURCE-1
+
+
+hercules=> select * from layered_virtual_source;
+-[ RECORD 1 ]-------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+source_id                 | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | sslab916-dc
+description               |
+upgrade_disabled          | f
+enforced_by_quota         | f
+status                    | DEFAULT
+container                 |
+config                    |
+operations                | {"type":"VirtualSourceOperations","configureClone":[],"preRefresh":[],"postRefresh":[],"preRollback":[],"postRollback":[],"preSnapshot":[],"postSnapshot":[],"preStart":[],"postStart":[],"preStop":[],"postStop":[]}
+
+
+13. virtual_sub_source:
+hercules=> select * from layered_virtual_sub_source ;
+-[ RECORD 1 ]---------------------
+source_id | 1
+name      | Sub source 48
+container | ORACLE_DB_CONTAINER-49
+priority  | 1
+
+hercules=> select * from dlpx_container where container_id=49;
+-[ RECORD 1 ]-------------+------------------------
+container_id              | 49
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | VDBO_U1N
+group_ref                 | GROUP-1
+description               |
+provision_container       | ORACLE_DB_CONTAINER-48
+timeflow                  | ORACLE_TIMEFLOW-29
+previous_timeflow         | ORACLE_TIMEFLOW-28
+creation_time             | 2022-09-16 16:34:25.689
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |
+
+
+14.

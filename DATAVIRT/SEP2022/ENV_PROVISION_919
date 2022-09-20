@@ -1,0 +1,316 @@
+#provision environments reviewing associated jobs, actions and logfiles
+0. `dc groups list|grep rhel`
+1. provision src && tgt:
+mike.kennedy@dcol2:~$ nslookup mkenvtgt.dcol2.delphix.com
+Server:         172.16.101.11
+Address:        172.16.101.11#53
+
+Non-authoritative answer:
+Name:   mkenvtgt.dcol2.delphix.com
+Address: 10.43.47.211
+
+mike.kennedy@dcol2:~$ nslookup mkenvsrc.dcol2.delphix.com
+Server:         172.16.101.11
+Address:        172.16.101.11#53
+
+Non-authoritative answer:
+Name:   mkenvsrc.dcol2.delphix.com
+Address: 10.43.38.160
+
+2. modify oracle passwd , create /work/toolkit, chmod && chown /work/toolkit to 750 oracle:oinstall
+3. add src environment
+
+hercules=> select * from dlpx_jobs where job_id=176;
+-[ RECORD 1 ]---------+------------------------------------------------
+job_id                | 176
+target_reference      | UNIX_HOST_ENVIRONMENT-9
+job_type              | ENVIRONMENT_CREATE_AND_DISCOVER
+start_time            | 2022-09-19 14:05:02.45
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 14:05:25.756
+title                 | Create and discover environment "10.43.38.160".
+job_state             | COMPLETED
+title_code            | event.action.environment.create.and.discover
+title_params          | ["10.43.38.160"]
+target_name           | mkenvsrc
+action                | ACTION-383
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=383;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 383
+action_type           | ENVIRONMENT_CREATE_AND_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.create.and.discover
+desc_message_params   | ["10.43.38.160"]
+desc_message_desc     | Create and discover environment "10.43.38.160".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-19 14:05:02.36
+end_time              | 2022-09-19 14:05:25.746
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.12
+http_session_id       | A8F290906D61EC6A3592C44D08B85FD6
+work_source_principal | admin
+
+hercules=> select * from dlpx_jobs where job_id=177;
+-[ RECORD 1 ]---------+-----------------------------------
+job_id                | 177
+target_reference      | UNIX_HOST_ENVIRONMENT-9
+job_type              | ENVIRONMENT_CREATE
+start_time            | 2022-09-19 14:05:02.489
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 14:05:21.003
+title                 | Create environment "10.43.38.160".
+job_state             | COMPLETED
+title_code            | event.action.environment.create
+title_params          | ["10.43.38.160"]
+target_name           | mkenvsrc
+action                | ACTION-385
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=385;
+-[ RECORD 1 ]---------+-----------------------------------
+action_id             | 385
+action_type           | ENVIRONMENT_CREATE
+state                 | COMPLETED
+desc_message_id       | event.action.environment.create
+desc_message_params   | ["10.43.38.160"]
+desc_message_desc     | Create environment "10.43.38.160".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-383
+parent_job            | JOB-176
+start_time            | 2022-09-19 14:05:02.475
+end_time              | 2022-09-19 14:05:21.001
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+hercules=> select * from dlpx_jobs where job_id=178;
+-[ RECORD 1 ]---------+-------------------------------------------------------------
+job_id                | 178
+target_reference      | UNIX_HOST_ENVIRONMENT-9
+job_type              | ENVIRONMENT_DISCOVER
+start_time            | 2022-09-19 14:05:21.027
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 14:05:25.733
+title                 | Discover information and objects for environment "mkenvsrc".
+job_state             | COMPLETED
+title_code            | event.action.environment.discover
+title_params          | ["mkenvsrc"]
+target_name           | mkenvsrc
+action                | ACTION-388
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=388;
+-[ RECORD 1 ]---------+-------------------------------------------------------------
+action_id             | 388
+action_type           | ENVIRONMENT_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.discover
+desc_message_params   | ["mkenvsrc"]
+desc_message_desc     | Discover information and objects for environment "mkenvsrc".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-383
+parent_job            | JOB-176
+start_time            | 2022-09-19 14:05:21.017
+end_time              | 2022-09-19 14:05:25.731
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+--------------------------------------------------------
+2. is /work/toolkit populated after adding environment?
+yes
+3. learning new oracle commands from setup:
+[oracle@rhel-7 connector]$ orabase
+/u01/app/oracle
+[oracle@rhel-7 connector]$ orabaseconfig
+/u01/app/oracle/product/21.3.0.0/dbhome_1
+[oracle@rhel-7 connector]$
+
+908:[2022-09-19T10:06:39,891][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-1][ShellCommand.execute] cmd:
+909-    /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_ecdf0a7ff70f_9_host/scripts/bash/linux_x86/bin64/bash -c set -x; echo "CONNECT TARGET '/ AS SYSDBA'" | rman
+
+988-    /work/toolkit/Delphix_COMMON_c7b3d2b8ca6a_ecdf0a7ff70f_9_host/scripts/bash/linux_x86/bin64/bash -c set -x; sqlplus "/ as sysdba" </dev/null 2>&1
+
+4. add tgt
+ENVIRONMENT_CREATE_AND_DISCOVER
+hercules=> select * from dlpx_jobs where job_id=179;
+-[ RECORD 1 ]---------+------------------------------------------------
+job_id                | 179
+target_reference      | UNIX_HOST_ENVIRONMENT-10
+job_type              | ENVIRONMENT_CREATE_AND_DISCOVER
+start_time            | 2022-09-19 15:08:13.79
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 15:08:37.07
+title                 | Create and discover environment "10.43.47.211".
+job_state             | COMPLETED
+title_code            | event.action.environment.create.and.discover
+title_params          | ["10.43.47.211"]
+target_name           | mkenvtgt
+action                | ACTION-390
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_aciton where action_id=390;
+ERROR:  relation "dlpx_aciton" does not exist
+LINE 1: select * from dlpx_aciton where action_id=390;
+                      ^
+hercules=> select * from dlpx_action where action_id=390;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 390
+action_type           | ENVIRONMENT_CREATE_AND_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.create.and.discover
+desc_message_params   | ["10.43.47.211"]
+desc_message_desc     | Create and discover environment "10.43.47.211".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-19 15:08:13.543
+end_time              | 2022-09-19 15:08:37.068
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.12
+http_session_id       | A8F290906D61EC6A3592C44D08B85FD6
+work_source_principal | admin
+
+hercules=> select * from dlpx_jobs where job_id=180;
+-[ RECORD 1 ]---------+-----------------------------------
+job_id                | 180
+target_reference      | UNIX_HOST_ENVIRONMENT-10
+job_type              | ENVIRONMENT_CREATE
+start_time            | 2022-09-19 15:08:13.826
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 15:08:32.22
+title                 | Create environment "10.43.47.211".
+job_state             | COMPLETED
+title_code            | event.action.environment.create
+title_params          | ["10.43.47.211"]
+target_name           | mkenvtgt
+action                | ACTION-392
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=392;
+-[ RECORD 1 ]---------+-----------------------------------
+action_id             | 392
+action_type           | ENVIRONMENT_CREATE
+state                 | COMPLETED
+desc_message_id       | event.action.environment.create
+desc_message_params   | ["10.43.47.211"]
+desc_message_desc     | Create environment "10.43.47.211".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-390
+parent_job            | JOB-179
+start_time            | 2022-09-19 15:08:13.812
+end_time              | 2022-09-19 15:08:32.219
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+hercules=> select * from dlpx_host_environment where host_environment_id=10;
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 10
+namespace                 |
+namespace_data_dependency | f
+name                      | mkenvtgt
+description               |
+primary_user              | HOST_USER-10
+enabled                   | t
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-10
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | 8073d435-909b-4044-bc65-af068a321a94
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      |
+
+hercules=> select * from dlpx_host where host_id=10;
+-[ RECORD 1 ]---------------------+-------------------------------------
+host_id                           | 10
+namespace                         |
+namespace_data_dependency         | f
+name                              | 10.43.47.211
+host_address                      | 10.43.47.211
+port_number                       | 22
+toolkit_directory                 | /work/toolkit
+creation_time                     | 2022-09-19 15:08:13.965
+delphix_uuid                      | 115d238a-73be-4a74-8871-4fce36869cc9
+description                       |
+connector_port                    |
+connector_authentication_key      |
+iscsi_initiator_iqn               |
+object_type                       | UNIX_HOST
+privilege_elevation_profile       | HOST_PRIVILEGE_ELEVATION_PROFILE-1
+iscsi_initiator_chap_secret       |
+toolkit_deployed                  | HOST
+oracle_jdbc_keystore_password     |
+ssh_verification_type             | ACCEPT_ALWAYS
+ssh_key_type                      |
+ssh_key_value                     |
+ssh_fingerprint_type              |
+###################STEPS TO PROVISION ENVIRONMENT################################
+Add listener
+Discover objects and information
+Add host
+Validate and create host
+Create environment
+Add environment user oracle
+
+-------------------

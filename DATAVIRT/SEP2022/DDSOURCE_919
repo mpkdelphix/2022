@@ -1,0 +1,104 @@
+#Delete dSource 919
+###################
+
+hercules=> select * from dlpx_jobs where job_id=185;
+-[ RECORD 1 ]---------+-----------------------------------
+job_id                | 185
+target_reference      | ORACLE_DB_CONTAINER-51
+job_type              | DB_DELETE
+start_time            | 2022-09-19 19:16:31.431
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 19:16:35.889
+title                 | Delete dataset "CDOMLOSRAS99PDB1".
+job_state             | COMPLETED
+title_code            | event.action.db.delete
+title_params          | ["CDOMLOSRAS99PDB1"]
+target_name           | Untitled/CDOMLOSRAS99PDB1
+action                | ACTION-402
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=402;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 402
+action_type           | DB_DELETE
+state                 | COMPLETED
+desc_message_id       | event.action.db.delete
+desc_message_params   | ["CDOMLOSRAS99PDB1"]
+desc_message_desc     | Delete dataset "CDOMLOSRAS99PDB1".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-19 19:16:31.255
+end_time              | 2022-09-19 19:16:35.888
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.103
+http_session_id       | 0CC32473E9E7F51D98EF6FA67AF921C9
+work_source_principal | admin
+
+hercules=> select * from dlpx_jobs where job_id=186;
+-[ RECORD 1 ]---------+----------------------------------
+job_id                | 186
+target_reference      | DOMAIN
+job_type              | CAPACITY_RECLAMATION
+start_time            | 2022-09-19 19:16:35.866
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-19 19:16:55.947
+title                 | Space is being reclaimed.
+job_state             | COMPLETED
+title_code            | event.action.capacity.reclamation
+title_params          | []
+target_name           | system
+action                | ACTION-403
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=403;
+-[ RECORD 1 ]---------+----------------------------------
+action_id             | 403
+action_type           | CAPACITY_RECLAMATION
+state                 | COMPLETED
+desc_message_id       | event.action.capacity.reclamation
+desc_message_params   | []
+desc_message_desc     | Space is being reclaimed.
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-402
+parent_job            | JOB-185
+start_time            | 2022-09-19 19:16:35.846
+end_time              | 2022-09-19 19:16:55.946
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+---------------------------------------------------
+
+hercules=> select * from dlpx_job_events order by event_time desc;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+event_id               | 1428
+job                    | JOB-185
+event_time             | 2022-09-19 19:16:35.892
+job_state              | COMPLETED
+percent_complete       | 100
+message_code           | event.job.completed
+message_params         | ["DB_DELETE","Untitled/CDOMLOSRAS99PDB1"]
+message_details        | DB_DELETE job for "Untitled/CDOMLOSRAS99PDB1" completed successfully.
+message_action         |
+message_command_output |
+event_type             | INFO
+start_time             | 2022-09-19 19:16:35.892

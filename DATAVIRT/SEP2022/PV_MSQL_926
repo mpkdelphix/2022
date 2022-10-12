@@ -1,0 +1,7 @@
+#MSQL onboarding 9/26
+
+dcl -o ip,created,user,esx_host
+https://delphix.atlassian.net/wiki/spaces/DD/pages/2931163142/Getting+Started+with+DCenter
+https://delphix.atlassian.net/wiki/spaces/EO/pages/4679828228/DCenter+Runbook
+https://delphix.atlassian.net/wiki/spaces/EN/pages/4144630658/DCenter+on+Delphix
+

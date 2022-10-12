@@ -1,0 +1,207 @@
+0. provision windows VMs:
+
+mike.kennedy@dcol2:~$ dc clone-latest win2019src-qaad mkwin2019src
+***** You have 5 registered VMs. *****
+Cloning latest 'win2019src-qaad' state to 'mkwin2019src'...
+Registering 'mkwin2019src' with ESX server 'dcol2-esxi11'...
+The new VM has DNS name 'mkwin2019src.dcol2'.
+mike.kennedy@dcol2:~$ dc clone-latest win2019tgt-qaad mkwin2019tgt
+***** You have 6 registered VMs. *****
+Cloning latest 'win2019tgt-qaad' state to 'mkwin2019tgt'...
+Registering 'mkwin2019tgt' with ESX server 'dcol2-esxi11'...
+The new VM has DNS name 'mkwin2019tgt.dcol2
+
+
+1. review KBA4376
+
+2. figure out if I need to RDP into Windows box
+mkwin2019tgt.dcol2.delphix.com. 5 IN    A       10.43.41.12
+mkwin2019src.dcol2.delphix.com. 5 IN    A       10.43.54.113
+
+3. join #msql 
+4. iSCSI mounts zfs volumes to Win hosts from appliance.
+
+5. wintarg discovery:
+hercules=> select * from dlpx_jobs where job_id=199;
+-[ RECORD 1 ]---------+-----------------------------------------------
+job_id                | 199
+target_reference      | WINDOWS_HOST_ENVIRONMENT-11
+job_type              | ENVIRONMENT_CREATE_AND_DISCOVER
+start_time            | 2022-09-21 19:11:44.764
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-21 19:12:50.476
+title                 | Create and discover environment "10.43.41.12".
+job_state             | COMPLETED
+title_code            | event.action.environment.create.and.discover
+title_params          | ["10.43.41.12"]
+target_name           | mkwintarg
+action                | ACTION-436
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=436;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 436
+action_type           | ENVIRONMENT_CREATE_AND_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.create.and.discover
+desc_message_params   | ["10.43.41.12"]
+desc_message_desc     | Create and discover environment "10.43.41.12".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-21 19:11:44.644
+end_time              | 2022-09-21 19:12:50.472
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.42
+http_session_id       | DD7C4B7CD693D021CB93E56D9828E322
+work_source_principal | admin
+
+
+hercules=> select * from dlpx_jobs where job_id=201;
+-[ RECORD 1 ]---------+--------------------------------------------------------------
+job_id                | 201
+target_reference      | WINDOWS_HOST_ENVIRONMENT-11
+job_type              | ENVIRONMENT_DISCOVER
+start_time            | 2022-09-21 19:12:38.457
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-21 19:12:50.447
+title                 | Discover information and objects for environment "mkwintarg".
+job_state             | COMPLETED
+title_code            | event.action.environment.discover
+title_params          | ["mkwintarg"]
+target_name           | mkwintarg
+action                | ACTION-441
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=441;
+-[ RECORD 1 ]---------+--------------------------------------------------------------
+action_id             | 441
+action_type           | ENVIRONMENT_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.discover
+desc_message_params   | ["mkwintarg"]
+desc_message_desc     | Discover information and objects for environment "mkwintarg".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-436
+parent_job            | JOB-199
+start_time            | 2022-09-21 19:12:38.445
+end_time              | 2022-09-21 19:12:50.445
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+---------------------------------------------------
+4. winsrc:
+
+hercules=> select * from dlpx_jobs where job_id=202;
+-[ RECORD 1 ]---------+------------------------------------------------
+job_id                | 202
+target_reference      | WINDOWS_HOST_ENVIRONMENT-12
+job_type              | ENVIRONMENT_CREATE_AND_DISCOVER
+start_time            | 2022-09-21 19:16:38.468
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-21 19:17:06.786
+title                 | Create and discover environment "10.43.54.113".
+job_state             | COMPLETED
+title_code            | event.action.environment.create.and.discover
+title_params          | ["10.43.54.113"]
+target_name           | mkwinsrc
+action                | ACTION-442
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=442;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 442
+action_type           | ENVIRONMENT_CREATE_AND_DISCOVER
+state                 | COMPLETED
+desc_message_id       | event.action.environment.create.and.discover
+desc_message_params   | ["10.43.54.113"]
+desc_message_desc     | Create and discover environment "10.43.54.113".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-09-21 19:16:38.336
+end_time              | 2022-09-21 19:17:06.783
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.42
+http_session_id       | DD7C4B7CD693D021CB93E56D9828E322
+work_source_principal | admin
+-------------------------------
+dSource link fails attempting to DB_SYNC "Ferrari"
+
+hercules=> select * from dlpx_jobs where job_id=206;
+-[ RECORD 1 ]---------+-------------------------------------
+job_id                | 206
+target_reference      | MSSQL_DB_CONTAINER-52
+job_type              | DB_SYNC
+start_time            | 2022-09-21 19:49:55.188
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-09-21 19:50:04.835
+title                 | Run SnapSync for database "Ferrari".
+job_state             | FAILED
+title_code            | event.action.db.sync
+title_params          | ["Ferrari"]
+target_name           | Untitled/Ferrari
+action                | ACTION-449
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=449;
+-[ RECORD 1 ]---------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+action_id             | 449
+action_type           | DB_SYNC
+state                 | FAILED
+desc_message_id       | event.action.db.sync
+desc_message_params   | ["Ferrari"]
+desc_message_desc     | Run SnapSync for database "Ferrari".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       | exception.db.mssqlldb.sourcedb.valid.backup_file.not_found
+fail_message_params   | ["Ferrari","Ferrari_FULL_67890.bak","A35470AC-B673-4E27-A964-811A86414E39","\\\\dtullyppt\\Backups\\Ferrari_FULL_67890.bak","QA-AD\\DelphixADUser","The header from backup file \"\\\\dtullyppt\\Backups\\Ferrari_FULL_67890.bak\" does not match information retrieved from the backup set table for the source database \"Ferrari\". The expected backup set UUID is \"A35470AC-B673-4E27-A964-811A86414E39\" and the actual UUID is \"552D68FE-C978-43E4-86C9-A657FDBE5BA0\". The expected database name is \"Ferrari\" and the actual database name is \"Ferrari\"."]
+fail_message_desc     | For dSource "Ferrari", no valid database backup file "Ferrari_FULL_67890.bak" for backupset UUID "A35470AC-B673-4E27-A964-811A86414E39" was found in the following backup locations: [\\dtullyppt\Backups\Ferrari_FULL_67890.bak].
+parent_action         | ACTION-448
+parent_job            | JOB-205
+start_time            | 2022-09-21 19:49:55.161
+end_time              | 2022-09-21 19:50:04.819
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+--------------------------------------------------- 
+ipconfig /all == `ip a`
+net view 10-43-41-12 - list shares
+https://sqlserverbuilds.blogspot.com/
+-------------------------------
+
+\\10-43-54-113\Backups\Ferrari-Full-9222022.bak

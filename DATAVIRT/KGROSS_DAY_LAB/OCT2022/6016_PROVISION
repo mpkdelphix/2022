@@ -1,0 +1,14 @@
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.16.0 mk6016
+***** You have 7 registered VMs. *****
+Cloning latest 'dlpx-6.0.16.0' state to 'mk6016'...
+COMPONENT           VERSION                                                     
+app                 aa5686a92f5a650562dd6660407d58bd159eb8fa                    
+appliance_build     54cfcc68b8f4237ca1ce7e7b48b8d6f08a7ba868                    
+dlpx                6.0.16.0                                                    
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/175/internal-dev-esx/internal-dev-esx.ova
+masking             4f1e3b08b75f1582d277b851ec05aef77eaa0663                    
+Registering 'mk6016' with ESX server 'dcol2-esxi12'...
+The new VM has DNS name 'mk6016.dcol2'.
+----------------------------------------
+1. Once engine login screen is available, login with sysadmin/sysadmin
+----------------------------------------

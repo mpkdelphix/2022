@@ -1,0 +1,77 @@
+#this is a revisiting of the first challenge KG gave me: find the name of each installed db, it's ORACLE_HOME , ORACLE_BASE and hostname
+
+
+1. orcl_db_config will list the repository, database_name and config_type for each installed vdb/db:
+hercules=> select repository,config_type,database_name from orcl_db_config;
+-[ RECORD 1 ]-+---------------------
+repository    | ORACLE_INSTALL-3
+config_type   | ORACLE_SINGLE_CONFIG
+database_name | VDBO_7U9
+-[ RECORD 2 ]-+---------------------
+repository    | ORACLE_INSTALL-5
+config_type   | ORACLE_SINGLE_CONFIG
+database_name | CDOMLOTG
+-[ RECORD 3 ]-+---------------------
+repository    | ORACLE_INSTALL-4
+config_type   | ORACLE_SINGLE_CONFIG
+database_name | CDOMLOSR
+-[ RECORD 4 ]-+---------------------
+repository    |
+config_type   | ORACLE_PDB_CONFIG
+database_name | VCDO_3DJ
+-[ RECORD 5 ]-+---------------------
+repository    |
+config_type   | ORACLE_PDB_CONFIG
+database_name | CDOMLOSRED50PDB3
+
+SOURCE:
+https://delphix.atlassian.net/wiki/spaces/SUP/pages/15311538035/IKB044+Fundamentals+of+the+Delphix+Engine+Metadata+Service+MDS#IKB044FundamentalsoftheDelphixEngineMetadataService(MDS)-(ii)Environments(target%2Csourceandstagingenvironments)
+
+2. 
+hercules=> select * from orcl_install where install_id=4;
+-[ RECORD 1 ]-------------+-------------------------------------------
+install_id                | 4
+namespace                 | NAMESPACE-6
+namespace_data_dependency | f
+environment               | UNIX_HOST_ENVIRONMENT-4
+staging                   | f
+oracle_home               | /u01/app/oracle/product/19.11.0.0/dbhome_1
+oracle_base               | /u01/app/oracle
+version                   | 19.11.0.0.0
+group_name                | oinstall
+group_id                  | 1000
+user_name                 | oracle
+user_id                   | 1000
+bits                      | 64
+rac                       | f
+provisioning_enabled      | t
+discovered                | t
+applied_patches           | []
+oracle_base_config        | /u01/app/oracle/product/19.11.0.0/dbhome_1
+oracle_base_home          | /u01/app/oracle/product/19.11.0.0/dbhome_1
+
+3. 
+hercules=> select * from dlpx_host_environment where host_environment_id=4;
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 4
+namespace                 | NAMESPACE-6
+namespace_data_dependency | f
+name                      | mkpdbsrc
+description               |
+primary_user              | HOST_USER-5
+enabled                   | f
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-4
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | c7407379-9303-45ec-bf90-ad4f25ffcd01
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      

@@ -1,0 +1,86 @@
+0. provision vms:
+
+mike.kennedy@dcol2:~$ dc clone-latest rh74-ora19000-src mkrh74ora19src
+***** You have 2 registered VMs. *****
+Cloning latest 'rh74-ora19000-src' state to 'mkrh74ora19src'...
+Registering 'mkrh74ora19src' with ESX server 'dcol2-esxi12'...
+The new VM has DNS name 'mkrh74ora19src.dcol2'.
+mike.kennedy@dcol2:~$ dc clone-latest rhel-7.9-oracle-19.11.0.0-tgt mkrh79ora19tgt
+***** You have 3 registered VMs. *****
+Cloning latest 'rhel-7.9-oracle-19.11.0.0-tgt' state to 'mkrh79ora19tgt'...
+Registering 'mkrh79ora19tgt' with ESX server 'dcol2-esxi09'...
+The new VM has DNS name 'mkrh79ora19tgt.dcol2'.
+
+
+1. view machines:
+
+mike.kennedy@dcol2:~$ dcl
+NAME           ESX_HOST     EXPIRES
+mk60150        dcol2-esxi12 Wed Nov 23 13:41 (29d 23h)
+mk60160        dcol2-esxi01 Wed Nov 23 13:42 (29d 23h)
+mkrh74ora19src dcol2-esxi12 Wed Nov 23 14:14 (29d 23h)
+mkrh79ora19tgt dcol2-esxi09 Wed Nov 23 14:14 (29d 23h)
+
+
+2. dig IP addresses:
+
+mkrh74ora19src.dcol2.delphix.com. 5 IN  A       10.43.60.246
+mkrh79ora19tgt.dcol2.delphix.com. 5 IN  A       10.43.55.105
+
+3. update oracle password and create /work/toolkit on src:
+
+login as: oracle
+oracle@10.43.60.246s password:
+Last login: Mon Oct 24 10:19:01 2022
+[oracle@gi-rh74-ora19000-src ~]$ su - root
+Password:
+Last login: Mon Oct 24 10:23:58 EDT 2022 from 172.16.102.246 on pts/0
+[root@gi-rh74-ora19000-src ~]# mkdir -p /work/toolkit
+[root@gi-rh74-ora19000-src ~]# id oracle
+uid=1000(oracle) gid=1000(oinstall) groups=1000(oinstall),1001(dba)
+[root@gi-rh74-ora19000-src ~]# cd /
+[root@gi-rh74-ora19000-src /]# chown -R oracle:oinstall /work
+[root@gi-rh74-ora19000-src /]# chmod -R 775 /work
+[root@gi-rh74-ora19000-src /]# ls -l|grep work
+drwxrwxr-x.   3 oracle oinstall   21 Oct 24 10:25 work
+[root@gi-rh74-ora19000-src /]#
+
+
+4. add src to UI->environments
+5. export ORACLE_SID:
+
+[oracle@gi-rh74-ora19000-src ~]$ echo $ORACLE_SID
+DBOMSR0296BA
+
+
+6. does dlpx_container contain anything after provisioning environment?
+NO
+hercules=> select * from dlpx_container;
+(0 rows)
+
+7. dlpx_host_environment:
+hercules=> select * from dlpx_host_environment;
+-[ RECORD 1 ]-------------+-------------------------------------
+host_environment_id       | 1
+namespace                 |
+namespace_data_dependency | f
+name                      | mkrh74ora19src
+description               | standalone provision 10/24
+primary_user              | HOST_USER-1
+enabled                   | t
+object_type               | UNIX_HOST_ENVIRONMENT
+host                      | UNIX_HOST-1
+proxy                     |
+ase_db_user_name          |
+ase_password              |
+connector_password        | 25ee57a7-fb43-46a0-aec3-a929ba938b20
+ase_principal_type        |
+ase_credential_type       |
+log_collection_enabled    | f
+ase_vault_ref             |
+ase_vault_cred_id         |
+ase_vault_engine          |
+ase_vault_path            |
+ase_vault_user_key        |
+ase_vault_secret_key      |
+--------------------------------------------------

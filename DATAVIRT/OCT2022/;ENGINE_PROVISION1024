@@ -1,0 +1,46 @@
+##Delphix 6.0.15 && 6.0.16 engine provision:
+
+0. provision vmz at dcol2:
+
+mike.kennedy@dcol2:~$ dgla|grep 6.0.15
+dlpx-6.0.15.0                               -       -
+dlpx-external-standard-6.0.15.0             -       -
+dlpx-internal-minimal-6.0.15.0              -       -
+dlpx-internal-unittest-6.0.15.0             -       -
+dlpx-qa-6.0.15.0  
+
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.15.0 mk60150
+***** You have 0 registered VMs. *****
+Cloning latest 'dlpx-6.0.15.0' state to 'mk60150'...
+COMPONENT           VERSION                                                           
+app                 2476292ee7e76cf111b7168ebff5c6163206a39a                          
+appliance_build     ee8fa1ca9514a632ae81f8f1c66b0c33c3f69711                          
+dlpx                6.0.15.0                                                          
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/160/internal-dev-esx/internal-dev-esx.ova
+masking             460e2c6bcdce240c5d9c91f85802757b7f85836c                          
+Registering 'mk60150' with ESX server 'dcol2-esxi12'...
+The new VM has DNS name 'mk60150.dcol2'.
+----------------------------------------------
+
+
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.16.0 mk60160
+***** You have 1 registered VMs. *****
+Cloning latest 'dlpx-6.0.16.0' state to 'mk60160'...
+COMPONENT           VERSION                                                           
+app                 aa5686a92f5a650562dd6660407d58bd159eb8fa                          
+appliance_build     54cfcc68b8f4237ca1ce7e7b48b8d6f08a7ba868                          
+dlpx                6.0.16.0                                                          
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/175/internal-dev-esx/internal-dev-esx.ova
+masking             4f1e3b08b75f1582d277b851ec05aef77eaa0663                          
+Registering 'mk60160' with ESX server 'dcol2-esxi01'...
+The new VM has DNS name 'mk60160.dcol2'.
+
+1. dig for IP addresses:
+
+mk60150.dcol2.delphix.com. 5    IN      A       10.43.55.164
+mk60160.dcol2.delphix.com. 5    IN      A       10.43.43.208
+
+2. set 'em up! using fqdn, initially you will see the "SETUP" CSS
+a. sysadmin/sysadmin
+b. go through screenz accepting defaults and click "Submit"
+c. server reboots and "CONTINUOUS DATA" CSS is presented at login screen

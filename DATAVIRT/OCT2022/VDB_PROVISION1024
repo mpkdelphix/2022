@@ -1,0 +1,64 @@
+0. setup target:
+
+[root@mkrh79ora19tgt ~]# mkdir -p /work/toolkit; chmod -R 775 /work/toolkit;chown -R oracle:oinstall /work
+[root@mkrh79ora19tgt ~]# ls -l /work
+total 0
+drwxrwxr-x. 2 oracle oinstall 6 Oct 24 11:37 toolkit
+[root@mkrh79ora19tgt ~]# passwd oracle
+Changing password for user oracle.
+New password:
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password:
+passwd: all authentication tokens updated successfully.
+[root@mkrh79ora19tgt ~]#
+
+
+
+1. dlpx_host_environment increased to 2:
+hercules=> select count(*) from dlpx_host_environment;
+-[ RECORD 1 ]
+count | 2
+
+
+2. print out hosts
+hercules=> select name, host from dlpx_host_environment;
+-[ RECORD 1 ]--------
+name | mkrh74ora19src
+host | UNIX_HOST-1
+-[ RECORD 2 ]--------
+name | mkrh79ora19tgt
+host | UNIX_HOST-2
+
+3. VDB provision URL becomes:
+http://mk60150.dcol2.delphix.com/Server.html#/dataset/ORACLE_DB_CONTAINER-1/timeflow
+
+4. 
+hercules=> select * from dlpx_container;
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |
+-[ RECORD 2 ]-------------+-----------------------------------------
+container_id              | 2
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | VDBO_1ZI
+group_ref                 | GROUP-2
+description               |
+provision_container       | ORACLE_DB_CONTAINER-1
+timeflow                  | ORACLE_TIMEFLOW-2
+previous_timeflow         |
+creation_time             | 2022-10-24 15:49:10.17
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |
+
+----------------------------------
+[root@mkrh79ora19tgt ~]# ls -l /mnt/provision;hostname
+total 2
+drwxr-x--x. 7 oracle oinstall 7 Oct 24 11:51 VDBOMSR0296BA_1ZI
+mkrh79ora19tgt.dcol2

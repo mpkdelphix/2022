@@ -1,1 +1,112 @@
 https://delphix.atlassian.net/wiki/spaces/SUP/pages/15311537869/IKB074+Oracle+Tracking+SnapSync+progress
+
+
+102522:
+
+18835:[2022-10-25T09:38:40,861][INFO][oracle.snapsync.source.impl.SnapSyncJob#execute:478][Worker-124|JOB-51|DB_SY
+NC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: execute INITIAL SnapSync in the context o
+f JOB-51 for source DBOMSR0296BA container DBOMSR0296BA instance DBOMSR0296BA (tag NOTAG)
+18836:[2022-10-25T09:38:40,863][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-124|JOB-51|DB
+_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 1 - start sync
+18839:[2022-10-25T09:38:40,873][INFO][oracle.snapsync.source.impl.SnapSyncManagerImpl#startClient:419][Worker-124|
+JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: launch SnapSync oracle@10.43.
+60.246 #SnapSync options
+18852:snapsync.client.instance=SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6
+18891:[2022-10-25T09:38:42,903][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1323][Worker-124|JOB-51|DB
+_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: client connected via nexus-s:bd9546ac-
+aa36-4201-84cc-0c586287362c-SnapSync.1
+18900:[2022-10-25T09:38:45,167][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1343][Worker-124|JOB-51|
+DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 2 - prepare sync
+18901:[2022-10-25T09:38:45,168][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1462][Worker-124|JOB-51|
+DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: PrepareSnapSyncRequest: oracleVersio
+n=19.3.0.0.0 conIds=[0] connectStrings=[jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST
+=10.43.60.246)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=DBOMSR0296BA)))] syncType=INITIAL levelBased=false backupTag=DL
+PX20221025093845BFF8E935D7C2, forcedFullStartScn=0, instanceName=DBOMSR0296BA, environment={ORACLE_UNQNAME=DBOMSR0
+296BA, ORACLE_HOME=/u01/app/oracle/product/19.0.0.0/dbhome_1, ORACLE_BASE=/u01/app/oracle, ORACLE_BASE_CONFIG=/u01
+/app/oracle/product/19.0.0.0/dbhome_1, ORACLE_BASE_HOME=/u01/app/oracle/product/19.0.0.0/dbhome_1}, privilegedUser
+=SYSDBA, containerName=Optional.absent(), bequeathEnabled=true, onlyBequeath=false, errorCodesToSkipConnectionRetr
+y=[ORA-01034, ORA-01013, ORA-01017, ORA-12505, ORA-12514, ORA-28000]
+---------------
+grep phase debug.log
+
+delphix@mk60150:/var/delphix/server/log$ grep phase debug.log
+[2022-10-25T07:03:41,985][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 1 - start sync
+[2022-10-25T07:03:46,036][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1343][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 2 - prepare sync
+[2022-10-25T07:03:48,591][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupData:2657][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 4 - backup data
+[2022-10-25T07:04:29,191][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupLog:2769][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 5 - backup log
+[2022-10-25T07:04:29,193][INFO][oracle.snapsync.source.impl.SnapSyncJob#postBackupValidation:3014][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 6 - post backup
+[2022-10-25T07:04:29,308][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupExternal:3203][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 7 - backup external
+[2022-10-25T07:04:29,309][INFO][oracle.snapsync.source.impl.SnapSyncJob#clientComplete:3246][Worker-73|JOB-26|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-57] SNL.1.7.COPhfx1ZZ5OeDMxUKtQxFvtc: phase 9 - client complete
+[2022-10-25T07:06:17,710][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 1 - start sync
+[2022-10-25T07:06:22,011][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1343][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 2 - prepare sync
+[2022-10-25T07:06:24,001][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupData:2657][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 4 - backup data
+[2022-10-25T07:06:32,247][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupLog:2769][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 5 - backup log
+[2022-10-25T07:06:36,980][INFO][oracle.snapsync.source.impl.SnapSyncJob#postBackupValidation:3014][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 6 - post backup
+[2022-10-25T07:06:37,070][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupExternal:3203][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 7 - backup external
+[2022-10-25T07:06:37,072][INFO][oracle.snapsync.source.impl.SnapSyncJob#clientComplete:3246][Worker-85|JOB-29|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-60] SNL.1.3.Abu6c9A2VWOS5wp4W7uM47IQ: phase 9 - client complete
+[2022-10-25T07:06:42,916][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 1 - start sync
+[2022-10-25T07:06:47,216][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1343][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 2 - prepare sync
+[2022-10-25T07:06:49,250][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupData:2657][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 4 - backup data
+[2022-10-25T07:07:02,746][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupLog:2769][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 5 - backup log
+[2022-10-25T07:07:08,369][INFO][oracle.snapsync.source.impl.SnapSyncJob#postBackupValidation:3014][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 6 - post backup
+[2022-10-25T07:07:08,477][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupExternal:3203][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 7 - backup external
+[2022-10-25T07:07:08,480][INFO][oracle.snapsync.source.impl.SnapSyncJob#clientComplete:3246][Worker-84|JOB-28|DB_SYNC(ORACLE_DB_CONTAINER-8)][] SNL.1.8.wvakNzzcs0dZHRmdMT4piqZY: phase 9 - client complete
+[2022-10-25T07:10:42,837][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 1 - start sync
+[2022-10-25T07:10:49,649][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1343][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 2 - prepare sync
+[2022-10-25T07:10:53,059][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupData:2657][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 4 - backup data
+[2022-10-25T07:11:06,459][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupLog:2769][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 5 - backup log
+[2022-10-25T07:11:06,460][INFO][oracle.snapsync.source.impl.SnapSyncJob#postBackupValidation:3014][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 6 - post backup
+[2022-10-25T07:11:06,633][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupExternal:3203][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 7 - backup external
+[2022-10-25T07:11:06,635][INFO][oracle.snapsync.source.impl.SnapSyncJob#clientComplete:3246][Worker-100|JOB-35|DB_SYNC(ORACLE_DB_CONTAINER-7)][ACTION-66] SNL.1.7.0nMnUAWUxTYOOT0bEipXxYQp: phase 9 - client complete
+[2022-10-25T09:38:40,863][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 1 - start sync
+[2022-10-25T09:38:45,167][INFO][oracle.snapsync.source.impl.SnapSyncJob#prepareSync:1343][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 2 - prepare sync
+[2022-10-25T09:38:47,089][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupData:2657][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 4 - backup data
+[2022-10-25T09:39:02,086][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupLog:2769][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 5 - backup log
+[2022-10-25T09:39:06,552][INFO][oracle.snapsync.source.impl.SnapSyncJob#postBackupValidation:3014][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 6 - post backup
+[2022-10-25T09:39:06,634][INFO][oracle.snapsync.source.impl.SnapSyncJob#backupExternal:3203][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 7 - backup external
+[2022-10-25T09:39:06,636][INFO][oracle.snapsync.source.impl.SnapSyncJob#clientComplete:3246][Worker-124|JOB-51|DB_SYNC(ORACLE_DB_CONTAINER-11)][ACTION-85] SNL.1.11.ZEbTvPbMun55SPNxpJ6C0r6: phase 9 - client complete
+
+
+
+hercules=> select * from dlpx_action where action_id=85;
+-[ RECORD 1 ]---------+------------------------------------------
+action_id             | 85
+action_type           | DB_SYNC
+state                 | COMPLETED
+desc_message_id       | event.action.db.sync
+desc_message_params   | ["DBOMSR0296BA"]
+desc_message_desc     | Run SnapSync for database "DBOMSR0296BA".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-84
+parent_job            | JOB-50
+start_time            | 2022-10-25 14:38:33.498
+end_time              | 2022-10-25 14:39:12.685
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin
+
+hercules=> select * from dlpx_jobs where job_id=50;
+-[ RECORD 1 ]---------+--------------------------------------------------------
+job_id                | 50
+target_reference      | ORACLE_DB_CONTAINER-11
+job_type              | DB_LINK
+start_time            | 2022-10-25 14:38:32.871
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-10-25 14:38:33.546
+title                 | Link dSource "DBOMSR0296BA" from source "DBOMSR0296BA".
+job_state             | COMPLETED
+title_code            | event.action.db.link
+title_params          | ["DBOMSR0296BA","DBOMSR0296BA"]
+target_name           | ORCL_STANDALONE/DBOMSR0296BA
+action                | ACTION-84
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |

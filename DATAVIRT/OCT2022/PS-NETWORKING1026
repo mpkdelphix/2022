@@ -1,0 +1,81 @@
+-get-netipaddress in lieu of ipconfig \all
+-get-netadapterstatistics:
+PS C:\Users\Mike.Kennedy> get-netadapterstatistics
+
+Name                             ReceivedBytes ReceivedUnicastPackets       SentBytes SentUnicastPackets
+----                             ------------- ----------------------       --------- ------------------
+Wi-Fi                               4150538395                6742701      1173954415            3818571
+Ethernet                                     0                      0               0                  0
+-------------------------------------
+-get-dnsclientserveraddress:
+
+PS C:\Users\Mike.Kennedy> get-netadapterstatistics
+
+PS C:\Users\Mike.Kennedy> get-DnsClientServerAddress
+
+InterfaceAlias               Interface Address ServerAddresses
+                             Index     Family
+--------------               --------- ------- ---------------
+Ethernet 3                           8 IPv4    {172.16.101.11, 10.10.1.61}
+Ethernet 3                           8 IPv6    {}
+Ethernet                            15 IPv4    {172.16.101.11, 10.10.1.61, 150.203.1.3}
+Ethernet                            15 IPv6    {}
+Local Area Connection* 1             3 IPv4    {172.16.101.11, 10.10.1.61}
+Local Area Connection* 1             3 IPv6    {}
+Local Area Connection* 2            10 IPv4    {172.16.101.11, 10.10.1.61}
+Local Area Connection* 2            10 IPv6    {}
+Ethernet 2                           7 IPv4    {172.16.101.11, 10.10.1.61}
+Ethernet 2                           7 IPv6    {}
+Wi-Fi                               18 IPv4    {172.16.101.11, 10.10.1.61, 192.168.1.254}
+Wi-Fi                               18 IPv6    {2600:1700:1a20:ad80::1}
+Bluetooth Network Connection        12 IPv4    {172.16.101.11, 10.10.1.61}
+Bluetooth Network Connection        12 IPv6    {}
+Loopback Pseudo-Interface 1          1 IPv4    {}
+Loopback Pseudo-Interface 1          1 IPv6    {fec0:0:0:ffff::1, fec0:0:0:ffff::2, fec0:0:0:ffff::3}
+----------------------------------------------------
+
+PS C:\Users\Mike.Kennedy> test-connection delphix.com
+
+Source        Destination     IPV4Address      IPV6Address                              Bytes    Time(ms)
+------        -----------     -----------      -----------                              -----    --------
+MIKE-KENNE... delphix.com     172.16.0.55                                               32       60
+MIKE-KENNE... delphix.com     172.16.0.55                                               32       59
+MIKE-KENNE... delphix.com     172.16.0.55                                               32       63
+MIKE-KENNE... delphix.com     172.16.0.55                                               32       60
+-------------------------------------
+-test-netconnection
+PS C:\Users\Mike.Kennedy> test-netconnection
+
+
+ComputerName           : internetbeacon.msedge.net
+RemoteAddress          : 13.107.4.52
+InterfaceAlias         : Wi-Fi
+SourceAddress          : 192.168.1.74
+PingSucceeded          : True
+PingReplyDetails (RTT) : 24 ms
+
+----------------------------------------------------
+PS C:\Users\Mike.Kennedy> test-netconnection MIKE-KENNEDY-PC                                                                                                                                                                                                                                                                                                            ComputerName           : MIKE-KENNEDY-PC                                                                                RemoteAddress          : fe80::e057:6488:945e:ca42%18                                                                   InterfaceAlias         : Wi-Fi                                                                                          SourceAddress          : 2600:1700:1a20:ad80::683                                                                       PingSucceeded          : True                                                                                           PingReplyDetails (RTT) : 0 ms                                                                                                                                                                                                                                                                                                                                                                                                                                                                   PS C:\Users\Mike.Kennedy> test-netconnection MIKE-KENNEDY-PC -port 8145
+WARNING: TCP connect to (fe80::e057:6488:945e:ca42%18 : 8145) failed
+WARNING: TCP connect to (2600:1700:1a20:ad80:2c18:2425:6773:eea9 : 8145) failed
+WARNING: TCP connect to (2600:1700:1a20:ad80::683 : 8145) failed
+WARNING: TCP connect to (2600:1700:1a20:ad80:e057:6488:945e:ca42 : 8145) failed
+WARNING: TCP connect to (192.168.1.74 : 8145) failed
+WARNING: TCP connect to (fe80::8578:1dba:ce4a:aa48%8 : 8145) failed
+WARNING: TCP connect to (172.16.124.38 : 8145) failed
+
+
+ComputerName           : MIKE-KENNEDY-PC
+RemoteAddress          : fe80::e057:6488:945e:ca42%18
+RemotePort             : 8145
+InterfaceAlias         : Wi-Fi
+SourceAddress          : 2600:1700:1a20:ad80::683
+PingSucceeded          : True
+PingReplyDetails (RTT) : 0 ms
+TcpTestSucceeded       : False
+
+
+
+PS C:\Users\Mike.Kennedy> hostname
+Mike-Kennedy-PC
+-------------------------------------------------------

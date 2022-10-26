@@ -1,0 +1,27 @@
+#reviewing how to use ORCL 19 CDB && PDB
+
+0. change ORACLE_SID to CDOMSHSR84EB and login:
+
+[oracle@gi-rh74-ora19000-src ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Tue Oct 25 08:43:03 2022
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+SQL> show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMSHSR84EBPDB1               READ WRITE NO
+         4 CDOMSHSR84EBPDB2               READ WRITE NO
+         5 CDOMSHSR84EBPDB3               READ WRITE NO
+
+
+1.

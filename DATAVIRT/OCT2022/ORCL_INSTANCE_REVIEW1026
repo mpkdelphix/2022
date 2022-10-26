@@ -1,0 +1,45 @@
+#show parameters
+0. dbwr writes dirty buffers and lru "cold" buffers from db buffer cache to disk:
+SQL> show parameter db_writer_processes;
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+db_writer_processes                  integer     1
+
+
+1. LOGWR writes the redo log buffer to redo logfile on disk.
+It writes whenever a user process commits a transaction, redo log buffer 1/3 full,
+before dbwr writes modified buffers to disk, or every 3 seconds.
+
+2. checkpoint - data consistency event which synchronizes modified data blocks in memory with files on disk; it also updates datafile headers and controlfile with latest SCN.
+a. verify current SCN:
+SQL> select current_scn from v$database;
+
+CURRENT_SCN
+-----------
+    2688338
+
+b. checkpoint will write at log_checkpoint_timeout, here's how to verify:
+SQL> show parameter log_checkpoint_timeout;
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+log_checkpoint_timeout               integer     1800
+
+
+2. System Monitor process SMON - performs recovery at instance startup if need be.
+Cleans up unused temporary segments.
+
+3. PMON -  consider it a manager to all other processes; It monitors sesson for idle timeout, restarts stopped running dispatchers and server processes, dynamically registers db services with network listeners,
+cleans up database buffer cache and frees resources used by the user process.
+
+4. RECO - only used with distributed database configuration, auto-connects to other dbs involved with the questionable distributed transactions.
+
+5. Archiver - copies redo logs to designated storage after log switch occurs, runs only in ARCHIVELOG mode
+and you can query log_archive_max_processes:
+
+SQL> show parameter log_archive_max_processes;
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+log_archive_max_processes            integer     4

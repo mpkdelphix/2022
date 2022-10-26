@@ -1,0 +1,16 @@
+#see https://delphix.zendesk.com/agent/tickets/77750
+
+0. link CDB dSource, note: it creates snapshots of PDB and container database, here is the UI->Actions
+output:
+Run SnapSync for database "CDOMLOSR9CD5PDB1".
+24s
+Starting snapshot of pluggable database "CDOMLOSR9CD5PDB1" and container database "CDOMLOSR9CD5
+
+------------------
+
+1. disable LogSync within CDB->Configuration->Data Management
+2. attempt to provision VDB VCDO_K95 from PDB whose parent container has logging disabled:
+http://mk60150.dcol2.delphix.com/Server.html#/dataset/ORACLE_DB_CONTAINER-4/timeflow
+no problems to report
+3. linked a second PDB within parent container... no problems
+not sure how to reproduce 

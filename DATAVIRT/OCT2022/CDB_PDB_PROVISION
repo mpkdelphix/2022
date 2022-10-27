@@ -14,3 +14,21 @@ http://mk60150.dcol2.delphix.com/Server.html#/dataset/ORACLE_DB_CONTAINER-4/time
 no problems to report
 3. linked a second PDB within parent container... no problems
 not sure how to reproduce 
+
+4. link physical CDB at target-end, disable LogSync, attempt to provision existing vPDB to the disabled
+CDB and it will fail instantly generating a large error box.
+
+
+https://delphix.zendesk.com/agent/tickets/77657
+
+blocks associated with data in masked VDB, using SDD there is masking:
+
+https://docs.delphix.com/docs/configuration/capacity-and-resource-management/an-overview-of-held-space
+The metadata objects relating to the dSource could contain sensitive information like hostnames, user names, and passwords. Hence they are not replicated to the Replication Target. The data belonging to the dSource is replicated after redacting any sensitive information. This redacted data shows up as held space
+
+Reproduce: set hook to exit 0 with SDD and selecting "mask this VDB"
+---------------------
+
+KBA6009 - ORCL key permissions - Newton JPMC 10/26
+
+

@@ -1,0 +1,30 @@
+# case in question: https://delphix.zendesk.com/agent/tickets/77750
+#linkx
+http://dba-oracle.com/bk_disable_archive_log_mode.htm
+https://dbaclass.com/article/how-to-enabledisable-archive-log-mode-in-oracle-database/
+
+########################################################
+
+
+0. verify archivelog mode:
+
+SQL> select name, log_mode from v$database;
+
+NAME      LOG_MODE
+--------- ------------
+CDOMSHSR  ARCHIVELOG
+
+SQL> archive log list
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            USE_DB_RECOVERY_FILE_DEST
+Oldest online log sequence     67
+Next log sequence to archive   69
+Current log sequence           69
+
+
+1. enabled Archivelog mode:
+
+http://mk60150.dcol2.delphix.com/Server.html#/dataset/ORACLE_DB_CONTAINER-21/timeflow
+
+

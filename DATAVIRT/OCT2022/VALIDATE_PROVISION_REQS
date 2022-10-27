@@ -1,0 +1,18 @@
+#revisiting validate_provision_reqs script 
+
+# Command line arguments:
+#   <relative/absolute path to the Delphix Toolkit directory> /work/toolkit/Delphix_COMMON_65ec695e60da_89552fee3db6_2_host
+#   <absolute path to the VDB Mount Point> /mnt/provision
+#   <name of the target mount directory relative to the VDB Mount Point> VDBOMSR0296BA_KA1
+#   <Appliance IP Address> 10.43.55.164
+#   <Exported FS from the Appliance to mount> /public
+#   <Oracle SID for VDB> VDBOMSR0296KA1
+#   <PDB name, for vPDB> (for non-PDBs, pass _NOT_PDB) _NOT_PDB_
+#   <Is VCDB> true
+#   <NFS version> 4 
+#   <VDB User ID>  1000
+#   <Ownership check file>
+
+debug.log:31939:[2022-10-27T10:44:38,318][DEBUG][com.delphix.appliance.common.commands.ShellCommand][pool-6-thread-1641][ShellCommand.execute] xtrace output for command "/work/toolkit/Delphix_COMMON_65ec695e60da_89552fee3db6_2_host/scripts/bash/linux_x86/bin64/bash -c set -x; /work/toolkit/Delphix_COMMON_65ec695e60da_89552fee3db6_2_host/scripts/bash/linux_x86/bin64/bash -x '/work/toolkit/Delphix_COMMON_65ec695e60da_89552fee3db6_2_host/scripts/provision/oracle/common/validate_provision_reqs' '/work/toolkit/Delphix_COMMON_65ec695e60da_89552fee3db6_2_host' '/mnt/provision' 'VDBOMSR0296BA_KA1' '10.43.55.164' '/public' 'VDBOMSR0296KA1' '_NOT_PDB_' 'true' '4' '1000' 'VDBOMSR0296BA_KA1_1589088854838749760_VALIDATE'"
+
+------------------------------------------------------------------

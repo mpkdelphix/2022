@@ -1,0 +1,79 @@
+#repro of 78459
+
+#https://docs.delphix.com/docs6015/data-backup-and-recovery-solutions/delphix-replication/configuring-replication
+
+0. src & tgt
+
+src: mk60150.dcol2.delphix.com 10.43.55.164
+
+tgt: mk60160.dcol2.delphix.com 10.43.63.229
+
+1. mk60160.dcol2 namespace:
+mk60150.dcol2-1
+
+2. change target to hammertime.dcol2.delphix.com, immediate fail unable to resolve target.
+
+DNS lookup fails
+
+delphix@mk60150:/var/delphix/server/log$ grep -in hammertime debug.*
+debug.log:13139:java.net.UnknownHostException: hammertime.dcol2.delphix.com: Name or service not known
+debug.log:13160:[2022-11-28T15:22:53,373][DEBUG][exception.DelphixUserException#logMe:70][pool-37-thread-12][] Encountered User Exception in handleException(), ReplicationSourceWorkflow.java:916: exception.replication.invalid_host {hammertime.dcol2.delphix.com}
+debug.log:13161:com.delphix.server.core.messages.ReplicationExceptions$InvalidHost: exception.replication.invalid_host {hammertime.dcol2.delphix.com}
+debug.log:13169:Caused by: java.net.UnknownHostException: hammertime.dcol2.delphix.com: Name or service not known
+debug.log:13188:com.delphix.server.core.messages.ReplicationExceptions$InvalidHost: exception.replication.invalid_host {hammertime.dcol2.delphix.com}
+debug.log:13196:Caused by: java.net.UnknownHostException: hammertime.dcol2.delphix.com: Name or service not known
+debug.log:13215:[2022-11-28T15:22:53,505][DEBUG][jcm.impl.JobInstance#execute:317][Worker-1157|JOB-645|REPLICATION_SEND(REPLICATION_SPEC-1)][ACTION-1218] job requested state null, requested reason null, throwable com.delphix.server.core.messages.ReplicationExceptions$InvalidHost: exception.replication.invalid_host {hammertime.dcol2.delphix.com}
+debug.log:13216:com.delphix.server.core.messages.ReplicationExceptions$InvalidHost: exception.replication.invalid_host {hammertime.dcol2.delphix.com}
+debug.log:13239:Caused by: java.net.UnknownHostException: hammertime.dcol2.delphix.com: Name or service not known
+debug.log:13256:com.delphix.server.core.messages.ReplicationExceptions$InvalidHost: exception.replication.invalid_host {hammertime.dcol2.delphix.com}
+debug.log:13279:Caused by: java.net.UnknownHostException: hammertime.dcol2.delphix.com: Name or service not known
+
+hercules-> select * from dlpx_repl_spec;
+ERROR:  syntax error at or near "select"
+LINE 2: select * from dlpx_repl_spec;
+        ^
+hercules=> select * from dlpx_repl_spec;
+-[ RECORD 1 ]-------------+-----------------------------------------------------------------
+spec_id                   | 1
+name                      | 78459REPRO
+cron_schedule             | 0 0 0 * * ?
+target_host               | hammertime.dcol2.delphix.com
+target_port               | 8415
+target_principal          | admin
+target_credential         | bHL187o+Bim3axdy/EfsugWZwhb3/73AMbfCCzMjkDf4TpEYr+QvOW7IAhk9QPPB
+object_list               | ["GROUP-4"]
+automatic_replication     | f
+upgrade_disabled          | f
+worker_id                 | 1155
+tag                       | 7a816451-e23a-4589-89d6-26704f6d9b83
+encrypted                 | f
+bandwidth_limit           | 0
+connection_count          | 1
+description               | repro of case 78459
+use_system_socks_setting  | f
+object_specification_type | REPLICATION_LIST
+secure_container_list     |
+locked_profile            | f
+
+
+hercules=> select * from dlpx_repl_state;
+-[ RECORD 1 ]-------------+----------------------
+repl_id                   | 1
+last_point                | SERIALIZATION_POINT-1
+active_point              |
+spec                      | REPLICATION_SPEC-1
+last_known_target_version | 6.0.16.0
+--------------------------------------------------------
+
+chanaged target back to mk60160.dcol2.delphix.com , reentered admin/delphix and replication again succeeds:
+Last Replication Successful
+0:00:39
+
+18.17KB
+
+21.23KB/s
+
+Last Successful Replication  Nov 28, 2022 3:43:59 PM ( a few seconds ago )
+
+--------------------------------------------------------
+

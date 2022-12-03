@@ -1,0 +1,112 @@
+# https://delphix.atlassian.net/wiki/spaces/SUP/pages/15364129900/Building+RAC+Lab
+# 
+Once complete claim the VMs, extend the expiry if required and register them (the order is important and they should be registered on the same host)
+dc claim racv3t709971
+dc claim racv3t709972
+dc expire 30 racv3t709971
+dc expire 30 racv3t709972
+dc register racv3t709972
+dc register racv3t709971 --esx-host dcol1-esxi12
+Note: If the register of the 1st RAC node fails, unregister it and switch the order around
+##############################################################
+0. claim vms at end of jenkins run
+
+mike.kennedy@dcol2:~$ dc claim ract1v583671
+'ract1v583671' currently owned by 'blackbox', reassigning ownership to 'mike.ken                            nedy'...
+mike.kennedy@dcol2:~$ dc expire 30 ract1v583671
+'ract1v583671': setting expiration in 30.0 days...
+mike.kennedy@dcol2:~$ dc claim ract1v583672
+'ract1v583672' currently owned by 'blackbox', reassigning ownership to 'mike.ken                            nedy'...
+mike.kennedy@dcol2:~$ dc expire 30 ract1v583672
+'ract1v583672': setting expiration in 30.0 days...
+
+
+1. asmcmd; lsdg
+[oracle@ract1v583671 ~]$ asmcmd
+ASMCMD> lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    24098                0           24098              0             N  DATA/
+MOUNTED  EXTERN  N         512             512   4096  1048576     40960    15535                0           15535              0             Y  GRID/
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    31886                0           31886              0             N  REDO/
+
+
+2. create and verify volume:
+ASMCMD> volcreate -G data -s 2g alpha
+ASMCMD> volinfo -G data alpha
+sh: /u01/app/oracle/product/18.11.0.0/dbhome_1/bin/crsctl: No such file or directory
+Diskgroup Name: DATA
+
+         Volume Name: ALPHA
+         Volume Device: /dev/asm/alpha-338
+         State: REMOTE
+         Size (MB): 2048
+         Resize Unit (MB): 64
+         Redundancy: UNPROT
+         Stripe Columns: 8
+         Stripe Width (K): 1024
+         Usage:
+         Mountpath:
+
+3. create acfs filesystem on /dev/asm/alpha-338
+
+ASMCMD> exit
+[oracle@ract1v583671 ~]$ ls -l /dev/asm
+total 0
+brwxrwx---. 1 root asmadmin 253, 173057 Nov 27 12:40 alpha-338
+[oracle@ract1v583671 ~]$ mkfs -t acfs /dev/asm/alpha-338
+mkfs.acfs: version                   = 18.0.0.0.0
+mkfs.acfs: on-disk version           = 46.0
+mkfs.acfs: volume                    = /dev/asm/alpha-338
+mkfs.acfs: volume size               = 2147483648  (   2.00 GB )
+mkfs.acfs: Format complete
+
+4. su - root; acfsutil registry -a /dev/asm/alpha-338 /acfsmounts/acfs
+
+[root@ract1v583671 ~]# acfsutil registry -a /dev/asm/alpha-338 /acfsmounts/acfs
+acfsutil registry: mount point /acfsmounts/acfs successfully added to Oracle Registry
+
+
+5. verify mount on both nodes
+
+/dev/asm/alpha-338  2.0G  489M  1.6G  24% /acfsmounts/acfs
+[oracle@ract1v583671 ~]$
+
+/dev/asm/alpha-338  2.0G  489M  1.6G  24% /acfsmounts/acfs
+tmpfs               1.6G     0  1.6G   0% /run/user/1000
+[oracle@ract1v583672 ~]$
+
+
+6. provision environments and determine if ACFS mount can be used for toolkit directory
+10.43.58.167 ract1v583671.dcol2
+10.43.56.181 ract1v583672.dcol2
+
+I have the wrong $ORACLE_HOME:
+/u01/app/oracle/product/18.11.0.0/dbhome_1/bin/crsctl: No such file or directory "
+
+7.  set Cluster home to GRID? it has crsctl under ~/bin
+
+/u01/app/18.11.0.0/grid
+
+
+OOPS
+Command "/u01/app/18.11.0.0/grid/bin/bin/crsctl query crs activeversion" f
+
+
+8. it keeps appending an extra /bin
+Command "/u01/app/18.11.0.0/grid/bin/bin/crsctl query crs activeversion" failed with output "/acfsmounts/acfs/toolkit/Delphix_COMMON_65ec695e60da_422e63c4a0f6_15_cluster/scripts/bash/linux_x86/bin64/bash: /u01/app/18.11.0.0/grid/bin/bin/crsctl: No such file or directory ", the Delphix Engine was unable to automatically discover the cluster version for cluster home "/u01/app/18.11.0.0/grid/bin" on host "10.43.58.167".
+Error Code
+
+9. it works from CLI on node *1
+[oracle@ract1v583671 bin]$ ./crsctl query crs activeversion
+Oracle Clusterware active version on the cluster is [18.0.0.0.0]
+
+[oracle@ract1v583671 toolkit]$ ls -l
+total 208
+drwxrwx---. 5 oracle oinstall 20480 Nov 27 13:40 Delphix_65ec695e60da_a8f95a75f23e_18_cluster
+drwxrwx---. 5 oracle oinstall 20480 Nov 27 13:41 Delphix_65ec695e60da_df987d3f5665_18_cluster
+drwxrwxr-x. 7 oracle oinstall 20480 Nov 27 13:40 Delphix_COMMON_65ec695e60da_a8f95a75f23e_18_cluster
+drwxrwxr-x. 7 oracle oinstall 20480 Nov 27 13:41 Delphix_COMMON_65ec695e60da_df987d3f5665_18_cluster
+[oracle@ract1v583671 toolkit]$ pwd
+/acfsmounts/acfs/toolkit
+
+#SUCCESS#

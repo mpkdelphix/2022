@@ -1,0 +1,38 @@
+#SnapSync review lab
+0. fix /meent
+
+[root@rhel-7 /]# mv meent mnt
+[root@rhel-7 /]# ls
+1    boot  etc   lib    media  opt   root  sbin  sys  u01  var
+bin  dev   home  lib64  mnt    proc  run   srv   tmp  usr  work
+[root@rhel-7 /]#
+
+
+1. provision VDB, why is timeflow the same?
+
+http://mk60150.dcol2.delphix.com/Server.html#/dataset/ORACLE_DB_CONTAINER-31/timeflow
+
+-it's because all VDBs will be from this container
+
+hercules> select * from dlpx_container;
+
+container_id              | 31
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | DBOMSRASF1B4
+group_ref                 | GROUP-2
+description               |
+provision_container       |
+timeflow                  | ORACLE_TIMEFLOW-31
+previous_timeflow         |
+creation_time             | 2022-11-10 17:17:05.753
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |
+
+------------------------------------------------------
+
+2. SNL: 

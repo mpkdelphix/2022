@@ -1,0 +1,21 @@
+#ACFS shared toolkit directory lab:
+
+0. node information
+[oracle@racxl8566061 ~]$ pwd;hostname
+/home/oracle
+racxl8566061.dcol2
+
+1. mkdir -p /acfsmounts/acfs ; chown -R 0770 /acfsmounts/acfs; chown -R oracle:oinstall /acfsmounts/
+
+[oracle@racxl8566061 ~]$ ./MYSETUP
+exporting environment variables
+Checking driverstate
+ACFS-9459: ADVM/ACFS is not supported on this OS version: 'centos-release-7-6.1810.2.el7.centos.x86_64'
+ACFS-9201: Not Supported
+ACFS-9459: ADVM/ACFS is not supported on this OS version: 'centos-release-7-6.1810.2.el7.centos.x86_64'
+ACFS-9204: false
+ACFS-9459: ADVM/ACFS is not supported on this OS version: 'centos-release-7-6.1810.2.el7.centos.x86_64'
+ACFS-9204: false
+
+
+crap I forgot...no Centos

@@ -1,0 +1,37 @@
+hercules=> select name,container,config from orcl_virtual_db;
+-[ RECORD 1 ]----------------------
+name      | VCDO_PIA
+container | ORACLE_DB_CONTAINER-27
+config    | ORACLE_PDB_CONFIG-31
+-[ RECORD 2 ]----------------------
+name      | VDBOMSR0296BA_KA1
+container | ORACLE_DB_CONTAINER-24
+config    | ORACLE_SINGLE_CONFIG-29
+-[ RECORD 3 ]----------------------
+name      | VCDO_162
+container | ORACLE_DB_CONTAINER-18
+config    | ORACLE_PDB_CONFIG-26
+-[ RECORD 4 ]----------------------
+name      | VCDO_W10
+container | ORACLE_DB_CONTAINER-23
+config    | ORACLE_PDB_CONFIG-28
+---------------------------------------------------
+
+hercules=> select * from dlpx_container where container_id=23;
+-[ RECORD 1 ]-------------+------------------------
+container_id              | 23
+namespace                 |
+namespace_data_dependency | f
+container_type            | ORACLE_DB_CONTAINER
+name                      | VCDO_W10
+group_ref                 | GROUP-3
+description               |
+provision_container       | ORACLE_DB_CONTAINER-21
+timeflow                  | ORACLE_TIMEFLOW-23
+previous_timeflow         |
+creation_time             | 2022-10-26 19:24:12.297
+delete_failed             | f
+processor                 | X86
+os                        | LINUX
+kind                      | []
+masking_uuid              |

@@ -1,0 +1,91 @@
+#building out the EBS...
+
+0. https://delphix.atlassian.net/wiki/spaces/SUP/pages/15377443686/Setting+up+EBS+Lab.
+
+1. add engine:
+
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.16.0 mk60160
+***** You have 6 registered VMs. *****
+Cloning latest 'dlpx-6.0.16.0' state to 'mk60160'...
+COMPONENT           VERSION                                                                                
+app                 aa5686a92f5a650562dd6660407d58bd159eb8fa                                               
+appliance_build     54cfcc68b8f4237ca1ce7e7b48b8d6f08a7ba868                                               
+dlpx                6.0.16.0                                                                               
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/175/internal-dev-esx/internal-dev-esx.ova
+masking             4f1e3b08b75f1582d277b851ec05aef77eaa0663                                               
+Registering 'mk60160' with ESX server 'dcol2-esxi12'...
+The new VM has DNS name 'mk60160.dcol2'.
+10.43.63.229
+
+
+
+2. add 150GB disk to mk60160.dcol2 at dcol2-exi12 root/Sailboat!23
+
+done!
+
+3. clone database:
+
+mike.kennedy@dcol2:~$ dc clone-latest e12277-db mke12277db
+***** You have 7 registered VMs. *****
+Cloning latest 'e12277-db' state to 'mke12277db'...
+Registering 'mke12277db' with ESX server 'dcol2-esxi09'...
+The new VM has DNS name 'mke12277db.dcol2'.
+mike.kennedy@dcol2:~$
+10.43.42.195
+
+
+4. clone app:
+
+mike.kennedy@dcol2:~$ dc clone-latest e12277-app mke12277app
+***** You have 8 registered VMs. *****
+Cloning latest 'e12277-app' state to 'mke12277app'...
+Registering 'mke12277app' with ESX server 'dcol2-esxi09'...
+The new VM has DNS name 'mke12277app.dcol2'.
+
+10.43.55.193
+
+5. db target:
+mike.kennedy@dcol2:~$ dc clone-latest eb77-db-tgt mk-eb77-db-tgt
+***** You have 9 registered VMs. *****
+Cloning latest 'eb77-db-tgt' state to 'mk-eb77-db-tgt'...
+Registering 'mk-eb77-db-tgt' with ESX server 'dcol2-esxi08'...
+The new VM has DNS name 'mk-eb77-db-tgt.dcol2'.
+
+6. app target:
+
+mike.kennedy@dcol2:~$ dc clone-latest eb77-app-tgt mk-eb77-app-tgt
+***** You have 10 registered VMs. *****
+Cloning latest 'eb77-app-tgt' state to 'mk-eb77-app-tgt'...
+Registering 'mk-eb77-app-tgt' with ESX server 'dcol2-esxi04'...
+The new VM has DNS name 'mk-eb77-app-tgt.dcol2'.
+
+7. verify db setup:
+ssh oravis@mke12277db.dcol2
+oravis/oravis
+---------------------------
+
+EBS_ENV=/u01/oracle/VIS/12.1.0.2/VIS12277_mke12277db.env
+
+
+Welcome to your EBS R12.2.6 VM.
+EBS looks correctly configured.
+
+ORACLE_SID:  VIS12277
+HOSTNAME:    mke12277db
+ORACLE_HOME: /u01/oracle/VIS/12.1.0.2
+
+VIS12277 database is UP.
+VIS12277 database listener is UP.
+###################################################
+
+8. I had to destroy app server as Cihan reminded me DB server must be up and running prior to provisioning
+the app server.
+
+mike.kennedy@dcol2:~$ !510
+dc clone-latest e12277-app mke12277app
+***** You have 10 registered VMs. *****
+Cloning latest 'e12277-app' state to 'mke12277app'...
+Registering 'mke12277app' with ESX server 'dcol2-esxi03'...
+The new VM has DNS name 'mke12277app.dcol2': 10.43.62.80
+
+9. 

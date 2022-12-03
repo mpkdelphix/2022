@@ -1,0 +1,11 @@
+#clone vms
+  508  dc clone-latestrhel-7.9-oracle-19.0.0.0-asm-tgt mk79ora19asmtgt
+  509  dc clone-latest rhel-7.9-oracle-19.0.0.0-asm-tgt mk79ora19asmtgt
+---------------------------
+0. my new src && tgt
+
+The new VM has DNS name 'mk79ora19asmsrc.dcol2'.
+The new VM has DNS name 'mk79ora19asmtgt.dcol2'.
+
+1. following this Delphix doc:
+https://docs.delphix.com/docs/datasets/oracle-environments-and-data-sources/linking-data-sources-and-syncing-data-with-oracle/prepare-and-upgrade-a-non-mt-oracle-dsource-to-mt

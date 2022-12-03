@@ -1,0 +1,155 @@
+#clone db first, as apps-tier is dependent upon db-tier:
+
+mike.kennedy@dcol2:~$ dc clone-latest e12277-db mk-e12277-db
+mike.kennedy@dcol2:~$ ping mk-e12277-db.dcol2
+PING mk-e12277-db.dcol2.delphix.com (10.43.44.742. db: ) 56(84) bytes of data.
+64 bytes from 10.43.44.74 (10.43.44.74): icmp_seq=1 ttl=63 time=0.240 ms
+64 bytes from 10.43.44.74 (10.43.44.74): icmp_seq=2 ttl=63 time=0.221 ms
+login to db as 	oravis/oravis
+---------------------------------
+
+0. https://delphix.atlassian.net/wiki/spaces/SUP/pages/15377443686/Setting+up+EBS+Lab.
+
+1. add engine:
+
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.16.0 mk60160
+***** You have 6 registered VMs. *****
+Cloning latest 'dlpx-6.0.16.0' state to 'mk60160'...
+COMPONENT           VERSION                                                                                
+app                 aa5686a92f5a650562dd6660407d58bd159eb8fa                                               
+appliance_build     54cfcc68b8f4237ca1ce7e7b48b8d6f08a7ba868                                               
+dlpx                6.0.16.0                                                                               
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/175/internal-dev-esx/internal-dev-esx.ova
+masking             4f1e3b08b75f1582d277b851ec05aef77eaa0663                                               
+Registering 'mk60160' with ESX server 'dcol2-esxi12'...
+The new VM has DNS name 'mk60160.dcol2'.
+10.43.63.229
+
+2. db: 
+mk-e12277-db.dcol2.delphix.com 10.43.44.742 
+
+3. ssh login as oravis/oravis
+oravis@mk-e12277-db.dcol2.delphix.com's password:
+Last login: Wed Nov 16 16:38:32 2022
+###################################################
+EBS DOES NOT look correctly configured.
+
+Post-Clone Config Status: RUNNING
+
+Please see '~/.dcenter-ebs/README' for information
+on how this script checks for EBS configuration.
+###################################################
+
+$ORACLE_HOME is being prepared:
+[oravis@mk-e12277-db ~]$ ps -ef|grep adcfg
+oravis    1890  1888  0 16:38 pts/1    00:00:00 /u01/oracle/VIS/12.1.0.2/perl/bin/perl -mdlpx_force_autoflush ./adcfgclone.pl dbTie
+
+...
+[oravis@mk-e12277-db ~]$ ~/.dcenter-ebs/vm-login.sh
+###################################################
+EBS_ENV=/u01/oracle/VIS/12.1.0.2/VIS12277_mk-e12277-db.env
+
+Welcome to your EBS R12.2.6 VM.
+EBS looks correctly configured.
+
+ORACLE_SID:  VIS12277
+HOSTNAME:    mk-e12277-db
+ORACLE_HOME: /u01/oracle/VIS/12.1.0.2
+
+VIS12277 database is UP.
+VIS12277 database listener is UP.
+###################################################
+
+
+4. create apps-tier
+mike.kennedy@dcol2:~$ dc clone-latest e12277-app mk-e12277-app
+***** You have 12 registered VMs. *****
+
+Please check the list above for VMs you are no longer using and temporarily
+unregister or destroy them to preserve CPU and memory resources.
+
+'dc destroy <vm_name>' will unregister a VM and permanently destroys its data.
+'dc unregister <vm_name>' powers off the VM and unregisters it from the ESX server.
+You can re-register the VM later using the 'dc register <vm_name>' command.
+Cloning latest 'e12277-app' state to 'mk-e12277-app'...
+Registering 'mk-e12277-app' with ESX server 'dcol2-esxi01'...
+The new VM has DNS name 'mk-e12277-app.dcol2'.
+
+5. applvis login:
+
+applvis@mk-e12277-app.dcol2.delphix.com's password:
+Last login: Wed Nov 16 16:53:12 2022 from 172.16.124.52
+###################################################
+EBS_ENV=/u01/oracle/VIS/EBSapps.env
+
+Welcome to your EBS R12.2.6 VM.
+EBS looks correctly configured.
+
+E-Business Suite Environment Information
+----------------------------------------
+RUN File System           : /u01/oracle/VIS/fs1/EBSapps/appl
+PATCH File System         : /u01/oracle/VIS/fs2/EBSapps/appl
+Non-Editioned File System : /u01/oracle/VIS/fs_ne
+
+
+DB Host: mk-e12277-db.dcol2.delphix.com  Service/SID: VIS12277
+
+
+Sourcing the RUN File System ...
+
+Application is UP.
+###################################################
+
+
+11/20:
+mk-e12277-db.dcol2.delphix.com  10.43.44.74
+
+mk-e12277-app.dcol2.delphix.com 10.43.55.208
+
+mk-eb77-db-tgt.dcol2.delphix.com 10.43.47.143
+
+mk-eb77-app-tgt.dcol2.delphix.com 10.43.44.52
+--------------------------------------------------------
+
+11/20 : applvis login and app RUNNING:
+Last login: Wed Nov 16 18:02:28 2022 from dcol02.delphix.com
+###################################################
+EBS_ENV=/u01/oracle/VIS/EBSapps.env
+
+Welcome to your EBS R12.2.6 VM.
+EBS looks correctly configured.
+
+E-Business Suite Environment Information
+----------------------------------------
+RUN File System           : /u01/oracle/VIS/fs1/EBSapps/appl
+PATCH File System         : /u01/oracle/VIS/fs2/EBSapps/appl
+Non-Editioned File System : /u01/oracle/VIS/fs_ne
+
+
+DB Host: mk-e12277-db.dcol2.delphix.com  Service/SID: VIS12277
+
+
+Sourcing the RUN File System ...
+
+Application is UP.
+###################################################
+[applvis@mk-e12277-app ~]$ date
+Sun Nov 20 10:38:21 EST 2022
+
+
+11/20: oravis and DB is UP
+Last login: Wed Nov 16 16:42:09 2022 from 172.16.124.52
+###################################################
+EBS_ENV=/u01/oracle/VIS/12.1.0.2/VIS12277_mk-e12277-db.env
+
+Welcome to your EBS R12.2.6 VM.
+EBS looks correctly configured.
+
+ORACLE_SID:  VIS12277
+HOSTNAME:    mk-e12277-db
+ORACLE_HOME: /u01/oracle/VIS/12.1.0.2
+
+VIS12277 database is UP.
+VIS12277 database listener is UP.
+###################################################
+setup completes and tests 92.8% pass...yay

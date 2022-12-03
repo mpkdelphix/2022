@@ -1,0 +1,30 @@
+SQL> col name format a15
+SQL> select name, con_id, dbid, con_uid, guid from v$containers order by con_id;
+
+NAME                CON_ID       DBID    CON_UID
+--------------- ---------- ---------- ----------
+GUID
+--------------------------------
+CDB$ROOT                 1 1939926934          1
+86B637B62FDF7A65E053F706E80A27CA
+
+PDB$SEED                 2 3359270117 3359270117
+88FE45A23D19424BE053210A2B0A3610
+
+CDOMSHSR84EBPDB          3 3670443585 3670443585
+1
+88FE8CC46D984CD7E053210A2B0A0FFA
+
+NAME                CON_ID       DBID    CON_UID
+--------------- ---------- ---------- ----------
+GUID
+--------------------------------
+
+CDOMSHSR84EBPDB          4 3037238301 3037238301
+2
+88FE8D8B703C4DBBE053210A2B0AEB03
+
+CDOMSHSR84EBPDB          5  304378725  304378725
+3
+88FE8E754DC54DF4E053210A2B0AEFE4
+#########################################################################

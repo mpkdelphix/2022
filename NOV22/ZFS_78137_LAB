@@ -1,0 +1,95 @@
+0. provision src: mkrh83ora213src.dcol2 10.43.43.185
+
+1. provision tgt: mkrh83ora213tgt.dcol2  10.43.55.98
+
+
+2. add environments and create 78137 group
+
+3. link dSource
+
+4. VPDB
+http://mk60150.dcol2.delphix.com/Server.html#/dataset/ORACLE_DB_CONTAINER-40/timeflow
+
+5. connect to CLI `su admin@DOMAIN` || `su sysadmin@SYSTEM`
+
+6. initial capacity:
+
+mk60150.dcol2 capacity group> ls
+Objects
+TIMESTAMP                 GROUP            SOURCE.ACTUALSPACE  VIRTUAL.ACTUALSPACE
+2022-11-15T14:27:14.690Z  78137            2.08GB              15.45MB
+
+7. add more to razed tablespace
+
+mk60150.dcol2 capacity group> ls
+Objects
+TIMESTAMP                 GROUP            SOURCE.ACTUALSPACE  VIRTUAL.ACTUALSPACE
+2022-11-15T14:57:14.690Z  78137            2.10GB              16.91MB
+
+8. add even more to razed tablespace
+
+k60150.dcol2 capacity group> ls
+Objects
+TIMESTAMP                 GROUP            SOURCE.ACTUALSPACE  VIRTUAL.ACTUALSPACE
+2022-11-15T15:07:14.690Z  78137            2.11GB              18.08MB
+
+
+8. find filesystem in mds_client:
+
+hercules=> select * from dlpx_storage_container where owners ~ 'ORACLE_DB_CONTAINER-40';
+-[ RECORD 1 ]-------------+------------------------------------------
+container_id              | 258
+namespace                 |
+namespace_data_dependency | f
+source_filesystem         |
+owners                    | ["ORACLE_DB_CONTAINER-40"]
+storage_state             | IN_USE
+container_type            | FOLDER
+filesystem                | domain0/group-290/oracle_db_container-292
+origin_snapshot           |
+lineage_uuids             | []
+redacted                  | f
+storage_type              | ROOT
+replication_type          | SERIALIZATION_SNAPSHOT
+async_write_type          | f
+
+
+
+9. container
+
+delphix@mk60150:~$ df -h|grep container-292
+domain0/group-290/oracle_db_container-292                                14G  128K   14G   1% /domain0/group-290/oracle_db_container-292
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294            14G  128K   14G   1% /domain0/group-290/oracle_db_container-292/oracle_timeflow-294
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/datafile   14G  195M   14G   2% /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/datafile
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/archive    14G  128K   14G   1% /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/archive
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/external   14G  128K   14G   1% /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/external
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/temp       14G   24K   14G   1% /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/temp
+
+------------------------------------------
+
+10. zfs list:
+
+delphix@mk60150:~$ zfs list|grep container-292
+domain0/group-290/oracle_db_container-292                                194M  13.2G    24K  /domain0/group-290/oracle_db_container-292
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294            194M  13.2G    26K  /domain0/group-290/oracle_db_container-292/oracle_timeflow-294
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/archive     24K  13.2G    24K  /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/archive
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/datafile   194M  13.2G   194M  /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/datafile
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/external    37K  13.2G    24K  /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/external
+domain0/group-290/oracle_db_container-292/oracle_timeflow-294/temp        24K  13.2G    24K  /domain0/group-290/oracle_db_container-292/oracle_timeflow-294/temp
+
+
+11: hours later...
+
+delphix@mk60150:~$ su - admin@DOMAIN
+Password:
+mk60150.dcol2> storage
+Unknown command 'storage'.
+mk60150.dcol2> capacity
+mk60150.dcol2 capacity> group
+mk60150.dcol2 capacity group> ls
+Objects
+TIMESTAMP                 GROUP            SOURCE.ACTUALSPACE  VIRTUAL.ACTUALSPACE
+2022-11-15T19:24:37.146Z  Untitled         0B                  0B
+2022-11-15T19:24:37.146Z  ORCL_STANDALONE  1.07GB              0B
+2022-11-15T19:24:37.146Z  78137            2.16GB              33.43MB
+

@@ -1,0 +1,53 @@
+#linking dSource, reviewing connector log and engine debug.log
+
+0. link dSource
+1. review engine debug.log for JOB-31 DB_LINK:
+#NOTE the API POST:
+43572:[2022-12-03T10:22:11,413][DEBUG][jcm.impl.JobManagerImpl#createJob:462][http-nio-127.0.0.1-8586-exec-56:POST /delphix/database/link][ACTION-146] Job JOB-31: Created Job 31 for object ORACLE_DB_CONTAINER-3
+...
+43596:[2022-12-03T10:22:11,503][DEBUG][oracle.external.delegate.OracleSourceBasedSyncStrategyDelegate#manageSourceKey:2839][Worker-45|JOB-31|DB_LINK(ORACLE_DB_CONTAINER-3)][ACTION-146] Source key is: {"type":"ORACLE_DATABASE_KEY","changedProperties":null,"currentScn":"2367108","guid":"E2226BCABAFD45C7E055000000000001","dbId":"3928813545","dbName":"DBOMSR91","resetlogsScn":"1920977","resetlogsTime":"20220623 141404"}
+
+hercules=> select * from orcl_db_container where container_id=3;
+-[ RECORD 1 ]--------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+container_id               | 3
+diagnose_no_logging_faults | t
+pre_provisioning_enabled   | f
+logsync_interval           | 5
+logsync_enabled            | t
+logsync_mode               | ARCHIVE_ONLY_MODE
+logsync_timestamp          | 2022-12-03 16:22:11.19
+content_type               | NON_CDB
+physical_standby           | f
+performance_mode           | DISABLED
+source_key                 | {"type":"ORACLE_DATABASE_KEY","changedProperties":null,"currentScn":"2367409","guid":"E2226BCABAFD45C7E055000000000001","dbId":"3928813545","dbName":"DBOMSR91","resetlogsScn":"1920977","resetlogsTime":"20220623 141404"}
+live_source                | f
+force_full_snapsync        | f
+new_cdb_container          |
+converted_to_pdb           | f
+nonmt_container            |
+rac_max_instance_lag       | 3
+
+[2022-12-03T10:22:12,079][DEBUG][oracle.database.OracleDatabaseAccessorManager#chooseAvailableInstanceAndHostPairs:442][Worker-46|JOB-32|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-147] Choose instance for SI database DBOMSR91 [<empty>] on host 10.43.48.111
+[2022-12-03T10:22:12,231][DEBUG][oracle.database.OracleDatabaseAccessorManager#chooseAvailableInstanceAndHost:391][Worker-46|JOB-32|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-147]  picked instance DBOMSR91F858 host 10.43.48.111 for database DBOMSR91
+#validate_linking_reqs
+[2022-12-03T10:22:14,026][DEBUG][dhm.impl.util.UnixRemoteScriptHelperImpl#executeRemoteCommand:388][Worker-46|JOB-32|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-147] executeScriptRemotely - /work/toolkit/Delphix_COMMON_c23ff1d1a570_a8a70fdfb30e_5_host/scripts/bash/linux_x86/bin64/bash /work/toolkit/Delphix_COMMON_c23ff1d1a570_a8a70fdfb30e_5_host/scripts/link/oracle/common/validate_linking_reqs /work/toolkit/Delphix_c23ff1d1a570_a8a70fdfb30e_5_host/toolkits APP_DIR= /u01/app/oracle/product/19.14.0.0/dbhome_1
+
+ validate_linking_reqs
+#
+# Command line arguments:
+#   <relative/absolute path to the Delphix Toolkit directory>
+#   <PRE=absolute path to the Pre script>
+#   <POST=absolute path to the Post script>
+#   <APP_DIR=absolute path to the App Data Directory>
+#   <Oracle Home for linking>
+#
+# This is the entry point for DHM Java code. It does the following:
+# 1. Checks if there is a backdoor and executes that if found
+# 2. Returns results from validation
+
+#shortly after validate_linking_reqs, initial SnapSync:
+[2022-12-03T10:22:14,222][INFO][oracle.snapsync.source.impl.SnapSyncJob#execute:478][Worker-46|JOB-32|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-147] SNL.1.3.tGZvLg9mmNaEpHj0GQobz4os: execute INITIAL SnapSync in the context of JOB-32 for source DBOMSR91F858 container DBOMSR91F858 instance DBOMSR91F858 (tag NOTAG)
+[2022-12-03T10:22:14,224][DEBUG][oracle.snapsync.source.impl.SnapSyncProgress#startBackup:118][Worker-46|JOB-32|DB_SYNC(ORACLE_DB_CONTAINER-3)][ACTION-147] SNL.1.3.tGZvLg9mmNaEpHj0GQobz4os: job percentComplete 0, data percentComplete 0
+
+
+2. review connector log

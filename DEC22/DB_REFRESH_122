@@ -1,0 +1,84 @@
+#DB_REFRESH JOB-1801:
+-[ RECORD 1 ]---------+-----------------------------
+job_id                | 1801
+target_reference      | ORACLE_DB_CONTAINER-50
+job_type              | DB_REFRESH
+start_time            | 2022-12-02 23:25:33.952
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-12-02 23:27:54.375
+title                 | Refresh database "VDBO_VIL".
+job_state             | COMPLETED
+title_code            | event.action.db.refresh
+title_params          | ["VDBO_VIL"]
+target_name           | ORCL_STANDALONE/VDBO_VIL
+action                | ACTION-3329
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+hercules=> select * from dlpx_action where action_id=3329;
+-[ RECORD 1 ]---------+----------------------------------------------------------------------------------------------------------------
+action_id             | 3329
+action_type           | DB_REFRESH
+state                 | COMPLETED
+desc_message_id       | event.action.db.refresh
+desc_message_params   | ["VDBO_VIL"]
+desc_message_desc     | Refresh database "VDBO_VIL".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         |
+parent_job            |
+start_time            | 2022-12-02 23:25:33.927
+end_time              | 2022-12-02 23:27:54.374
+user_agent            | Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+work_source_name      | admin
+origin_ip             | 172.16.124.30
+http_session_id       | 8152F8728C2A0AB7B4F90B51A445AA16
+work_source_principal | admin
+
+
+#DB_SYNC JOB-1802
+ RECORD 1 ]---------+--------------------------------------
+job_id                | 1802
+target_reference      | ORACLE_DB_CONTAINER-50
+job_type              | DB_SYNC
+start_time            | 2022-12-02 23:27:43.685
+user_ref              | USER-2
+email_addresses       |
+update_time           | 2022-12-02 23:27:54.35
+title                 | Run SnapSync for database "VDBO_VIL".
+job_state             | COMPLETED
+title_code            | event.action.db.sync
+title_params          | ["VDBO_VIL"]
+target_name           | ORCL_STANDALONE/VDBO_VIL
+action                | ACTION-3330
+resume_after_restart  | f
+cancel_message_id     |
+cancel_message_params |
+cancel_message_desc   |
+
+action_id             | 3330
+action_type           | DB_SYNC
+state                 | COMPLETED
+desc_message_id       | event.action.db.sync
+desc_message_params   | ["VDBO_VIL"]
+desc_message_desc     | Run SnapSync for database "VDBO_VIL".
+work_source           | WEBSERVICE
+work_source_ref       | USER-2
+fail_message_id       |
+fail_message_params   |
+fail_message_desc     |
+parent_action         | ACTION-3329
+parent_job            | JOB-1801
+start_time            | 2022-12-02 23:27:43.385
+end_time              | 2022-12-02 23:27:54.347
+user_agent            |
+work_source_name      | admin
+origin_ip             |
+http_session_id       |
+work_source_principal | admin

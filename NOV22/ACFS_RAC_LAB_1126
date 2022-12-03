@@ -1,0 +1,307 @@
+# This lab worked, but my blackbox hosts disappeard suddenly and I can't find their VCenter
+# So I will reproduce on other RAC 11/26
+
+
+#create shared acfs from existing "DATA" ASM disk group and use acfs as toolkit directory
+
+#hosts:
+  racodg581061.dcol2.delphix.com (10.43.53.0)
+  Database Instances:
+    CDOMLOSR253FPDB1 (oracle 18.11.0.0.0) @ racodg581061.dcol2.delphix.com
+    CDOMLOSR253FPDB2 (oracle 18.11.0.0.0) @ racodg581061.dcol2.delphix.com
+    CDOMLOSR253FPDB3 (oracle 18.11.0.0.0)! @ racodg581061.dcol2.delphix.com
+ ---------------------------------------------
+0. create mounts
+[oracle@racodg581061 ~]$ mkdir -p /acfsmounts/acfs
+mkdir: cannot create directory ‘/acfsmounts’: Permission denied
+[oracle@racodg581061 ~]$ su - root
+Password:
+Last login: Wed Nov 23 11:59:23 EST 2022 on pts/0
+[root@racodg581061 ~]# mkdir -p /acfsmounts/acfs
+[root@racodg581061 ~]# chown -R oracle:oinstall /acfsmounts/
+[root@racodg581061 ~]#
+
+
+1. locate second node in /etc/hosts:
+10.43.56.113 racodg581062.dcol2.delphix.com racodg581062.dcol2 racodg581062
+
+2. create /acfsmounts/acfs on node *1062
+[oracle@racodg581061 ~]$ ssh oracle@10.43.56.113
+Last login: Sat Nov 26 11:00:07 2022
+[oracle@racodg581062 ~]$ ls -l /acfsmounts
+ls: cannot access /acfsmounts: No such file or directory
+[oracle@racodg581062 ~]$ su - root
+Password:
+su: Authentication failure
+[oracle@racodg581062 ~]$ su - root
+Password:
+Last login: Wed Nov 23 11:59:25 EST 2022 on pts/0
+Last failed login: Sat Nov 26 11:00:44 EST 2022 on pts/0
+There was 1 failed login attempt since the last successful login.
+[root@racodg581062 ~]# mkdir -p /acfsmounts/acfs; chown -R oracle:oinstall /acfsmounts/
+[root@racodg581062 ~]# ls -l /acfsmounts
+total 0
+drwxr-xr-x. 2 oracle oinstall 6 Nov 26 11:01 acfs
+[root@racodg581062 ~]# hostname
+racodg581062.dcol2
+
+3. add the following to MYSETUP
+echo "exporting environment variables"
+export ORACLE_SID=+ASM1
+export PATH=$PATH:/u01/app/18.11.0.0/grid/bin
+export ORACLE_HOME=/u01/app/18.11.0.0/grid
+export PATH=$ORACLE_HOME/bin:$PATH
+echo "Checking driverstate"
+acfsdriverstate -orahome $ORACLE_HOME supported
+acfsdriverstate -orahome $ORACLE_HOME installed
+acfsdriverstate -orahome $ORACLE_HOME loaded
+
+
+4. run MYSETUP
+[oracle@racodg581061 ~]$ ./MYSETUP
+exporting environment variables
+Checking driverstate
+ACFS-9200: Supported
+ACFS-9203: true
+ACFS-9203: true
+[oracle@racodg581061 ~]$ echo $?
+0
+
+5. fire up ASM with `asmcmd`
+[oracle@racodg581061 ~]$ asmcmd
+ASMCMD> lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    23236                0           23236              0             N  DATA/
+MOUNTED  EXTERN  N         512             512   4096  1048576     40960    15467                0           15467              0             Y  GRID/
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    32168                0           32168              0             N  REDO/
+ASMCMD> volcreate -G data -s 2g alpha
+ASMCMD> lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    21176                0           21176              0             N  DATA/
+MOUNTED  EXTERN  N         512             512   4096  1048576     40960    15467                0           15467              0             Y  GRID/
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    32168                0           32168              0             N  REDO/
+ASMCMD> volinfo -G data alpha
+sh: /u01/app/oracle/product/18.11.0.0/dbhome_1/bin/crsctl: No such file or directory
+Diskgroup Name: DATA
+
+         Volume Name: ALPHA
+         Volume Device: /dev/asm/alpha-395
+         State: REMOTE
+         Size (MB): 2048
+         Resize Unit (MB): 64
+         Redundancy: UNPROT
+         Stripe Columns: 8
+         Stripe Width (K): 1024
+         Usage:
+         Mountpath:
+
+6.  verify volume filename under /dev/asm and create acfs:
+
+ASMCMD> exit
+[oracle@racodg581061 ~]$ ls -l /dev/asm
+total 0
+brwxrwx---. 1 root asmadmin 253, 202241 Nov 26 11:11 alpha-395
+[oracle@racodg581061 ~]$ mkfs -t acfs /dev/asm/alpha-395
+mkfs.acfs: version                   = 18.0.0.0.0
+mkfs.acfs: on-disk version           = 46.0
+mkfs.acfs: volume                    = /dev/asm/alpha-395
+mkfs.acfs: volume size               = 2147483648  (   2.00 GB )
+mkfs.acfs: Format complete.
+
+
+7. set ORACLE_SID to +ASM1
+[oracle@racodg581061 ~]$ export ORACLE_SID=+ASM1
+[oracle@racodg581061 ~]$ export ORACLE_HOME=/u01/app/oracl/18.11.0.0/grid
+
+8. register acfs
+#you need to be root, maybe I should work at Mattel :)
+[oracle@racodg581061 ~]$ acfsutil registry -a /dev/asm/alpha-395 /acfsmount/acfs
+PRCN-2018 : Current user oracle is not a privileged user
+acfsutil registry: ACFS-09173: The srvctl command line "/u01/app/18.11.0.0/grid/bin/srvctl add filesystem -device /dev/asm/alpha-395 -path /acfsmount/acfs" failed to execute. (0)
+acfsutil registry: ACFS-03111: unable to add ACFS mount /acfsmount/acfs within Oracle Registry
+
+
+[oracle@racodg581061 ~]$ su - root
+Password:
+Last login: Sat Nov 26 10:58:45 EST 2022 on pts/1
+[root@racodg581061 ~]# acfsutil registry -a /dev/asm/alpha-395 /acfsmount/acfs
+acfsutil registry: mount point /acfsmount/acfs successfully added to Oracle Registry
+
+
+9. acfsutil automounts volumes on all nodes!
+
+[root@racodg581061 ~]# mount -t  acfs /dev/asm/alpha-395 /acfsmounts/acfs
+mount.acfs: ACFS-02125: volume '/dev/asm/alpha-395' is already in use
+[root@racodg581061 ~]# df -h
+Filesystem          Size  Used Avail Use% Mounted on
+devtmpfs            7.8G     0  7.8G   0% /dev
+tmpfs                14G  4.1G  9.9G  30% /dev/shm
+tmpfs               7.8G   18M  7.8G   1% /run
+tmpfs               7.8G     0  7.8G   0% /sys/fs/cgroup
+/dev/sda3            51G   39G   13G  76% /
+/dev/sda1          1014M  142M  873M  14% /boot
+tmpfs               1.6G     0  1.6G   0% /run/user/1000
+/dev/asm/alpha-395  2.0G  489M  1.6G  24% /acfsmount/acfs
+
+10. NOTE I typed /acfsmount/acfs
+
+[root@racodg581061 toolkit]# pwd;hostname
+/acfsmount/acfs/toolkit
+racodg581061.dcol2
+
+[root@racodg581062 toolkit]# pwd;hostname
+/acfsmount/acfs/toolkit
+racodg581062.dcol2
+
+11. I've hit NBC's configuration issue:
+
+Error
+Could not prepare toolkit directory "/acfsmount/acfs/toolkit/Delphix_COMMON_65ec695e60da_03193d49091e_12_cluster": An error occurred while attempting to write "/tmp/52aea6ed-b70f-4872-bce3-03193d49091e_b5a69919-b9fd-4707-8016-c1d55a78721b/prepare_toolkit_directory_564df149_f498_4f46_73c9_65ec695e60da" to the remote directory "/acfsmount/acfs/toolkit" on host "10.43.53.0".
+Error Code
+exception.toolkit.could.not.prepare
+Suggested Action
+Check connectivity to the host or permissions within the remote directory and try again.
+
+
+
+Cihan has chown set to oracle:oinstall
+
+[oracle@raca71576381 acfs]$ ls -l
+total 116
+drwx------. 2 oracle oinstall 65536 Nov 18 18:23 lost+found
+drwxrwx---. 6 oracle oinstall 20480 Nov 18 18:43 toolkit
+
+
+12. repair /acfsmount/acfs/toolkit owner:group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################### SUCCESS ##############################
+
+ Cihan complete acfs steps:
+
+ [root@raca71576381 ~]# mkdir -p /acfsmounts/acfs
+[root@raca71576381 ~]# chown -R oracle:oinstall /acfsmounts/
+
+
+./acfsdriverstate -orahome $ORACLE_HOME supported
+./acfsdriverstate -orahome $ORACLE_HOME installed
+./acfsdriverstate -orahome $ORACLE_HOME loaded
+
+ 
+
+export ORACLE_SID=+ASM1
+export ORACLE_HOME=/u01/app/18.11.0.0/grid
+export PATH=$ORACLE_HOME/bin:$PATH
+
+
+[oracle@raca71576381 ~]$ asmcmd
+ASMCMD> 
+
+
+######## CHECK SIZE OF THE FREE MB
+
+ASMCMD> lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    23907                0           23907              0             N  DATA/
+MOUNTED  EXTERN  N         512             512   4096  1048576     40960    15505                0           15505              0             Y  GRID/
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    32165                0           32165              0             N  REDO/
+
+
+volcreate -G data -s 2G volume1
+
+######## CHECK SIZE OF THE FREE MB	
+
+ASMCMD> lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    21858                0           21858              0             N  DATA/
+MOUNTED  EXTERN  N         512             512   4096  1048576     40960    15505                0           15505              0             Y  GRID/
+MOUNTED  EXTERN  N         512             512   4096  1048576     32768    32165                0           32165              0             N  REDO/
+
+
+ASMCMD> volinfo -G data volume1
+
+Diskgroup Name: DATA
+
+	 Volume Name: VOLUME1
+	 Volume Device: /dev/asm/volume1-501
+	 State: ENABLED
+	 Size (MB): 2048
+	 Resize Unit (MB): 64
+	 Redundancy: UNPROT
+	 Stripe Columns: 8
+	 Stripe Width (K): 1024
+	 Usage: 
+	 Mountpath: 
+
+
+[oracle@raca71576381 bin]$ /sbin/mkfs -t acfs /dev/asm/volume1-501
+
+mkfs.acfs: version                   = 18.0.0.0.0
+mkfs.acfs: on-disk version           = 46.0
+mkfs.acfs: volume                    = /dev/asm/volume1-501
+mkfs.acfs: volume size               = 2147483648  (   2.00 GB )
+mkfs.acfs: Format complete.
+
+
+[root@raca71576381 ~]# export ORACLE_SID=+ASM1
+[root@raca71576381 ~]# export ORACLE_HOME=/u01/app/18.11.0.0/grid
+[root@raca71576381 ~]# export PATH=$ORACLE_HOME/bin:$PATH
+
+
+[root@raca71576381 ~]# /sbin/acfsutil registry -a /dev/asm/volume1-501 /acfsmounts/acfs
+acfsutil registry: mount point /acfsmounts/acfs successfully added to Oracle Registry
+
+
+
+root@raca71576381 ~]# /bin/mount -t acfs /dev/asm/volume1-501 /acfsmounts/acfs
+
+mount.acfs: ACFS-02125: volume '/dev/asm/volume1-501' is already in use
+
+[root@raca71576381 ~]# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+devtmpfs              7.8G     0  7.8G   0% /dev
+tmpfs                  14G  4.1G  9.9G  30% /dev/shm
+tmpfs                 7.8G   18M  7.8G   1% /run
+tmpfs                 7.8G     0  7.8G   0% /sys/fs/cgroup
+/dev/sda3              51G   39G   13G  75% /
+/dev/sda1            1014M  142M  873M  14% /boot
+tmpfs                 1.6G     0  1.6G   0% /run/user/0
+/dev/asm/volume1-501  2.0G  489M  1.6G  24% /acfsmounts/acfs
+
+###### SECOND NODE ( I DIDNT RUN ANY COMMAND,IT AUTOMATICALLY MOUNTED TO SECOND NODE )
+
+[oracle@raca71576382 bin]$ df -h
+
+Filesystem            Size  Used Avail Use% Mounted on
+devtmpfs              7.8G     0  7.8G   0% /dev
+tmpfs                  14G  3.5G   11G  25% /dev/shm
+tmpfs                 7.8G   26M  7.8G   1% /run
+tmpfs                 7.8G     0  7.8G   0% /sys/fs/cgroup
+/dev/sda3              51G   38G   14G  74% /
+/dev/sda1            1014M  142M  873M  14% /boot
+tmpfs                 1.6G     0  1.6G   0% /run/user/0
+/dev/asm/volume1-501  2.0G  489M  1.6G  24% /acfsmounts/acfs
+
+
+
+[oracle@raca71576381 ~]$ mkdir -p /acfsmounts/acfs/toolkit
+
+raca71576381.dcol2.delphix.com
+
+

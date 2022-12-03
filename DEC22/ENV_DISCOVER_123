@@ -1,0 +1,20 @@
+#redoing Delphix engine RedHat Oracle server discovery
+
+0. provision source && target
+mkrh123src.dcol2 10.43.48.111
+mkrh123tgt.dcol2 10.43.40.109
+
+1. review debug log
+#we establish DSP connectivity, get an Oracle object consisting of listner, instances and access parameters:
+
+[2022-12-03T08:41:24,579][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-26|JOB-20|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-3)][ACTION-129] Discovered object: OracleNodeListenerList - OracleNodeListener - name LISTENER, serviceNames CDOMLOSRB5A8,CDOMLOSRB5A8XDB,CDOMSHSR9059,CDOMSHSR9059XDB,DBOMSR91F858,DBOMSR91F858XDB,cdomlosrb5a8pdb1,cdomlosrb5a8pdb2,cdomlosrb5a8pdb3,cdomshsr9059pdb1,cdomshsr9059pdb2,cdomshsr9059pdb3,e2215ef63cc0ef6de055000000000001,e221606c7038f059e055000000000001,e22161d64293f085e055000000000001,e2224669ac042417e055000000000001,e222479d39d6250be055000000000001,e22248ac95b32538e055000000000001, instanceNames CDOMSHSR9059,DBOMSR91F858,CDOMLOSRB5A8, protocolAddressList (ADDRESS=(PROTOCOL=tcp)(HOST=10.43.48.111)(PORT=1521))
+
+#we create new ORACLE_INSTALL-4 
+[2022-12-03T08:41:24,824][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-26|JOB-20|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-3)][] Discovered object: OracleInstallList - OracleInstall - InstallationHome: /u01/app/oracle/product/19.14.0.0/dbhome_1, OracleBase: /u01/app/oracle, OracleBaseConfig: /u01/app/oracle/product/19.14.0.0/dbhome_1, OracleBaseHome: /u01/app/oracle/product/19.14.0.0/dbhome_1, GroupName: oinstall, GroupId: 1000, UserName: oracle, UserId: 1000, Bits: 64, Rac: false, Version: 19.14.0.0.0
+[2022-12-03T08:41:24,831][DEBUG][notification.impl.ClientNotificationServiceImpl#postObjectEvent:127][Worker-26|JOB-20|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-3)][] dispatching event CREATE for object ORACLE_INSTALL-4
+#discover Oracle single instances, sysbackup and oracle home:
+[2022-12-03T08:41:26,936][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-26|JOB-20|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-3)][] Discovered object: OracleUserPrivilege - sysbackupHomes: [/u01/app/oracle/product/19.14.0.0/dbhome_1], sysdbaHomes: [/u01/app/oracle/product/19.14.0.0/dbhome_1]
+[2022-12-03T08:41:27,006][DEBUG][environment.impl.discovery.OracleBaseEnvironmentDiscoveryProvider#getDiscoveryResult:251][Worker-26|JOB-20|ENVIRONMENT_DISCOVER(UNIX_HOST_ENVIRONMENT-3)][] Discovered object: OracleSIConfigList - OracleSIConfig - OracleConfig - name: CDOMSHSR9059, uniqueName: CDOMSHSR9059, databaseName: CDOMSHSR OracleInstance: OracleInstance - instanceName: CDOMSHSR9059, instanceNumber: 1
+
+2.review connector log
+

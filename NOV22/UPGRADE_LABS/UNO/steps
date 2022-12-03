@@ -1,0 +1,26 @@
+#https://delphix.atlassian.net/wiki/spaces/SUP/pages/15364130871/Lab+Extensible+Upgrade+SUV+Check+Failure
+0. I will upgrade http://mk60160.dcol2.delphix.com/Server.html to 6.0.17.0
+
+1. 
+delphix@mk60160:~$ cat /etc/hotfix
+cat: /etc/hotfix: No such file or directory
+delphix@mk60160:~$ echo "HF-WTF8675309" |sudo tee /etc/hotfix > /dev/null
+delphix@mk60160:~$ cat /etc/hotfilx
+cat: /etc/hotfilx: No such file or directory
+delphix@mk60160:~$ cat /etc/hotfix
+HF-WTF8675309
+
+
+2. estou baixando 6.0.17
+https://download.delphix.com/folder/3121/Delphix%20Product%20Releases/6.0.17.0/Upgrade%20Images
+
+3. verify checksum
+
+link:sha256sum: d78d2b57de74bbb9ea4c59dbc1d3d4b59be11d44f911880e49205bfecb509022
+my tar:
+PS C:\Users\Mike.Kennedy\Downloads> certutil -HashFile .\Delphix_6.0.17.0_2022-11-10-04-00_Standard_Upgrade.tar SHA256
+SHA256 hash of .\Delphix_6.0.17.0_2022-11-10-04-00_Standard_Upgrade.tar:
+d78d2b57de74bbb9ea4c59dbc1d3d4b59be11d44f911880e49205bfecb509022
+
+
+4. image upload is sticking at 11%.......

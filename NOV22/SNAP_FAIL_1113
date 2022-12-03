@@ -1,0 +1,53 @@
+#revisit snapsync activity to help understand https://delphix.zendesk.com/agent/tickets/78116
+---------------------------------------------------------------------------------------------
+
+0. disable /mnt/provision:
+oracle@mk79ora19asmtgt.dcol2's password:
+Last login: Sun Nov 13 09:00:31 2022
+[oracle@rhel-7 ~]$ su - root
+Password:
+Last login: Thu Nov 10 08:48:01 EST 2022 from dcol02.delphix.com on pts/0
+[root@rhel-7 ~]# cd /mnt
+[root@rhel-7 mnt]# ls
+provision
+[root@rhel-7 mnt]# ls -l provision/
+total 0
+drwxr-xr-x. 2 root root 6 Nov 10 13:25 VDBOMSRASF1B4_LCE
+drwxr-xr-x. 2 root root 6 Nov 10 12:22 VDBOMSRASF1B4_LGX
+drwxr-xr-x. 2 root root 6 Nov 10 12:28 VDBOMSRASF1B4_U7P
+drwxr-xr-x. 2 root root 6 Nov 10 13:15 VVDBO_U7P_GE3
+[root@rhel-7 mnt]# cd /
+[root@rhel-7 /]# ls
+1    boot  etc   lib    media  opt   root  sbin  sys  u01  var
+bin  dev   home  lib64  mnt    proc  run   srv   tmp  usr  work
+[root@rhel-7 /]# mv mnt meent
+
+
+1. attempt to provision VDB to mk79ora19asmtgt:/mnt/provision
+
+2. validate_provision_reqs fails:
+
+ exception.oracle.targetscripts.environment.validate {command: $DLPX_SHELL -x '/work/toolkit/Delphix_COMMON_65ec695e60da_68ab01aafd2b_9_host/scripts/provision/oracle/common/validate_provision_reqs' '/work/toolkit/Delphix_COMMON_65ec695e60da_68ab01aafd2b_9_host' '/mnt/provision' 'VDBOMSRASF1B4_F9Y' '10.43.55.164' '/public' 'VDBOMSRASF1F9Y' '_NOT_PDB_' 'true' '4' '1001' 'VDBOMSRASF1B4_F9Y_6802884403971184959_VALIDATE'
+output:Enter the password for user "oracle" (Hit return if no password is needed) :
+stty: standard input: Inappropriate ioctl for device
+stty: standard input: Inappropriate ioctl for device
+/work/toolkit/Delphix_COMMON_65ec695e60da_68ab01aafd2b_9_host/scripts/provision/oracle/common/validate_provision_reqs: line 153: cd: /mnt/provision: No such file or directory
+#####DELPHIX_START_ERROR#####
+ERROR_CODE=22
+ERROR: User cannot cd into mount directory "/mnt/provision". Please fix permissions of this directory.
+#####DELPHIX_END_ERROR#####
+} 
+
+
+3. /var/delphix/server/log/debug.log output:Enter[2022-11-13T08:33:33,458][INFO][faults.checks.DiagnosisManagerImpl#diagnose:83][http-nio-127.0.0.1-8586-exec-53:POST /delphix/database/provision][] Diagnosis of com.delphix.server.core.messages.OracleVdbExceptions$EnvironmentValidate: exception.oracle.vdb.environment.validate {Validation of user environment failed.|Correct the user environment error, or provide a privileged user, and try again.|mk79ora19asmtgt.dcol2|mk79ora19asmtgt.dcol2|exception.oracle.targetscripts.environment.validate {command: $DLPX_SHELL -x '/work/toolkit/Delphix_COMMON_65ec695e60da_68ab01aafd2b_9_host/scripts/provision/oracle/common/validate_provision_reqs' '/work/toolkit/Delphix_COMMON_65ec695e60da_68ab01aafd2b_9_host' '/mnt/provision' 'VDBOMSRASF1B4_F9Y' '10.43.55.164' '/public' 'VDBOMSRASF1F9Y' '_NOT_PDB_' 'true' '4' '1001' 'VDBOMSRASF1B4_F9Y_6802884403971184959_VALIDATE'
+output:Enter the password for user "oracle" (Hit return if no password is needed) :
+stty: standard input: Inappropriate ioctl for device
+stty: standard input: Inappropriate ioctl for device
+/work/toolkit/Delphix_COMMON_65ec695e60da_68ab01aafd2b_9_host/scripts/provision/oracle/common/validate_provision_reqs: line 153: cd: /mnt/provision: No such file or directory
+#####DELPHIX_START_ERROR#####
+ERROR_CODE=22
+ERROR: User cannot cd into mount directory "/mnt/provision". Please fix permissions of this directory.
+#####DELPHIX_END_ERROR#####
+
+
+

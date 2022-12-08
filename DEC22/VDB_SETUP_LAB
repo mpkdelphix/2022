@@ -1,0 +1,41 @@
+#Delphix scripts template directory:
+/opt/delphix/server/etc/provision/oracle/scripts
+#provision vPDB
+#add VPDB to /etc/oratab
+#locate spfile
+$ORACLE_HOME/dbs will contain pfile pointing to spfile in /mnt/provision:
+[oracle@mkrh123tgt dbs]$ cat initVDBOMSR91F8LLZ.ora;echo
+spfile='/mnt/provision/VDBOMSR91F858_LLZ/datafile/spfile.ora'
+
+#when setting ORACLE_SID, Oracle looks 
+[oracle@mkrh123tgt dbs]$ export ORACLE_SID=VDBOMSR91F8LLZ
+-----------------Cihan takes over-------------------------
+echo $ORACLE_HOME
+export ORACLE_SID=cihan; will succeed you connect to an idle instance
+startup fails looking for $ORACLE_HOME/dbs/init*.ora
+cp init<MYVPDB>.ora initcihan.ora
+you can statup, but cannot mount
+
+RULES:
+add db to /etc/oratab
+export ORACLE_SID
+export ORACLE_HOME
+export PATH=$PATH:$ORACLE_HOME:/bin
+UMOUNT MODE - parameter = pfile or spfile ex: initcihan.ora || spfilecihan.ora
+MOUNT MODE - control flie 
+
+ADVICE: 
+1. create database, setup oraenv
+2. 
+##################ORCL#################
+select * from v$datafile\
+set linesize 200
+select name from v$datafile
+desc v$logfile;
+select GROUP# from v$logfile;
+select MEMBER from v$logfile #redo logs
+select name from v$controlfile #lists controlfiles
+desc v$archived_log
+select name from v$archived_log
+archive log list
+show parameter recove #will show v$archived_log

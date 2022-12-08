@@ -1,0 +1,408 @@
+#shutdown single instance:
+
+Version 19.14.0.0.0
+
+SQL> shutdown immediate;
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL>
+
+alert.log activity during shutdown:
+[oracle@mkrh123src trace]$ tail -f alert_DBOMSR91F858.log
+2022-12-04T06:30:49.496521-05:00
+ARC1 (PID:6918): Archived Log entry 16 added for T-1.S-50 ID 0xea2c97e9 LAD:1
+2022-12-04T08:11:42.171527-05:00
+Resize operation completed for file# 3, fname /u01/app/oracle/oradata/DBOMSR91F858/datafile/o1_mf_sysaux_kc9c965j_.dbf, old size 839680K, new size 849920K
+2022-12-04T09:00:31.707838-05:00
+Thread 1 advanced to log sequence 52 (LGWR switch),  current SCN: 2528549
+  Current log# 1 seq# 52 mem# 0: /u01/app/oracle/oradata/DBOMSR91F858/onlinelog/o1_mf_1_kc9ccd80_.log
+  Current log# 1 seq# 52 mem# 1: /u01/app/oracle/fast_recovery_area/DBOMSR91F858/onlinelog/o1_mf_1_kc9ccddj_.log
+2022-12-04T09:00:32.002480-05:00
+ARC2 (PID:6920): Archived Log entry 17 added for T-1.S-51 ID 0xea2c97e9 LAD:1
+2022-12-04T09:45:19.072523-05:00
+Shutting down ORACLE instance (immediate) (OS id: 63136) <- shutdown starts
+2022-12-04T09:45:19.073418-05:00
+Shutdown is initiated by sqlplus@mkrh123src.dcol2 (TNS V1-V3).
+2022-12-04T09:45:21.746940-05:00
+Stopping background process SMCO
+2022-12-04T09:45:22.770533-05:00
+Shutting down instance: further logons disabled
+2022-12-04T09:45:22.796491-05:00
+Stopping background process CJQ0
+Stopping background process MMNL
+2022-12-04T09:45:23.845772-05:00
+Stopping background process MMON
+2022-12-04T09:45:25.898667-05:00
+License high water mark = 15
+2022-12-04T09:45:25.972668-05:00
+Dispatchers and shared servers shutdown
+
+Data Pump shutdown on PDB: 0 in progress
+2022-12-04T09:45:25.973324-05:00
+Process termination requested for pid 51976 [source = rdbms], [info = 2] [request issued by pid: 63136, uid: 1000]
+2022-12-04T09:45:25.973374-05:00
+Process termination requested for pid 22869 [source = rdbms], [info = 2] [request issued by pid: 63136, uid: 1000]
+2022-12-04T09:45:28.010326-05:00
+ALTER DATABASE CLOSE NORMAL
+2022-12-04T09:45:28.021846-05:00
+Stopping Emon pool
+2022-12-04T09:45:29.023416-05:00
+
+IM on ADG: Start of Empty Journal
+
+IM on ADG: End of Empty Journal
+Stopping Emon pool
+Closing sequence subsystem (88143327136).
+Stopping change tracking
+2022-12-04T09:45:29.038502-05:00
+The change tracking stopping for reason 2.
+Stopping background process CTWR
+The change tracking error 448.
+2022-12-04T09:45:30.106285-05:00
+Shutting down archive processes
+2022-12-04T09:45:30.106471-05:00
+TT00 (PID:6908): Gap Manager exiting
+2022-12-04T09:45:31.106509-05:00
+Archiving is disabled
+2022-12-04T09:45:31.107026-05:00
+ARC3 (PID:6922): ARCH shutting down
+2022-12-04T09:45:31.107089-05:00
+ARC3 (PID:6922): Archival stopped
+2022-12-04T09:45:31.107191-05:00
+ARC1 (PID:6918): ARCH shutting down
+2022-12-04T09:45:31.107240-05:00
+ARC1 (PID:6918): Archival stopped
+2022-12-04T09:45:31.107324-05:00
+ARC0 (PID:6910): ARCH shutting down
+2022-12-04T09:45:31.107367-05:00
+ARC0 (PID:6910): Archival stopped
+2022-12-04T09:45:31.107449-05:00
+ARC2 (PID:6920): ARCH shutting down
+2022-12-04T09:45:31.107495-05:00
+ARC2 (PID:6920): Archival stopped
+2022-12-04T09:45:32.108641-05:00
+Thread 1 closed at log sequence 52
+Successful close of redo thread 1
+2022-12-04T09:45:32.134729-05:00
+Entire Buffer Cache invalidation started
+Entire Buffer Cache invalidation completed
+Completed: ALTER DATABASE CLOSE NORMAL
+ALTER DATABASE DISMOUNT
+Shutting down archive processes
+Archiving is disabled
+Completed: ALTER DATABASE DISMOUNT
+2022-12-04T09:45:33.256736-05:00
+.... (PID:63136): Archival disabled due to shutdown: 1089
+Shutting down archive processes
+Archiving is disabled
+2022-12-04T09:45:34.258288-05:00
+JIT: pid 63136 requesting stop
+2022-12-04T09:45:34.258571-05:00
+Stopping background process VKTM
+2022-12-04T09:45:34.284068-05:00
+.... (PID:63136): Archival disabled due to shutdown: 1089
+Shutting down archive processes
+Archiving is disabled
+JIT: pid 63136 requesting stop
+2022-12-04T09:45:40.630668-05:00
+Instance shutdown complete (OS id: 63136)
+-------------------------------------------------------------
+SQL> startup
+;
+ORACLE instance started.
+
+Total System Global Area 1073737792 bytes
+Fixed Size                  8904768 bytes
+Variable Size             645922816 bytes
+Database Buffers          411041792 bytes
+Redo Buffers                7868416 bytes
+Database mounted.
+Database opened.
+
+archive log activity during startup:
+2022-12-04T09:51:11.803267-05:00
+Starting ORACLE instance (normal) (OS id: 63165)
+2022-12-04T09:51:11.820331-05:00
+****************************************************
+ /dev/shm will be used for creating SGA <-uses RAM for backing store
+Large pages will not be used. Only standard 4K pages will be used
+****************************************************
+2022-12-04T09:51:11.825304-05:00
+**********************************************************************
+2022-12-04T09:51:11.825351-05:00
+Dump of system resources acquired for SHARED GLOBAL AREA (SGA)
+
+2022-12-04T09:51:11.825429-05:00
+ Per process system memlock (soft) limit = 6990M
+2022-12-04T09:51:11.825465-05:00
+ Expected per process system memlock (soft) limit to lock
+ instance MAX SHARED GLOBAL AREA (SGA) into memory: 1024M
+2022-12-04T09:51:11.825552-05:00
+ Available system pagesizes:
+  4K, 2048K
+2022-12-04T09:51:11.825684-05:00
+ Supported system pagesize(s):
+2022-12-04T09:51:11.825741-05:00
+  PAGESIZE  AVAILABLE_PAGES  EXPECTED_PAGES  ALLOCATED_PAGES  ERROR(s)
+2022-12-04T09:51:11.825785-05:00
+        4K       Configured          262154          262154        NONE
+2022-12-04T09:51:11.825832-05:00
+ Reason for not supporting certain system pagesizes:
+2022-12-04T09:51:11.825878-05:00
+  2048K - Dynamic allocate and free memory regions
+2022-12-04T09:51:11.825927-05:00
+**********************************************************************
+2022-12-04T09:51:15.202437-05:00
+LICENSE_MAX_SESSION = 0
+LICENSE_SESSIONS_WARNING = 0
+2022-12-04T09:51:15.229508-05:00
+Initial number of CPU is 2
+Number of processor cores in the system is 2
+Number of processor sockets in the system is 2
+Capability Type : Network
+capabilities requested : 7 detected : 0 Simulated : 0
+Capability Type : Runtime Environment
+capabilities requested : 400000FF detected : 40000000 Simulated : 0
+Capability Type : Engineered Systems
+capabilities requested : F detected : 0 Simulated : 0
+Capability Type : Database Test
+capabilities requested : 3 detected : 0 Simulated : 0
+Capability Type : Database Editions
+capabilities requested : 1CC detected : 8 Simulated : 0
+Using LOG_ARCHIVE_DEST_1 parameter default value as USE_DB_RECOVERY_FILE_DEST
+.... (PID:): Enable RFS client [kcrlc.c:590]
+WARNING: db_recovery_file_dest is same as db_create_online_log_dest_2
+Autotune of undo retention is turned on.
+IMODE=BR
+ILAT =51
+LICENSE_MAX_USERS = 0
+SYS auditing is enabled
+NOTE: remote asm mode is local (mode 0x1; from cluster type)
+NOTE: Using default ASM root directory ASM
+NOTE: remote asm mode is local (mode 0x1; from cluster type)
+NOTE: Cluster configuration type = NONE [2]
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.14.0.0.0.
+ORACLE_HOME:    /u01/app/oracle/product/19.14.0.0/dbhome_1
+System name:    Linux
+Node name:      mkrh123src.dcol2
+Release:        4.18.0-240.el8.x86_64
+Version:        #1 SMP Wed Sep 23 05:13:10 EDT 2020
+Machine:        x86_64
+Using parameter settings in server-side spfile /u01/app/oracle/product/19.14.0.0/dbhome_1/dbs/spfileDBOMSR91F858.ora $ORACLE_HOME/dbs/
+System parameters with non-default values:
+  processes                = 300
+  nls_language             = "AMERICAN"
+  nls_territory            = "AMERICA"
+  memory_target            = 1G
+  memory_max_target        = 1G
+  control_files            = "/u01/app/oracle/oradata/DBOMSR91F858/controlfile/o1_mf_kc9cc9br_.ctl"
+  control_files            = "/u01/app/oracle/fast_recovery_area/DBOMSR91F858/controlfile/o1_mf_kc9cc9ko_.ctl"
+  db_block_size            = 8192
+  compatible               = "19.0.0"
+  log_archive_format       = "%t_%s_%r.dbf"
+  db_create_file_dest      = "/u01/app/oracle/oradata"
+  db_create_online_log_dest_1= "/u01/app/oracle/oradata"
+  db_create_online_log_dest_2= "/u01/app/oracle/fast_recovery_area"
+  db_recovery_file_dest    = "/u01/app/oracle/fast_recovery_area"
+  db_recovery_file_dest_size= 6906M
+  undo_tablespace          = "UNDOTBS1"
+  remote_login_passwordfile= "EXCLUSIVE"
+  dispatchers              = "(PROTOCOL=TCP) (SERVICE=DBOMSR91F858XDB)"
+  audit_file_dest          = "/u01/app/oracle/admin/DBOMSR91F858/adump"
+  audit_trail              = "DB"
+  db_name                  = "DBOMSR91"
+  db_unique_name           = "DBOMSR91F858"
+  open_cursors             = 300
+  diagnostic_dest          = "/u01/app/oracle"
+  #relevant doc
+  #https://docs.oracle.com/en/database/oracle/oracle-database/18/refrn/background-processes.html#GUID-86184690-5531-405F-AA05-BB935F57B76D
+2022-12-04T09:51:15.341575-05:00
+============================================================
+NOTE: PatchLevel of this instance 0
+============================================================
+2022-12-04T09:51:16.523406-05:00
+Starting background process PMON
+2022-12-04T09:51:16.539560-05:00
+PMON started with pid=2, OS id=63260
+Starting background process CLMN -clean up main processes, part of PMON group
+2022-12-04T09:51:16.551659-05:00
+CLMN started with pid=3, OS id=63264
+Starting background process PSP0 - process spawner
+2022-12-04T09:51:16.563185-05:00
+PSP0 started with pid=4, OS id=63268
+Starting background process VKTM - time publisher for instance
+2022-12-04T09:51:17.586557-05:00
+VKTM started with pid=5, OS id=63272 at elevated (RT) priority
+2022-12-04T09:51:17.586606-05:00
+Starting background process GEN0 - task execution(SQL && DML)
+2022-12-04T09:51:17.590183-05:00
+VKTM running at (1)millisec precision with DBRM quantum (100)ms
+2022-12-04T09:51:17.597580-05:00
+GEN0 started with pid=6, OS id=63278
+Starting background process MMAN - instance memory manager
+2022-12-04T09:51:17.608951-05:00
+MMAN started with pid=7, OS id=63282
+Starting background process GEN1 - task execution
+2022-12-04T09:51:17.644071-05:00
+GEN1 started with pid=9, OS id=63288_63289
+Starting background process DIAG - diagnostic capture process
+2022-12-04T09:51:17.653101-05:00
+DIAG started with pid=8, OS id=63291
+Starting background process OFSD - manages file server worker threads
+Starting background process DBRM - database resource manager
+2022-12-04T09:51:17.665945-05:00
+OFSD started with pid=11, OS id=63293_63294
+2022-12-04T09:51:17.666614-05:00
+Oracle running with ofslib:'Oracle File Server Library' version=2 inc=1
+2022-12-04T09:51:17.677580-05:00
+DBRM started with pid=13, OS id=63296
+Starting background process VKRM - virtual scheduler for resource manager process
+2022-12-04T09:51:17.686190-05:00
+VKRM started with pid=14, OS id=63300
+Starting background process SVCB - services background monitor
+2022-12-04T09:51:17.695001-05:00
+SVCB started with pid=15, OS id=63302
+Starting background process PMAN - process manager job queue processes
+2022-12-04T09:51:17.705152-05:00
+PMAN started with pid=16, OS id=63304
+Starting background process DIA0 - detects and resolves hangs & deadlocks
+Starting background process DBW0 - writes changes in buffer cache to disk
+2022-12-04T09:51:17.713910-05:00
+DIA0 started with pid=17, OS id=63308
+2022-12-04T09:51:17.726166-05:00
+DBW0 started with pid=18, OS id=63310
+Starting background process LGWR
+2022-12-04T09:51:17.736223-05:00
+LGWR started with pid=19, OS id=63314
+Starting background process CKPT - updates all data & control files with most recent checkpoint 
+2022-12-04T09:51:17.746662-05:00
+CKPT started with pid=20, OS id=63318
+2022-12-04T09:51:17.755355-05:00
+LGWR slave LG00 created with pid=21, OS pid=63322
+Starting background process SMON - system processes
+2022-12-04T09:51:17.765244-05:00
+SMON started with pid=22, OS id=63324
+LGWR slave LG01 created with pid=23, OS pid=63328
+Starting background process SMCO - space allocation && reclamation
+2022-12-04T09:51:17.782105-05:00
+SMCO started with pid=24, OS id=63330
+Starting background process RECO - resolves pending transactions(network/system issues)
+2022-12-04T09:51:17.790326-05:00
+RECO started with pid=25, OS id=63332
+Starting background process LREG - registers instance with listeners
+2022-12-04T09:51:17.809036-05:00
+LREG started with pid=27, OS id=63336
+Starting background process PXMN - parallel execution monitor
+2022-12-04T09:51:17.828550-05:00
+PXMN started with pid=29, OS id=63342
+Starting background process FENC - fencing requests from CSSD
+2022-12-04T09:51:17.839429-05:00
+FENC started with pid=30, OS id=63344
+Starting background process MMON - schedules manageability tasks
+2022-12-04T09:51:17.848923-05:00
+MMON started with pid=31, OS id=63348
+Starting background process MMNL - session history capture
+2022-12-04T09:51:17.857152-05:00
+MMNL started with pid=30, OS id=63350
+2022-12-04T09:51:17.857548-05:00
+starting up 1 dispatcher(s) for network address '(ADDRESS=(PARTIAL=YES)(PROTOCOL=TCP))'...
+starting up 1 shared server(s) ...
+Starting background process TMON - redo transport process monitor
+2022-12-04T09:51:17.883622-05:00
+TMON started with pid=34, OS id=63356
+Setting CPU count to 2
+ORACLE_BASE from environment = /u01/app/oracle
+2022-12-04T09:51:17.920635-05:00
+ALTER DATABASE   MOUNT
+2022-12-04T09:51:20.710232-05:00
+Using default pga_aggregate_limit of 2048 MB
+2022-12-04T09:51:22.017187-05:00
+.... (PID:63357): Redo network throttle feature is disabled at mount time
+2022-12-04T09:51:22.043834-05:00
+Successful mount of redo thread 1, with mount id 3943243477
+2022-12-04T09:51:22.044075-05:00
+Database mounted in Exclusive Mode - only this instance can mount database
+Lost write protection disabled
+.... (PID:63357): Using STANDBY_ARCHIVE_DEST parameter default value as USE_DB_RECOVERY_FILE_DEST [krsd.c:18237]
+Completed: ALTER DATABASE   MOUNT
+2022-12-04T09:51:22.118431-05:00
+ALTER DATABASE OPEN
+The change tracking file is current.
+Smart fusion block transfer is disabled:
+  instance mounted in exclusive mode.
+Endian type of dictionary set to little
+2022-12-04T09:51:22.146754-05:00
+LGWR (PID:63314): STARTING ARCH PROCESSES
+2022-12-04T09:51:22.156825-05:00
+TT00 (PID:63366): Gap Manager starting
+Starting background process ARC0 - archiver process
+2022-12-04T09:51:22.165439-05:00
+ARC0 started with pid=39, OS id=63368
+2022-12-04T09:51:22.175760-05:00
+LGWR (PID:63314): ARC0: Archival started
+LGWR (PID:63314): STARTING ARCH PROCESSES COMPLETE
+2022-12-04T09:51:22.175859-05:00
+ARC0 (PID:63368): Becoming a 'no FAL' ARCH
+ARC0 (PID:63368): Becoming the 'no SRL' ARCH
+2022-12-04T09:51:22.185242-05:00
+Redo log for group 1, sequence 52 is not located on DAX storage
+Thread 1 opened at log sequence 52
+  Current log# 1 seq# 52 mem# 0: /u01/app/oracle/oradata/DBOMSR91F858/onlinelog/o1_mf_1_kc9ccd80_.log
+  Current log# 1 seq# 52 mem# 1: /u01/app/oracle/fast_recovery_area/DBOMSR91F858/onlinelog/o1_mf_1_kc9ccddj_.log
+Successful open of redo thread 1
+2022-12-04T09:51:22.214642-05:00
+MTTR advisory is disabled because FAST_START_MTTR_TARGET is not set
+Starting change tracking :1
+Starting background process CTWR - tracks changed blocks as part of recovery manager
+2022-12-04T09:51:22.240867-05:00
+CTWR started with pid=41, OS id=63372
+2022-12-04T09:51:22.257716-05:00
+The change tracking is active.
+2022-12-04T09:51:22.389136-05:00
+Undo initialization recovery: Parallel FPTR complete: start:88496685 end:88496687 diff:2 ms (0.0 seconds)
+Undo initialization recovery: err:0 start: 88496685 end: 88496687 diff: 2 ms (0.0 seconds)
+[63364] Successfully onlined Undo Tablespace 2.
+Undo initialization online undo segments: err:0 start: 88496687 end: 88496761 diff: 74 ms (0.1 seconds)
+Undo initialization finished serial:0 start:88496685 end:88496769 diff:84 ms (0.1 seconds)
+Database Characterset is AL32UTF8
+No Resource Manager plan active
+joxcsys_required_dirobj_exists: directory object exists with required path /u01/app/oracle/product/19.14.0.0/dbhome_1/javavm/admin/, pid 63364 cid 0
+replication_dependency_tracking turned off (no async multimaster replication found)
+2022-12-04T09:51:23.166533-05:00
+Starting background process AQPC - administrative tasks
+2022-12-04T09:51:23.175356-05:00
+TMON (PID:63356): STARTING ARCH PROCESSES
+2022-12-04T09:51:23.177117-05:00
+AQPC started with pid=42, OS id=63376
+Starting background process ARC1
+2022-12-04T09:51:23.187850-05:00
+ARC1 started with pid=43, OS id=63378
+Starting background process ARC2
+2022-12-04T09:51:23.198901-05:00
+ARC2 started with pid=44, OS id=63380
+Starting background process ARC3
+2022-12-04T09:51:23.211671-05:00
+ARC3 started with pid=45, OS id=63382
+TMON (PID:63356): ARC1: Archival started
+TMON (PID:63356): ARC2: Archival started
+TMON (PID:63356): ARC3: Archival started
+TMON (PID:63356): STARTING ARCH PROCESSES COMPLETE
+Starting background process CJQ0 - selects jobs to be run from data dictionary
+Completed: ALTER DATABASE OPEN
+
+--------------------------------------------------
+
+find orcle environment variables from SQL:
+SQL> !env|grep -i oracle
+ORACLE_SID=DBOMSR91F858
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/19.14.0.0/dbhome_1
+colors=/home/oracle/.dircolors
+USER=oracle
+PWD=/home/oracle
+HOME=/home/oracle
+MAIL=/var/spool/mail/oracle
+LOGNAME=oracle
+PATH=/u01/app/oracle/product/19.14.0.0/dbhome_1/bin:/home/oracle/.local/bin:/home/oracle/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/oracle/bin

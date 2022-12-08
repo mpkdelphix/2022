@@ -1,0 +1,22 @@
+#adding CDOMLOSRB5A8PDB1
+
+#http://mk60160.dcol2.delphix.com/Server.html#/environment/UNIX_HOST_ENVIRONMENT-3/databases
+
+#starts with JOB-44 DB-LINK, creates object for ORACLE_DB_CONTAINER-6:
+897:[2022-12-05T09:04:31,613][DEBUG][notification.impl.ClientNotificationServiceImpl#postObjectEvent:127][Worker-84|JOB-44|DB_LINK(ORACLE_DB_CONTAINER-6)][ACTION-171] dispatching event CREATE for object JOB-45
+...
+1901:[2022-12-05T09:04:31,615][DEBUG][jcm.impl.JobManagerImpl#createJob:462][Worker-84|JOB-44|DB_LINK(ORACLE_DB_CONTAINER-6)][ACTION-171] Job JOB-45: Created Job 45 for object ORACLE_DB_CONTAINER-6
+...
+1992:[2022-12-05T09:04:31,829][DEBUG][oracle.database.OracleDatabaseAccessorManager#chooseAvailableInstanceAndHost:391][Worker-85|JOB-45|DB_SYNC(ORACLE_DB_CONTAINER-6)][ACTION-171]  picked instance CDOMLOSRB5A8 host 10.43.48.111 for database CDOMLOSR
+...
+2113:[2022-12-05T09:04:32,066][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-85|JOB-45|DB_SYNC(ORACLE_DB_CONTAINER-6)][ACTION-171] Getting lock object for ORACLE_LINKED_SOURCE-6.
+...
+2129:[2022-12-05T09:04:32,102][DEBUG][util.concurrent.PersistentObjectLockManager#getLockObject:52][Worker-85|JOB-45|DB_SYNC(ORACLE_DB_CONTAINER-6)][ACTION-172] Getting lock object for JOB-46.
+######################################################
+mk60160:$HOME/j45:
+7583:[2022-12-05T09:05:24,738][DEBUG][appliance.node.exec.ExecuteUtils#executeInternal:184][Worker-85|JOB-45|DB_SYNC(ORACLE_DB_CONTAINER-6)][] ran '/opt/delphix/server/bin/bos_mgmt get_hostname appliance' passed (sid 3483650). output: [mk60160.dcol
+...
+5|DB_SYNC(ORACLE_DB_CONTAINER-6)][] SNL.1.6.sEf3PEm0ijCXZWe106lr2PV0: job percentComplete 1, data percentComplete 0
+7586:[2022-12-05T09:05:24,765][INFO][oracle.snapsync.source.impl.SnapSyncJob#startSync:1285][Worker-85|JOB-45|DB_SYNC(ORACLE_DB_CONTAINER-6)][] SNL.1.6.sEf3PEm0ijCXZWe106lr2PV0: phase 1 - start sync
+...
+7584:[2022-12-05T09:05:24,763][INFO][oracle.snapsync.source.impl.SnapSyncJob#execute:478][Worker-85|JOB-45|DB_SYNC(ORACLE_DB_CONTAINER-6)][] SNL.1.6.sEf3PEm0ijCXZWe106lr2PV0: execute INITIAL SnapSync in the context of JOB-45 for source CDOMLOSRB5A8PDB1 container CDOMLOSRB5A8PDB1 instance CDOMLOSRB5A8 (tag NOTAG)

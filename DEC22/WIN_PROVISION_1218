@@ -65,3 +65,11 @@ Full backup script:
 BACKUP DATABASE [Ferrari] TO  DISK = N'\\10-43-32-31\Backups\Ferrari_Full.bak' WITH NOFORMAT, NOINIT,  NAME = N'Ferrari-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
 GO
 ---------------------------------------
+
+? - How to list all table in SQL SERVER 2016 DB?
+SELECT * from INFORMATION_SCHEMA.TABLES
+SELECT * FROM longships
+
+:)
+
+_--------------------------------------------

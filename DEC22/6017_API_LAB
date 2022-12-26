@@ -1,0 +1,54 @@
+#The purpose of this lab is to increase the jobs kept threshold from 10000 to 33333
+
+0. clone engine: The new VM has DNS name 'mkapitest.dcol2'
+
+1. documentation(at bottom of page)
+https://docs.delphix.com/docs/configuration/monitoring-and-log-management/viewing-jobs
+
+
+2. CLI procedure
+stage.dcol2> job retention
+stage.dcol2 job retention> ls
+Properties
+    type: JobRetentionConfig
+    retentionThreshold: 10000
+
+Operations
+update
+stage.dcol2 job retention> update
+stage.dcol2 job retention update *> set retentionThreshold=100000
+stage.dcol2 job retention update *> commit
+stage.dcol2 job retention> ls
+Properties
+    type: JobRetentionConfig
+    retentionThreshold: 100000
+
+Operations
+update
+
+--------------------------------
+My 6.0.17 engine 'mkapitest.dcol2'
+
+0. you must be admin:
+delphix@mkapitest:~$ su admin@DOMAIN
+Password:
+mkapitest.dcol2> job retention
+mkapitest.dcol2 job retention> ls
+Properties
+    type: JobRetentionConfig
+    retentionThreshold: 10000
+
+Operations
+update
+mkapitest.dcol2 job retention> update
+mkapitest.dcol2 job retention update *> set retentionThreshold=33333
+mkapitest.dcol2 job retention update *> commit
+mkapitest.dcol2 job retention> ls
+Properties
+    type: JobRetentionConfig
+    retentionThreshold: 33333
+
+Operations
+update
+#create DOC-* bug on 1/3 - we should document you can use the admin account cli, sysadmin account is read-only for retention threshold.
+

@@ -1,0 +1,67 @@
+0. clone src && target
+
+mike.kennedy@dcol2:~$ dc clone-latest win2019src-qaad mkwin2019src
+***** You have 0 registered VMs. *****
+Cloning latest 'win2019src-qaad' state to 'mkwin2019src'...
+Registering 'mkwin2019src' with ESX server 'dcol2-esxi04'...
+The new VM has DNS name 'mkwin2019src.dcol2'.
+
+mike.kennedy@dcol2:~$ dc clone-latest win2019tgt-qaad mkwin2019tgt
+***** You have 1 registered VMs. *****
+Cloning latest 'win2019tgt-qaad' state to 'mkwin2019tgt'...
+Registering 'mkwin2019tgt' with ESX server 'dcol2-esxi13'...
+The new VM has DNS name 'mkwin2019tgt.dcol2'.
+mike.kennedy@dcol2:~$
+
+
+1. clone 6.0.16.0 
+mike.kennedy@dcol2:~$ dc clone-latest dlpx-6.0.16.0 mk60160
+***** You have 2 registered VMs. *****
+Cloning latest 'dlpx-6.0.16.0' state to 'mk60160'...
+COMPONENT           VERSION                                                                                             
+app                 aa5686a92f5a650562dd6660407d58bd159eb8fa                                                            
+appliance_build     54cfcc68b8f4237ca1ce7e7b48b8d6f08a7ba868                                                            
+dlpx                6.0.16.0                                                                                            
+image_identifier    s3://snapshot-de-images/builds/jenkins-ops/appliance-build/6.0/release/post-push/175/internal-dev-esx/internal-dev-esx.ova
+masking             4f1e3b08b75f1582d277b851ec05aef77eaa0663                                                            
+Registering 'mk60160' with ESX server 'dcol2-esxi10'...
+The new VM has DNS name 'mk60160.dcol2'.
+
+mike.kennedy@dcol2:~$ ping mk60160.dcol2.delphix.com
+PING mk60160.dcol2.delphix.com (10.43.48.133) 56(84) bytes of data.
+64 bytes from 10.43.48.133 (10.43.48.133): icmp_seq=1 ttl=63 time=0.190 ms
+64 bytes from 10.43.48.133 (10.43.48.133): icmp_seq=2 ttl=63 time=0.190 ms
+64 bytes from 10.43.48.133 (10.43.48.133): icmp_seq=3 ttl=63 time=0.251 ms
+
+
+2. SME training videos here:
+https://delphix.zoom.us/rec/play/SPZgBdF-HL25zneNPbicP8wFsj36qBXJTodpzQuM8Lt6XoGLMXLlTPW-Knn8ZBFzECILt-878lBrBv0N.oKbdAw0m5-NKRQlk?continueMode=true&_x_zm_rtaid=B3j3G9mJTmyyrgPlUC-vbg.1671380802114.72be51b69005895a931dd72a2de3b97e&_x_zm_rhtaid=951
+
+3.  src && tgt added 
+mkwinsrc2019.dcol2.delphix.com
+mkwintgt2019.dcol2.delphix.com
+
+4. find FULL backup path on Source in order to link dSource
+#in powershell
+#net view \\10-43-32-31 -> returns Backups
+#follow Path to Backups\Ferrari\FULL and type this path into backups path within Delphix UI when linking dSource
+#SUCCESS mounted at my target which doubles as staging host.
+----------------------------------------
+SQL fun
+SELECT * from longships where shipwright LIKE '%Yarg%';
+SELECT * from longships where shipwright NOT LIKE '%Yarg%';
+--query razed
+SELECT COUNT(*) from razed
+SELECT * from razed order by total_slaughtered DESC
+SELECT * FROM razed where total_slaughtered < 100000 order by total_slaughtered DESC
+SELECT COUNT(shipwright) AS dongerz from longships
+SELECT COUNT(total_slaughtered) AS enroute_2_heaven from razed
+SELECT MIN(total_slaughtered) AS bad_viking_day FROM razed
+SELECT MAX(total_slaughtered) AS great_viking_day FROM razed
+SELECT AVG(total_slaughtered) AS typical_raid FROM razed
+
+---------------------------------------
+Full backup script:
+BACKUP DATABASE [Ferrari] TO  DISK = N'\\10-43-32-31\Backups\Ferrari_Full.bak' WITH NOFORMAT, NOINIT,  NAME = N'Ferrari-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
+GO
+---------------------------------------

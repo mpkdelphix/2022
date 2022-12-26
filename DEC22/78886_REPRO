@@ -1,0 +1,338 @@
+#https://delphix.zendesk.com/agent/tickets/78886
+
+#description:
+I have an OCI Database System containing a CDB. On Friday I provisioned a vPDB into the linked-CDB. However, the OCI database system was "shut-down" by policy over the weekend as it's a development resource.
+
+Today however, on restart, the vPDB is in mount state, and of course the NFS files from Delphix are no longer present.
+
+Attempts to start/enable the vPDB from Delphix result in an error.
+
+Please advise how to re-start the vPDB, and how to work around this issue when the parent CDB is stopped/started.
+--------------------------------------------------
+create RHEL 8.2 ORCL 21.3 src && tgt
+
+mkrhora213src.dcol2.delphix.com 10.43.61.23
+mkrhora213tgt.dcol2.delphix.com 10.43.54.147
+-------------------------------------------------
+
+0. provisioned vPDB VCDO_3EV with VDB Auto-Restart disabled
+1. verify mount:
+[root@mkrhora213tgt ~]# df -h
+...snip
+
+10.43.48.133:/domain0/group-3/oracle_db_container-11/oracle_timeflow-15            18G     0   18G   0% /mnt/provision/VCDO_3EV-CDOMLOTG0DDD
+10.43.48.133:/domain0/group-3/oracle_db_container-11/oracle_timeflow-15/datafile   18G  192M   18G   2% /mnt/provision/VCDO_3EV-CDOMLOTG0DDD/datafile
+10.43.48.133:/domain0/group-3/oracle_db_container-11/oracle_timeflow-15/temp       18G  1.0M   18G   1% /mnt/provision/VCDO_3EV-CDOMLOTG0DDD/temp
+
+2. abrupt reboot of mkrhora213tgt, we are expecting vPDB to be "stuck":
+[root@mkrhora213tgt ~]# shutdown -r now
+Connection to mkrhora213tgt.dcol2.delphix.com closed by remote host.
+Connection to mkrhora213tgt.dcol2.delphix.com closed.
+
+3. without auto-restart it looks like this:
+[oracle@mkrhora213tgt ~]$ date;hostname;df -h;echo $ORACLE_SID
+Mon Dec 19 14:20:35 EST 2022
+mkrhora213tgt.dcol2
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        3.8G     0  3.8G   0% /dev
+tmpfs           6.9G  1.7G  5.3G  24% /dev/shm
+tmpfs           3.8G  8.7M  3.8G   1% /run
+tmpfs           3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/sda4        61G   24G   38G  39% /
+/dev/sda2      1014M  186M  829M  19% /boot
+/dev/sda1       599M  6.9M  592M   2% /boot/efi
+tmpfs           777M     0  777M   0% /run/user/1000
+CDOMLOTG0DDD
+
+4. CDB is running, vPDB is in MOUNTED state:
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOTG0DDDPDB1               READ WRITE NO
+         4 CDOMLOTG0DDDPDB2               READ WRITE NO
+         5 CDOMLOTG0DDDPDB3               READ WRITE NO
+         6 VCDO_3EV                       MOUNTED
+
+5. I logged into mk60160 and discovered VCDO_3EV in Stopped state, cdb was in an active state.
+I clicked the "start" arrow to restart vPDB
+
+6. success
+SQL> show pdbs;date
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOTG0DDDPDB1               READ WRITE NO
+         4 CDOMLOTG0DDDPDB2               READ WRITE NO
+         5 CDOMLOTG0DDDPDB3               READ WRITE NO
+         6 VCDO_3EV                       READ WRITE NO
+SP2-0158: unknown SHOW option ";date"
+SQL> !date
+Mon Dec 19 14:22:51 EST 2022
+
+7. I edited VCDO_3EV Configuration and selected Auto-Restart.
+
+8. abrupt shutdown && reboot:
+[root@mkrhora213tgt ~]# hostname; date
+mkrhora213tgt.dcol2
+Mon Dec 19 14:25:52 EST 2022
+[root@mkrhora213tgt ~]# shutdown -r now
+Connection to mkrhora213tgt.dcol2.delphix.com closed by remote host.
+Connection to mkrhora213tgt.dcol2.delphix.com closed.
+
+9. did not auto-restart
+[root@mkrhora213tgt ~]# date;hostname;df -h
+Mon Dec 19 14:30:47 EST 2022
+mkrhora213tgt.dcol2
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        3.8G     0  3.8G   0% /dev
+tmpfs           6.9G  1.7G  5.3G  24% /dev/shm
+tmpfs           3.8G  8.8M  3.8G   1% /run
+tmpfs           3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/sda4        61G   24G   38G  39% /
+/dev/sda2      1014M  186M  829M  19% /boot
+/dev/sda1       599M  6.9M  592M   2% /boot/efi
+tmpfs           777M     0  777M   0% /run/user/1000
+
+10. clicked the checkbox again for Auto-Restart && clicked play icon within VCDO_3EV:
+
+SQL> show pdbs
+
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED                       READ ONLY  NO
+         3 CDOMLOTG0DDDPDB1               READ WRITE NO
+         4 CDOMLOTG0DDDPDB2               READ WRITE NO
+         5 CDOMLOTG0DDDPDB3               READ WRITE NO
+         6 VCDO_3EV                       READ WRITE NO
+SQL> !date
+Mon Dec 19 14:31:55 EST 2022
+
+11. reboot test
+[root@mkrhora213tgt ~]# date;shutdown -r now
+Mon Dec 19 14:34:13 EST 2022
+Connection to mkrhora213tgt.dcol2.delphix.com closed by remote host.
+Connection to mkrhora213tgt.dcol2.delphix.com closed.
+
+12. failed, I had to manually click the start arrow for VCDO_3EV:
+
+10.43.48.133:/domain0/group-3/oracle_db_container-11/oracle_timeflow-15            18G     0   18G   0% /mnt/provision/VCDO_3EV-CDOMLOTG0DDD
+10.43.48.133:/domain0/group-3/oracle_db_container-11/oracle_timeflow-15/datafile   18G  192M   18G   2% /mnt/provision/VCDO_3EV-CDOMLOTG0DDD/datafile
+10.43.48.133:/domain0/group-3/oracle_db_container-11/oracle_timeflow-15/temp       18G  2.0M   18G   1% /mnt/provision/VCDO_3EV-CDOMLOTG0DDD/temp
+[root@mkrhora213tgt ~]# date
+Mon Dec 19 14:40:52 EST 2022
+
+###############################REVIEW CUSTOMER BUNDLE###############################################
+System > Version
+Current Version : 6.0.17.0 ( No HotFixes )
+    Status             Version    Min Version    Install Date             Verify Date    Build Date    Was Deferred    Path    Hotfix Version
+    CURRENTLY_RUNNING  6.0.17.0   6.0.11.0       2022-12-01 11:02:02 UTC                               False
+
+#Cannot stat files under /mnt/provision as they are not mounted via NFS:
+
+JOB > JOB-358
+Job :
+    * Object ID                     JOB-358
+    Job Id                          358
+    Target Reference                ORACLE_VIRTUAL_PDB_SOURCE-70
+    Job Type                        SOURCE_START
+    Start Time                      2022-12-19 09:57:06 UTC
+    User Ref                        USER-2
+    Email Addresses
+    Update Time                     2022-12-19 09:57:09 UTC
+    Title                           Start dataset "PODEV01_DPX_ORDER_AUTOMATION_1".
+    Job State                       FAILED
+    Title Code                      event.action.source.start
+    Title Params                    ["PODEV01_DPX_ORDER_AUTOMATION_1"]
+    Target Name                     PODEV01_DPX_ORDER_AUTOMATION_1
+    Action (Action)                 ACTION-765
+    Resume After Restart            False
+    Cancel Message Id
+    Cancel Message Params
+    Cancel Message Desc
+
+Job Extended Properties :
+    * Duration                      3s
+    * CHAD: Created Obj             ORACLE_VIRTUAL_PDB_SOURCE-70
+
+
+Job Events:
+    Event Time                 Event Duration  Job State    Percent Complete    Message Details
+    2022-12-19 09:57:06 UTC             <1sec  RUNNING      0.0                 SOURCE_START job started for "PODEV01_DPX_ORDER_AUTOMATION_1".
+    2022-12-19 09:57:06 UTC             <1sec  RUNNING      61.0                Starting virtual database.
+    2022-12-19 09:57:06 UTC             <1sec  RUNNING      61.0                Starting instance 2 on virtual database "PODEV01_DPX_ORDER_AUTOMATION_1".
+    2022-12-19 09:57:06 UTC             <1sec  RUNNING      80.0                Opening Transparent Data Encryption keystore.
+    2022-12-19 09:57:06 UTC                2s  RUNNING      81.0                Opening Oracle database.
+    2022-12-19 09:57:09 UTC             <1sec  FAILED       81.0                Failed to open the pluggable database.
+
+    Fail Message Params             command: umask 027; . $DB_SCRIPT_DIR/setup-oraenv.sh; $DLPX_SHELL -x
+                                       $DB_SCRIPT_DIR/doOpenPDB.sh
+                                       "/mnt/provision/PODEV01_DPX_ORDER_AUTOMATION_1-ODEV1_lhr25x/datafile"
+                                       PODEV01_DPX_ORDER_AUTOMATION_1 0
+                                    output:END_OF_SETUP
+                                    ORA-02097: parameter cannot be modified because specified value is invalid
+                                    ORA-01261: Parameter db_create_file_dest destination string cannot be
+                                    translated
+                                    ORA-01262: Stat failed on a file destination directory
+                                    Linux-x86_64 Error: 2: No such file or directory
+
+
+                                    alter pluggable database "PODEV01_DPX_ORDER_AUTOMATION_1" open read write
+                                    *
+                                    ERROR at line 1:
+                                    ORA-01157: cannot identify/lock data file 66 - see DBWR trace file
+                                    ORA-01110: data file 66:
+                                    '\''/mnt/provision/PODEV01_DPX_ORDER_AUTOMATION_1-ODEV1_lhr25x/datafile/+DATA/OP
+                                       RD1
+                                    _LHR1P6/E8CD7B53C68E75DFE05305058E0A4D1E/DATAFILE/data.276.1118421837'\'''
+                                    ORA-02097: parameter cannot be modified because specified value is invalid
+                                    ORA-01261: Parameter db_create_file_dest destination string cannot be
+                                    translated
+                                    ORA-01262: Stat failed on a file destination directory
+                                    Linux-x86_64 Error: 2: No such file or directory
+
+
+                                    alter pluggable database "PODEV01_DPX_ORDER_AUTOMATION_1" open read write
+                                    *
+                                    ERROR at line 1:
+                                    ORA-01157: cannot identify/lock data file 66 - see DBWR trace file
+                                    ORA-01110: data file 66:
+                                    '\''/mnt/provision/PODEV01_DPX_ORDER_AUTOMATION_1-ODEV1_lhr25x/datafile/+DATA/OP
+                                       RD1
+                                    _LHR1P6/E8CD7B53C68E75DFE05305058E0A4D1E/DATAFILE/data.276.1118421837'\'''
+                                    ORA-02097: parameter cannot be modified because specified value is invalid
+                                    ORA-01261: Parameter db_create_file_dest destination string cannot be
+                                    translated
+                                    ORA-01262: Stat failed on a file destination directory
+                                    Linux-x86_64 Error: 2: No such file or directory
+
+
+                                    alter pluggable database "PODEV01_DPX_ORDER_AUTOMATION_1" open read write
+                                    *
+                                    ERROR at line 1:
+                                    ORA-01157: cannot identify/lock data file 66 - see DBWR trace file
+                                    ORA-01110: data file 66:
+                                    '\''/mnt/provision/PODEV01_DPX_ORDER_AUTOMATION_1-ODEV1_lhr25x/datafile/+DATA/OP
+                                       RD1
+                                    _LHR1P6/E8CD7B53C68E75DFE05305058E0A4D1E/DATAFILE/data.276.1118421837'\'''
+                                    ORA-02097: parameter cannot be modified because specified value is invalid
+                                    ORA-01261: Parameter db_create_file_dest destination string cannot be
+                                    translated
+                                    ORA-01262: Stat failed on a file destination directory
+                                    Linux-x86_64 Error: 2: No such file or directory
+
+
+                                    alter pluggable database "PODEV01_DPX_ORDER_AUTOMATION_1" open read write
+                                    *
+                                    ERROR at line 1:
+                                    ORA-01157: cannot identify/lock data file 66 - see DBWR trace file
+                                    ORA-01110: data file 66:
+                                    '\''/mnt/provision/PODEV01_DPX_ORDER_AUTOMATION_1-ODEV1_lhr25x/datafile/+DATA/OP
+                                       RD1
+                                    _LHR1P6/E8CD7B53C68E75DFE05305058E0A4D1E/DATAFILE/data.276.1118421837'\'''
+                                    ERROR:
+                                    ORA-02097: parameter cannot be modified because specified value is invalid
+                                    ORA-01261: Parameter db_create_file_dest destination string cannot be
+                                    translated
+                                    ORA-01262: Stat failed on a file destination directory
+                                    Linux-x86_64 Error: 2: No such file or directory
+
+
+                                    alter pluggable database "PODEV01_DPX_ORDER_AUTOMATION_1" open read write
+                                    *
+                                    ERROR at line 1:
+                                    ORA-01157: cannot identify/lock data file 66 - see DBWR trace file
+                                    ORA-01110: data file 66:
+                                    '/mnt/provision/PODEV01_DPX_ORDER_AUTOMATION_1-ODEV1_lhr25x/datafile/+DATA/OPRD1
+                                    _LHR1P6/E8CD7B53C68E75DFE05305058E0A4D1E/DATAFILE/data.276.1118421837'
+                                    ORA-02097: parameter cannot be modified because specified value is invalid
+                                    ORA-01261: Parameter db_create_file_dest destination string cannot be
+                                    translated
+                                    ORA-01262: Stat failed on a file destination directory
+                                    Linux-x86_64 Error: 2: No such file or directory
+
+----------------------------------------------------------------------------------
+
+
+[2022-12-16T12:12:20,109][INFO][oracle.util.OracleUtil#getDirectNfsVersion:893][Worker-488|JOB-323|SOURCE_STOP(ORACLE_VIRTUAL_PDB_SOURCE-58)][ACTION-696] dNFS enabled (Optional[NFSv4]) at 10.141.5.80:/u01/app/oracle/product/19.0.0.0/dbhome_1
+
+
+
+###########AUTO VDB RESTART NOT SUPPORTED FOR RAC##########################
+
+docs: https://docs.delphix.com/docs6017/datasets/oracle-environments-and-data-sources/provisioning-and-managing-virtual-databases-with-oracle/configuration-settings-for-oracle-virtual-databases/automatic-vdb-restart-on-target-server-after-reboot
+
+0. provisioned vPDB into vCDB per above docs: 
+Automatic VDB Restart is supported for following Oracle data sources types:
+
+Non-Multi-Tenant (non-MT) VDBs
+
+Oracle 12c and later vPDBs that are provisioned into a virtual CDB. Users can choose to enable or disable automatic restart at the virtual CDB level. There is no individual vPDB automatic restart setting.
+
+Oracle 12.2 and later vPDBs that are provisioned into a non-virtual CDB. Users can choose to enable or disable individual vPDB’s automatic restart.
+
+1. The above means my initial vPDB should have been restarted, it was plugged into a non-virtual CDB.
+
+2. reboot test
+
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20            19G     0   19G   0% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20/datafile   20G  965M   19G   5% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH/datafile
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20/archive    19G     0   19G   0% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH/archive
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20/temp       19G  1.0M   19G   1% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH/temp
+10.43.48.133:/domain0/group-3/oracle_db_container-19/oracle_timeflow-21            19G     0   19G   0% /mnt/provision/VCDO_YMV-VCCDOMLOSR8C22PDB1_CHH
+10.43.48.133:/domain0/group-3/oracle_db_container-19/oracle_timeflow-21/datafile   19G  191M   19G   1% /mnt/provision/VCDO_YMV-VCCDOMLOSR8C22PDB1_CHH/datafile
+10.43.48.133:/domain0/group-3/oracle_db_container-19/oracle_timeflow-21/temp       19G  1.0M   19G   1% /mnt/provision/VCDO_YMV-VCCDOMLOSR8C22PDB1_CHH/temp
+[oracle@mkrhora213tgt install]$ su - root
+Password:
+[root@mkrhora213tgt ~]# date; shutdown -r now
+Mon Dec 19 15:08:18 EST 2022
+Connection to mkrhora213tgt.dcol2.delphix.com closed by remote host.
+Connection to mkrhora213tgt.dcol2.delphix.com closed.
+
+ 3.  SUCCESS
+
+ Last login: Mon Dec 19 15:08:41 2022
+[oracle@mkrhora213tgt ~]$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        3.8G     0  3.8G   0% /dev
+tmpfs           6.9G  1.7G  5.3G  24% /dev/shm
+tmpfs           3.8G  8.7M  3.8G   1% /run
+tmpfs           3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/sda4        61G   24G   38G  39% /
+/dev/sda2      1014M  186M  829M  19% /boot
+/dev/sda1       599M  6.9M  592M   2% /boot/efi
+tmpfs           777M     0  777M   0% /run/user/1000
+[oracle@mkrhora213tgt ~]$ uptime
+ 15:11:27 up 2 min,  1 user,  load average: 0.55, 0.53, 0.23
+[oracle@mkrhora213tgt ~]$ while :
+> do
+> df -h
+> sleep 300
+> done
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        3.8G     0  3.8G   0% /dev
+tmpfs           6.9G  1.7G  5.3G  24% /dev/shm
+tmpfs           3.8G  8.7M  3.8G   1% /run
+tmpfs           3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/sda4        61G   24G   38G  39% /
+/dev/sda2      1014M  186M  829M  19% /boot
+/dev/sda1       599M  6.9M  592M   2% /boot/efi
+tmpfs           777M     0  777M   0% /run/user/1000
+Filesystem                                                                        Size  Used Avail Use% Mounted on
+devtmpfs                                                                          3.8G     0  3.8G   0% /dev
+tmpfs                                                                             6.9G  2.4G  4.5G  35% /dev/shm
+tmpfs                                                                             3.8G  8.8M  3.8G   1% /run
+tmpfs                                                                             3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/sda4                                                                          61G   24G   38G  39% /
+/dev/sda2                                                                        1014M  186M  829M  19% /boot
+/dev/sda1                                                                         599M  6.9M  592M   2% /boot/efi
+tmpfs                                                                             777M     0  777M   0% /run/user/1000
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20            19G     0   19G   0% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH
+10.43.48.133:/domain0/group-3/oracle_db_container-19/oracle_timeflow-21            19G     0   19G   0% /mnt/provision/VCDO_YMV-VCCDOMLOSR8C22PDB1_CHH
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20/datafile   20G  965M   19G   5% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH/datafile
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20/archive    19G     0   19G   0% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH/archive
+10.43.48.133:/domain0/group-3/oracle_db_container-19/oracle_timeflow-21/datafile   19G  191M   19G   1% /mnt/provision/VCDO_YMV-VCCDOMLOSR8C22PDB1_CHH/datafile
+10.43.48.133:/domain0/group-3/oracle_db_container-19/oracle_timeflow-21/temp       19G  1.0M   19G   1% /mnt/provision/VCDO_YMV-VCCDOMLOSR8C22PDB1_CHH/temp
+10.43.48.133:/domain0/group-3/oracle_db_container-18/oracle_timeflow-20/temp       19G  1.0M   19G   1% /mnt/provision/VCCDOMLOSR8C22PDB1_CHH/temp

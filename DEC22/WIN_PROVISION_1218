@@ -71,5 +71,7 @@ SELECT * from INFORMATION_SCHEMA.TABLES
 SELECT * FROM longships
 
 :)
-
-_--------------------------------------------
+-------------------------------------------
+Transaction log backup:
+BACKUP LOG [Ferrari] TO  DISK = N'\\10-43-32-31\knockknockjokes\ferrari.log' WITH NOFORMAT, NOINIT,  NAME = N'Ferrari-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
+GO
